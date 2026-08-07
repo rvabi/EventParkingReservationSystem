@@ -16,15 +16,18 @@ public class AuthService : IAuthService
     private readonly ICustomerRepository _customerRepository;
     private readonly IPasswordService _passwordService;
     private readonly ISecurityTokenService _securityTokenService;
+    private readonly IJwtTokenService _jwtTokenService;
 
     public AuthService(
-        ICustomerRepository customerRepository,
-        IPasswordService passwordService,
-        ISecurityTokenService securityTokenService)
+    ICustomerRepository customerRepository,
+    IPasswordService passwordService,
+    ISecurityTokenService securityTokenService,
+    IJwtTokenService jwtTokenService)
     {
         _customerRepository = customerRepository;
         _passwordService = passwordService;
         _securityTokenService = securityTokenService;
+        _jwtTokenService = jwtTokenService;
     }
 
     public async Task<AuthResult> RegisterAsync(
@@ -355,6 +358,92 @@ public class AuthService : IAuthService
             Success = true,
             Message =
                 "Password has been reset successfully."
+        };
+    }
+
+    public async Task<LoginResult> LoginAsync(
+    LoginRequest request)
+    {
+        string normalizedEmail =
+            request.Email.Trim().ToLowerInvariant();
+
+        var customer =
+            await _customerRepository.GetByEmailAsync(
+                normalizedEmail);
+
+        /*
+         * Do not reveal whether the email or password
+         * was incorrect.
+         */
+        if (customer is null)
+        {
+            return new LoginResult
+            {
+                Success = false,
+                Message = "Invalid email or password."
+            };
+        }
+
+        bool passwordIsValid =
+            _passwordService.VerifyPassword(
+                request.Password,
+                customer.PasswordHash);
+
+        if (!passwordIsValid)
+        {
+            return new LoginResult
+            {
+                Success = false,
+                Message = "Invalid email or password."
+            };
+        }
+
+        /*
+         * A registered customer cannot login until
+         * email verification is completed.
+         */
+        if (!customer.EmailVerified)
+        {
+            return new LoginResult
+            {
+                Success = false,
+                Message =
+                    "Please verify your email before logging in."
+            };
+        }
+
+        /*
+         * Deactivated accounts must not receive
+         * a valid JWT.
+         */
+        if (customer.Status != CustomerStatus.Active)
+        {
+            return new LoginResult
+            {
+                Success = false,
+                Message =
+                    "This account is currently deactivated."
+            };
+        }
+
+        JwtTokenResult tokenResult =
+            _jwtTokenService.GenerateToken(customer);
+
+        return new LoginResult
+        {
+            Success = true,
+            Message = "Login successful.",
+
+            Data = new LoginResponse
+            {
+                Token = tokenResult.Token,
+                ExpiresAt = tokenResult.ExpiresAt,
+
+                CustomerId = customer.Id,
+                FullName = customer.FullName,
+                Email = customer.Email,
+                Role = customer.Role.ToString()
+            }
         };
     }
 }

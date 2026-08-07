@@ -10,9 +10,11 @@ namespace EventParking.Business.Interfaces;
 
 public interface IAuthService
 {
-    Task<AuthResult> RegisterAsync(RegisterRequest request);
+    Task<AuthResult> RegisterAsync(
+        RegisterRequest request);
 
-    Task<AuthResult> VerifyEmailAsync(string token);
+    Task<AuthResult> VerifyEmailAsync(
+        string token);
 
     Task<AuthResult> ResendVerificationAsync(
         ResendVerificationRequest request);
@@ -22,4 +24,7 @@ public interface IAuthService
 
     Task<AuthResult> ResetPasswordAsync(
         ResetPasswordRequest request);
+
+    Task<LoginResult> LoginAsync(
+        LoginRequest request);
 }
