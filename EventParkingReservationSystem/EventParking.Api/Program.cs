@@ -1,6 +1,10 @@
+using EventParking.Business.Interfaces;
+using EventParking.Business.Services;
 using EventParking.DataAccess.Context;
-using Microsoft.EntityFrameworkCore;
+using EventParking.DataAccess.Interfaces;
+using EventParking.DataAccess.Repositories;
 using EventParking.DataAccess.Seed;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +22,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(connectionString);
 });
+
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 var app = builder.Build();
 
