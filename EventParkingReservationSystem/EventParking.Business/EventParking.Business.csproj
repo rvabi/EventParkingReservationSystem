@@ -15,7 +15,6 @@
     <Folder Include="DTOs\" />
     <Folder Include="Common\" />
     <Folder Include="Validators\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

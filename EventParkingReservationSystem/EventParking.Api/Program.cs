@@ -1,3 +1,5 @@
+using EventParking.Business.Interfaces;
+using EventParking.Business.Services;
 using EventParking.DataAccess.Context;
 using EventParking.DataAccess.Interfaces;
 using EventParking.DataAccess.Repositories;
@@ -21,7 +23,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-//builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 var app = builder.Build();
 
