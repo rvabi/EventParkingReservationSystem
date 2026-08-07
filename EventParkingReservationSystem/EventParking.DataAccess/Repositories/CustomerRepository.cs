@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using EventParking.DataAccess.Context;
+﻿using EventParking.DataAccess.Context;
 using EventParking.DataAccess.Interfaces;
 using EventParking.Models.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -23,16 +17,14 @@ public class CustomerRepository : ICustomerRepository
     public async Task<Customer?> GetByIdAsync(int customerId)
     {
         return await _context.Customers
-            .FirstOrDefaultAsync(
-                customer => customer.Id == customerId);
+            .FirstOrDefaultAsync(customer => customer.Id == customerId);
     }
 
     public async Task<Customer?> GetByEmailAsync(string email)
     {
         return await _context.Customers
             .AsNoTracking()
-            .FirstOrDefaultAsync(
-                customer => customer.Email == email);
+            .FirstOrDefaultAsync(customer => customer.Email == email);
     }
 
     public async Task<IReadOnlyList<Customer>> GetAllAsync()
@@ -46,8 +38,7 @@ public class CustomerRepository : ICustomerRepository
     public async Task<bool> EmailExistsAsync(string email)
     {
         return await _context.Customers
-            .AnyAsync(
-                customer => customer.Email == email);
+            .AnyAsync(customer => customer.Email == email);
     }
 
     public async Task AddAsync(Customer customer)
