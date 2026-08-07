@@ -1,3 +1,4 @@
+using EventParking.Api.Middleware;
 using EventParking.Api.Extensions;
 using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
@@ -29,6 +30,8 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
