@@ -1,5 +1,6 @@
 using EventParking.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
+using EventParking.DataAccess.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+
+    var dbContext =
+        scope.ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
+
+    await DatabaseSeeder.SeedAsync(dbContext);
+}
 
 if (app.Environment.IsDevelopment())
 {
