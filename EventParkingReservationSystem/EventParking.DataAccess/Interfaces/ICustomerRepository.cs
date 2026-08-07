@@ -4,9 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventParking.DataAccess.Interfaces
+using EventParking.Models.Entities;
+
+namespace EventParking.DataAccess.Interfaces;
+
+public interface ICustomerRepository
 {
-    internal interface ICustomerRepository
-    {
-    }
+    Task<Customer?> GetByIdAsync(int customerId);
+
+    Task<Customer?> GetByEmailAsync(string email);
+
+    Task<IReadOnlyList<Customer>> GetAllAsync();
+
+    Task<bool> EmailExistsAsync(string email);
+
+    Task AddAsync(Customer customer);
+
+    void Update(Customer customer);
+
+    Task<int> SaveChangesAsync();
 }
