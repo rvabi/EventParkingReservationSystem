@@ -1,3 +1,4 @@
+using EventParking.Api.Extensions;
 using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
 using EventParking.DataAccess.Context;
@@ -15,6 +16,7 @@ var connectionString =
 
 builder.Services.AddControllers();
 
+builder.Services.AddSharedApiFoundation();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -46,6 +48,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(
+    SharedApiServiceExtensions.FrontendCorsPolicy);
 
 app.UseAuthorization();
 
