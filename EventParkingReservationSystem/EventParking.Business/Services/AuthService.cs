@@ -229,4 +229,132 @@ public class AuthService : IAuthService
             Token = rawVerificationToken
         };
     }
+
+    public async Task<AuthResult> ForgotPasswordAsync(
+    ForgotPasswordRequest request)
+    {
+        string normalizedEmail =
+            request.Email.Trim().ToLowerInvariant();
+
+        var customer =
+            await _customerRepository.GetByEmailAsync(
+                normalizedEmail);
+
+        const string genericMessage =
+            "If an account exists for this email, password reset instructions have been generated.";
+
+        /*
+         * Always return the same public message.
+         * This prevents account enumeration.
+         */
+        if (customer is null)
+        {
+            return new AuthResult
+            {
+                Success = true,
+                Message = genericMessage
+            };
+        }
+
+        string rawResetToken =
+            _securityTokenService.GenerateToken();
+
+        string resetTokenHash =
+            _securityTokenService.HashToken(
+                rawResetToken);
+
+        /*
+         * Replacing any existing token hash invalidates
+         * the previous reset link.
+         */
+        customer.PasswordResetTokenHash =
+            resetTokenHash;
+
+        customer.PasswordResetTokenExpiresAt =
+            DateTime.UtcNow.AddHours(1);
+
+        customer.UpdatedAt =
+            DateTime.UtcNow;
+
+        _customerRepository.Update(customer);
+        await _customerRepository.SaveChangesAsync();
+
+        return new AuthResult
+        {
+            Success = true,
+            Message = genericMessage,
+
+            // Temporary development token for Swagger testing.
+            // We will ensure this is not exposed in production.
+            Token = rawResetToken
+        };
+    }
+
+    public async Task<AuthResult> ResetPasswordAsync(
+    ResetPasswordRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Token))
+        {
+            return new AuthResult
+            {
+                Success = false,
+                Message = "Password reset token is required."
+            };
+        }
+
+        string tokenHash =
+            _securityTokenService.HashToken(
+                request.Token);
+
+        var customer =
+            await _customerRepository
+                .GetByPasswordResetTokenHashAsync(
+                    tokenHash);
+
+        if (customer is null)
+        {
+            return new AuthResult
+            {
+                Success = false,
+                Message =
+                    "Invalid or already used password reset token."
+            };
+        }
+
+        if (!customer.PasswordResetTokenExpiresAt.HasValue ||
+            customer.PasswordResetTokenExpiresAt.Value
+                < DateTime.UtcNow)
+        {
+            return new AuthResult
+            {
+                Success = false,
+                Message =
+                    "Password reset token has expired."
+            };
+        }
+
+        customer.PasswordHash =
+            _passwordService.HashPassword(
+                request.NewPassword);
+
+        /*
+         * Clearing these fields makes the reset token
+         * single-use.
+         */
+        customer.PasswordResetTokenHash = null;
+        customer.PasswordResetTokenExpiresAt = null;
+
+        customer.UpdatedAt =
+            DateTime.UtcNow;
+
+        _customerRepository.Update(customer);
+        await _customerRepository.SaveChangesAsync();
+
+        return new AuthResult
+        {
+            Success = true,
+            Message =
+                "Password has been reset successfully."
+        };
+    }
 }
