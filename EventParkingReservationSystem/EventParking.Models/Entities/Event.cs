@@ -31,4 +31,12 @@ public class Event : BaseEntity
     public decimal ParkingFee { get; set; }
 
     public int Capacity { get; set; }
+    public ICollection<Seat> Seats { get; set; }
+    = new List<Seat>();
+
+    public ICollection<ParkingSlot> ParkingSlots { get; set; }
+        = new List<ParkingSlot>();
+
+    public ICollection<Booking> Bookings { get; set; }
+        = new List<Booking>();
 }

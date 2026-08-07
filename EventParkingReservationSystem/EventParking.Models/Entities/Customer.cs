@@ -32,4 +32,6 @@ public class Customer : BaseEntity
     public string? PasswordResetTokenHash { get; set; }
 
     public DateTime? PasswordResetTokenExpiresAt { get; set; }
+    public ICollection<Booking> Bookings { get; set; }
+    = new List<Booking>();
 }
