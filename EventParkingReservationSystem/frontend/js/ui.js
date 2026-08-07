@@ -25,15 +25,21 @@ export function renderNavbar() {
                 SmartEvent
             </a>
 
-            <nav class="nav-links">
+            <nav
+                class="nav-links"
+                aria-label="Main navigation">
 
                 <a href="./index.html">
                     Home
                 </a>
 
-                <span class="nav-placeholder">
-                    Events
-                </span>
+                <a href="#services">
+                    Services
+                </a>
+
+                <a href="#experience">
+                    Experience
+                </a>
 
                 ${
                     isAuthenticated()
@@ -46,7 +52,9 @@ export function renderNavbar() {
                             </button>
                           `
                         : `
-                            <span class="nav-placeholder">
+                            <span
+                                class="btn btn-secondary"
+                                title="Login will be connected after authentication module integration">
                                 Login
                             </span>
                           `
@@ -75,6 +83,7 @@ export function renderNavbar() {
     }
 }
 
+
 /*
     Shared Feedback Message
 */
@@ -99,6 +108,7 @@ export function showFeedback(
     feedback.hidden = false;
 }
 
+
 /*
     Hide Feedback Message
 */
@@ -115,6 +125,7 @@ export function hideFeedback() {
     feedback.hidden = true;
     feedback.textContent = "";
 }
+
 
 /*
     Shared Button Loading State
