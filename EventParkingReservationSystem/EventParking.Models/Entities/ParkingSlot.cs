@@ -21,4 +21,6 @@ public class ParkingSlot : BaseEntity
 
     public ParkingSlotStatus Status { get; set; }
         = ParkingSlotStatus.Available;
+    public ICollection<ParkingReservation> ParkingReservations { get; set; }
+    = new List<ParkingReservation>();
 }

@@ -34,4 +34,9 @@ public class Customer : BaseEntity
     public DateTime? PasswordResetTokenExpiresAt { get; set; }
     public ICollection<Booking> Bookings { get; set; }
     = new List<Booking>();
+    public ICollection<Payment> Payments { get; set; }
+    = new List<Payment>();
+
+    public ICollection<Notification> Notifications { get; set; }
+        = new List<Notification>();
 }

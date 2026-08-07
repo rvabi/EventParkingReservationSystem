@@ -32,4 +32,7 @@ public class Booking : BaseEntity
 
     public ICollection<BookingSeat> BookingSeats { get; set; }
         = new List<BookingSeat>();
+    public ParkingReservation? ParkingReservation { get; set; }
+
+    public Payment? Payment { get; set; }
 }
