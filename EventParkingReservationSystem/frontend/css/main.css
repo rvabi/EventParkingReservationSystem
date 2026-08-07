@@ -1,0 +1,338 @@
+/* =========================================
+   Smart Event Experience & Reservation System
+   Shared UI Theme
+   ========================================= */
+
+:root {
+    --primary-dark: #0A1931;
+    --light-blue: #B3CFE5;
+    --accent-blue: #4A7FA7;
+    --secondary-dark: #1A3D63;
+    --background: #F6FAFD;
+
+    --text-primary: #0A1931;
+    --text-secondary: #1A3D63;
+    --surface: #F6FAFD;
+    --border-color: #B3CFE5;
+
+    --border-radius-sm: 8px;
+    --border-radius-md: 14px;
+    --border-radius-lg: 20px;
+
+    --transition: 0.2s ease;
+}
+
+/* =========================================
+   Reset
+   ========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* =========================================
+   Common Layout
+   ========================================= */
+
+.container {
+    width: min(1180px, 92%);
+    margin: 0 auto;
+}
+
+.page-container {
+    width: min(1180px, 92%);
+    margin: 0 auto;
+    padding: 40px 0;
+}
+
+/* =========================================
+   Navigation
+   ========================================= */
+
+.navbar {
+    width: 100%;
+    background-color: var(--primary-dark);
+}
+
+.nav-container {
+    width: min(1180px, 92%);
+    margin: 0 auto;
+    min-height: 72px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.brand {
+    color: var(--background);
+    text-decoration: none;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: var(--light-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.nav-links a:hover {
+    color: var(--background);
+}
+
+/* =========================================
+   Typography
+   ========================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--primary-dark);
+    line-height: 1.25;
+}
+
+p {
+    color: var(--secondary-dark);
+}
+
+/* =========================================
+   Buttons
+   ========================================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 11px 20px;
+
+    border: none;
+    border-radius: var(--border-radius-sm);
+
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    cursor: pointer;
+    text-decoration: none;
+
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background-color: var(--accent-blue);
+    color: var(--background);
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.btn-secondary:hover {
+    background-color: var(--accent-blue);
+    color: var(--background);
+}
+
+.btn-dark {
+    background-color: var(--primary-dark);
+    color: var(--background);
+}
+
+.btn-dark:hover {
+    background-color: var(--secondary-dark);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   Cards
+   ========================================= */
+
+.card {
+    background-color: var(--surface);
+
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+
+    padding: 24px;
+
+    transition: var(--transition);
+}
+
+.card:hover {
+    border-color: var(--accent-blue);
+}
+
+/* =========================================
+   Forms
+   ========================================= */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 7px;
+
+    color: var(--secondary-dark);
+    font-weight: 600;
+}
+
+.form-control {
+    width: 100%;
+
+    padding: 11px 13px;
+
+    border: 1px solid var(--light-blue);
+    border-radius: var(--border-radius-sm);
+
+    background-color: var(--background);
+    color: var(--primary-dark);
+
+    font-size: 1rem;
+
+    outline: none;
+
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    border-color: var(--accent-blue);
+}
+
+/* =========================================
+   Feedback Messages
+   ========================================= */
+
+.feedback {
+    padding: 14px 18px;
+    margin: 16px 0;
+
+    border-radius: var(--border-radius-sm);
+
+    font-weight: 600;
+}
+
+.feedback-success {
+    background-color: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.feedback-error {
+    background-color: var(--primary-dark);
+    color: var(--background);
+}
+
+.feedback-info {
+    background-color: var(--accent-blue);
+    color: var(--background);
+}
+
+/* =========================================
+   Status Badges
+   ========================================= */
+
+.status-badge {
+    display: inline-block;
+
+    padding: 5px 11px;
+
+    border-radius: 999px;
+
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.status-available,
+.status-active,
+.status-confirmed {
+    background-color: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.status-pending,
+.status-held {
+    background-color: var(--accent-blue);
+    color: var(--background);
+}
+
+.status-unavailable,
+.status-cancelled,
+.status-deactivated {
+    background-color: var(--primary-dark);
+    color: var(--background);
+}
+
+/* =========================================
+   Footer
+   ========================================= */
+
+.footer {
+    margin-top: 50px;
+    padding: 25px;
+
+    background-color: var(--primary-dark);
+    color: var(--light-blue);
+
+    text-align: center;
+}
+
+.footer p {
+    color: var(--light-blue);
+}
+
+/* =========================================
+   Responsive
+   ========================================= */
+
+@media (max-width: 768px) {
+
+    .nav-container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px 0;
+    }
+
+    .nav-links {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .page-container {
+        padding: 25px 0;
+    }
+}
