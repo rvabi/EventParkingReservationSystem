@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using EventParking.Api.Middleware;
 using EventParking.Api.Extensions;
 using EventParking.Business.Interfaces;
@@ -18,8 +19,42 @@ var connectionString =
 builder.Services.AddControllers();
 
 builder.Services.AddSharedApiFoundation();
+builder.Services.AddSharedJwtAuthentication(
+    builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description =
+                "Enter the JWT token received from the login endpoint."
+        });
+
+    options.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference =
+                        new OpenApiReference
+                        {
+                            Type =
+                                ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                },
+                Array.Empty<string>()
+            }
+        });
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -54,6 +89,8 @@ app.UseHttpsRedirection();
 
 app.UseCors(
     SharedApiServiceExtensions.FrontendCorsPolicy);
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
