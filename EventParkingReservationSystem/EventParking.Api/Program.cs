@@ -43,6 +43,9 @@ builder.Services.AddScoped<IFoodItemService, FoodItemService>();
 builder.Services.AddScoped<IFoodOrderRepository, FoodOrderRepository>();
 builder.Services.AddScoped<IFoodOrderService, FoodOrderService>();
 
+builder.Services.AddScoped<IParkingReservationRepository,ParkingReservationRepository>();
+builder.Services.AddScoped< IParkingReservationService, ParkingReservationService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
