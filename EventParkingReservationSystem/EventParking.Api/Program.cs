@@ -1,3 +1,4 @@
+
 using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
 using EventParking.DataAccess.Context;
@@ -15,8 +16,12 @@ var connectionString =
 
 builder.Services.AddControllers();
 
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -34,6 +39,9 @@ builder.Services.AddScoped<IFoodItemRepository, FoodItemRepository>();
 
 builder.Services.AddScoped<IFoodStallService, FoodStallService>();
 builder.Services.AddScoped<IFoodItemService, FoodItemService>();
+
+builder.Services.AddScoped<IFoodOrderRepository, FoodOrderRepository>();
+builder.Services.AddScoped<IFoodOrderService, FoodOrderService>();
 
 var app = builder.Build();
 
@@ -56,7 +64,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthentication();
+//app.UseAuthorization();
 
 app.MapControllers();
 
