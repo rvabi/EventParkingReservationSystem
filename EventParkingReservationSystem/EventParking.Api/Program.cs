@@ -90,8 +90,7 @@ string jwtAudience =
         "JWT audience is not configured.");
 
 builder.Services
-    .AddAuthentication(
-        JwtBearerDefaults.AuthenticationScheme)
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters =
@@ -107,8 +106,7 @@ builder.Services
 
                 IssuerSigningKey =
                     new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(
-                            jwtKey)),
+                        Encoding.UTF8.GetBytes(jwtKey)),
 
                 ClockSkew = TimeSpan.Zero
             };
