@@ -14,9 +14,19 @@ public interface ICustomerRepository
 
     Task<Customer?> GetByEmailAsync(string email);
 
+    Task<Customer?> GetByEmailVerificationTokenHashAsync(string tokenHash);
+
+    Task<Customer?> GetByPasswordResetTokenHashAsync(string tokenHash);
+
     Task<IReadOnlyList<Customer>> GetAllAsync();
 
+    Task<IReadOnlyList<Customer>> SearchAsync(string searchTerm);
+
     Task<bool> EmailExistsAsync(string email);
+
+    Task<bool> HasActiveFutureBookingAsync(
+        int customerId,
+        DateTime currentDateTime);
 
     Task AddAsync(Customer customer);
 

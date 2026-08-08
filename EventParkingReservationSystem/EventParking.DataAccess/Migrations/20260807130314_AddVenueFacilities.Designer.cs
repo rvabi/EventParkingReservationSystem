@@ -4,6 +4,7 @@ using EventParking.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventParking.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260807130314_AddVenueFacilities")]
+    partial class AddVenueFacilities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,196 +278,6 @@ namespace EventParking.DataAccess.Migrations
                     b.ToTable("EventCategories", (string)null);
                 });
 
-            modelBuilder.Entity("EventParking.Models.Entities.FoodItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("FoodStallId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FoodStallId", "IsAvailable")
-                        .HasDatabaseName("IX_FoodItems_FoodStallId_IsAvailable");
-
-                    b.ToTable("FoodItems", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_FoodItems_Price_NonNegative", "[Price] >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.FoodOrder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BookingId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FoodStallId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("OrderNumber")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTime>("PickupTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId")
-                        .HasDatabaseName("IX_FoodOrders_BookingId");
-
-                    b.HasIndex("OrderNumber")
-                        .IsUnique()
-                        .HasDatabaseName("UX_FoodOrders_OrderNumber");
-
-                    b.HasIndex("CustomerId", "CreatedAt")
-                        .HasDatabaseName("IX_FoodOrders_CustomerId_CreatedAt");
-
-                    b.HasIndex("FoodStallId", "Status")
-                        .HasDatabaseName("IX_FoodOrders_FoodStallId_Status");
-
-                    b.ToTable("FoodOrders", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_FoodOrders_TotalAmount_NonNegative", "[TotalAmount] >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.FoodOrderItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("FoodItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FoodOrderId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("LineTotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FoodItemId")
-                        .HasDatabaseName("IX_FoodOrderItems_FoodItemId");
-
-                    b.HasIndex("FoodOrderId")
-                        .HasDatabaseName("IX_FoodOrderItems_FoodOrderId");
-
-                    b.ToTable("FoodOrderItems", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_FoodOrderItems_LineTotal_NonNegative", "[LineTotal] >= 0");
-
-                            t.HasCheckConstraint("CK_FoodOrderItems_Quantity_Positive", "[Quantity] > 0");
-
-                            t.HasCheckConstraint("CK_FoodOrderItems_UnitPrice_NonNegative", "[UnitPrice] >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.FoodStall", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("EventId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId")
-                        .HasDatabaseName("IX_FoodStalls_EventId");
-
-                    b.HasIndex("EventId", "Status")
-                        .HasDatabaseName("IX_FoodStalls_EventId_Status");
-
-                    b.ToTable("FoodStalls", (string)null);
-                });
-
             modelBuilder.Entity("EventParking.Models.Entities.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -526,11 +339,6 @@ namespace EventParking.DataAccess.Migrations
                     b.Property<decimal>("FeeAtReservation")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
                     b.Property<int>("ParkingSlotId")
                         .HasColumnType("int");
 
@@ -544,9 +352,7 @@ namespace EventParking.DataAccess.Migrations
                         .HasDatabaseName("UX_ParkingReservations_BookingId");
 
                     b.HasIndex("ParkingSlotId")
-                        .IsUnique()
-                        .HasDatabaseName("UX_ParkingReservations_ParkingSlotId_Active")
-                        .HasFilter("[IsActive] = 1");
+                        .HasDatabaseName("IX_ParkingReservations_ParkingSlotId");
 
                     b.ToTable("ParkingReservations", null, t =>
                         {
@@ -567,9 +373,6 @@ namespace EventParking.DataAccess.Migrations
 
                     b.Property<int>("EventId")
                         .HasColumnType("int");
-
-                    b.Property<decimal?>("FeeOverride")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("SlotNumber")
                         .IsRequired()
@@ -595,10 +398,7 @@ namespace EventParking.DataAccess.Migrations
                     b.HasIndex("EventId", "Status")
                         .HasDatabaseName("IX_ParkingSlots_EventId_Status");
 
-                    b.ToTable("ParkingSlots", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_ParkingSlots_FeeOverride_NonNegative", "[FeeOverride] IS NULL OR [FeeOverride] >= 0");
-                        });
+                    b.ToTable("ParkingSlots", (string)null);
                 });
 
             modelBuilder.Entity("EventParking.Models.Entities.Payment", b =>
@@ -859,74 +659,6 @@ namespace EventParking.DataAccess.Migrations
                     b.Navigation("Venue");
                 });
 
-            modelBuilder.Entity("EventParking.Models.Entities.FoodItem", b =>
-                {
-                    b.HasOne("EventParking.Models.Entities.FoodStall", "FoodStall")
-                        .WithMany("FoodItems")
-                        .HasForeignKey("FoodStallId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FoodStall");
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.FoodOrder", b =>
-                {
-                    b.HasOne("EventParking.Models.Entities.Booking", "Booking")
-                        .WithMany()
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EventParking.Models.Entities.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EventParking.Models.Entities.FoodStall", "FoodStall")
-                        .WithMany("FoodOrders")
-                        .HasForeignKey("FoodStallId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Booking");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("FoodStall");
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.FoodOrderItem", b =>
-                {
-                    b.HasOne("EventParking.Models.Entities.FoodItem", "FoodItem")
-                        .WithMany("FoodOrderItems")
-                        .HasForeignKey("FoodItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EventParking.Models.Entities.FoodOrder", "FoodOrder")
-                        .WithMany("Items")
-                        .HasForeignKey("FoodOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FoodItem");
-
-                    b.Navigation("FoodOrder");
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.FoodStall", b =>
-                {
-                    b.HasOne("EventParking.Models.Entities.Event", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-                });
-
             modelBuilder.Entity("EventParking.Models.Entities.Notification", b =>
                 {
                     b.HasOne("EventParking.Models.Entities.Customer", "Customer")
@@ -1039,23 +771,6 @@ namespace EventParking.DataAccess.Migrations
             modelBuilder.Entity("EventParking.Models.Entities.EventCategory", b =>
                 {
                     b.Navigation("Events");
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.FoodItem", b =>
-                {
-                    b.Navigation("FoodOrderItems");
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.FoodOrder", b =>
-                {
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.FoodStall", b =>
-                {
-                    b.Navigation("FoodItems");
-
-                    b.Navigation("FoodOrders");
                 });
 
             modelBuilder.Entity("EventParking.Models.Entities.ParkingSlot", b =>
