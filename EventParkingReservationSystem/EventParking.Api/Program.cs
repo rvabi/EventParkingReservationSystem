@@ -73,6 +73,16 @@ builder.Services.AddScoped<ISecurityTokenService, SecurityTokenService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddScoped<IVenueRepository, VenueRepository>();
+builder.Services.AddScoped<IEventCategoryRepository, EventCategoryRepository>();
+builder.Services.AddScoped<IVenueFacilityRepository, VenueFacilityRepository>();
+
+builder.Services.AddScoped<IVenueService, VenueService>();
+builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IVenueFacilityService, VenueFacilityService>();
+
+builder.Services.AddAuthorization();
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();

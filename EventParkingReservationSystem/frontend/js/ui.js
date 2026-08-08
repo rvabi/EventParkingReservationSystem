@@ -14,13 +14,21 @@ export function renderNavbar() {
         return;
     }
 
+    const isInsidePages =
+    window.location.pathname.includes("/pages/");
+
+const homePath =
+    isInsidePages
+        ? "../index.html"
+        : "./index.html";
+
     navbar.classList.add("navbar");
 
     navbar.innerHTML = `
         <div class="nav-container">
 
             <a
-                href="./index.html"
+                href="${homePath}"
                 class="brand">
                 SmartEvent
             </a>
@@ -29,15 +37,15 @@ export function renderNavbar() {
                 class="nav-links"
                 aria-label="Main navigation">
 
-                <a href="./index.html">
+                <a href="${homePath}">
                     Home
                 </a>
 
-                <a href="#services">
+                <a href="${homePath}#services">
                     Services
                 </a>
 
-                <a href="#experience">
+                <a href="${homePath}#experience">
                     Experience
                 </a>
 
@@ -77,7 +85,7 @@ export function renderNavbar() {
                 removeToken();
 
                 window.location.href =
-                    "./index.html";
+                    homePath;
             }
         );
     }

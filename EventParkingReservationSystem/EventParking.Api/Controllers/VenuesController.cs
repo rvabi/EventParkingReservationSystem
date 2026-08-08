@@ -32,7 +32,8 @@ public class VenuesController : ControllerBase
     [HttpGet("available")]
     public async Task<IActionResult> GetAvailableVenues(
     [FromQuery] DateTime startDateTime,
-    [FromQuery] DateTime endDateTime)
+    [FromQuery] DateTime endDateTime,
+    [FromQuery] int? venueId)
     {
         if (endDateTime <= startDateTime)
         {
@@ -42,9 +43,24 @@ public class VenuesController : ControllerBase
             });
         }
 
+        if (venueId.HasValue && venueId.Value <= 0)
+        {
+            return BadRequest(new
+            {
+                message = "Venue ID must be greater than zero."
+            });
+        }
+
         var venues = await _venueService.GetAvailableVenuesAsync(
             startDateTime,
             endDateTime);
+
+        if (venueId.HasValue)
+        {
+            venues = venues
+                .Where(venue => venue.Id == venueId.Value)
+                .ToList();
+        }
 
         var response = venues
             .Select(MapToDto)
