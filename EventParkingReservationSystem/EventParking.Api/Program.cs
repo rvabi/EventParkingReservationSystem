@@ -1,3 +1,6 @@
+using Microsoft.OpenApi.Models;
+using EventParking.Api.Middleware;
+using EventParking.Api.Extensions;
 using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
 using EventParking.DataAccess.Context;
@@ -15,8 +18,43 @@ var connectionString =
 
 builder.Services.AddControllers();
 
+builder.Services.AddSharedApiFoundation();
+builder.Services.AddSharedJwtAuthentication(
+    builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description =
+                "Enter the JWT token received from the login endpoint."
+        });
+
+    options.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference =
+                        new OpenApiReference
+                        {
+                            Type =
+                                ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                },
+                Array.Empty<string>()
+            }
+        });
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -27,6 +65,8 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -46,6 +86,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(
+    SharedApiServiceExtensions.FrontendCorsPolicy);
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
