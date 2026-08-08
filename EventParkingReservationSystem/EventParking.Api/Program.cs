@@ -18,8 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    //options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
 
@@ -73,7 +73,7 @@ builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ISecurityTokenService, SecurityTokenService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
+/*
 string jwtKey =
     builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException(
@@ -89,7 +89,7 @@ string jwtAudience =
     ?? throw new InvalidOperationException(
         "JWT audience is not configured.");
 
-builder.Services
+/*builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -111,7 +111,7 @@ builder.Services
                 ClockSkew = TimeSpan.Zero
             };
     });
-
+*/
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -121,7 +121,7 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
-
+    
     var dbContext =
         scope.ServiceProvider
             .GetRequiredService<ApplicationDbContext>();
@@ -135,7 +135,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseCors(
     SharedApiServiceExtensions.FrontendCorsPolicy);
