@@ -67,6 +67,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<ISeatRepository, SeatRepository>();
 builder.Services.AddScoped<ISeatService, SeatService>();
 
@@ -74,48 +75,6 @@ builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ISecurityTokenService, SecurityTokenService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
-string jwtKey =
-    builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException(
-        "JWT signing key is not configured.");
-
-string jwtIssuer =
-    builder.Configuration["Jwt:Issuer"]
-    ?? throw new InvalidOperationException(
-        "JWT issuer is not configured.");
-
-string jwtAudience =
-    builder.Configuration["Jwt:Audience"]
-    ?? throw new InvalidOperationException(
-        "JWT audience is not configured.");
-
-builder.Services
-    .AddAuthentication(
-        JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-
-                ValidIssuer = jwtIssuer,
-                ValidAudience = jwtAudience,
-
-                IssuerSigningKey =
-                    new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(
-                            jwtKey)),
-
-                ClockSkew = TimeSpan.Zero
-            };
-    });
-
-builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
