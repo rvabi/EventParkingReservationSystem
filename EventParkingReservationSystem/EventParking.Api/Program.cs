@@ -1,7 +1,4 @@
-using EventParking.Api.Security;
-using Microsoft.OpenApi.Models;
-using EventParking.Api.Middleware;
-using EventParking.Api.Extensions;
+
 using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
 using EventParking.DataAccess.Context;
@@ -22,9 +19,8 @@ var connectionString =
 
 builder.Services.AddControllers();
 
-builder.Services.AddSharedApiFoundation();
-builder.Services.AddSharedJwtAuthentication(
-    builder.Configuration);
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -59,6 +55,8 @@ builder.Services.AddSwaggerGen(options =>
             }
         });
 });
+
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -118,6 +116,21 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddScoped<IParkingSlotRepository, ParkingSlotRepository>();
+builder.Services.AddScoped<IParkingSlotService, ParkingSlotService>();
+
+builder.Services.AddScoped<IFoodStallRepository, FoodStallRepository>();
+builder.Services.AddScoped<IFoodItemRepository, FoodItemRepository>();
+
+builder.Services.AddScoped<IFoodStallService, FoodStallService>();
+builder.Services.AddScoped<IFoodItemService, FoodItemService>();
+
+builder.Services.AddScoped<IFoodOrderRepository, FoodOrderRepository>();
+builder.Services.AddScoped<IFoodOrderService, FoodOrderService>();
+
+builder.Services.AddScoped<IParkingReservationRepository,ParkingReservationRepository>();
+builder.Services.AddScoped< IParkingReservationService, ParkingReservationService>();
+
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
@@ -147,9 +160,8 @@ app.UseCors(
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-
-app.UseAuthorization();
+//app.UseAuthentication();
+//app.UseAuthorization();
 
 app.MapControllers();
 
