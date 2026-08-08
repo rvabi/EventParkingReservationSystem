@@ -29,6 +29,12 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IParkingSlotRepository, ParkingSlotRepository>();
 builder.Services.AddScoped<IParkingSlotService, ParkingSlotService>();
 
+builder.Services.AddScoped<IFoodStallRepository, FoodStallRepository>();
+builder.Services.AddScoped<IFoodItemRepository, FoodItemRepository>();
+
+builder.Services.AddScoped<IFoodStallService, FoodStallService>();
+builder.Services.AddScoped<IFoodItemService, FoodItemService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
