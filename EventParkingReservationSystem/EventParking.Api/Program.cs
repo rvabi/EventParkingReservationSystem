@@ -26,6 +26,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
+builder.Services.AddScoped<IVenueRepository, VenueRepository>();
+builder.Services.AddScoped<IEventCategoryRepository, EventCategoryRepository>();
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IVenueFacilityRepository, VenueFacilityRepository>();
+
+builder.Services.AddScoped<IVenueService, VenueService>();
+builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IVenueFacilityService, VenueFacilityService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

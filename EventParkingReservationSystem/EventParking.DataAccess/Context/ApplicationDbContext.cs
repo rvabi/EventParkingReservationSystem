@@ -25,6 +25,8 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Event> Events { get; set; } = null!;
 
+    public DbSet<VenueFacility> VenueFacilities { get; set; } = null!;
+
     public DbSet<Seat> Seats { get; set; } = null!;
 
     public DbSet<ParkingSlot> ParkingSlots { get; set; } = null!;
