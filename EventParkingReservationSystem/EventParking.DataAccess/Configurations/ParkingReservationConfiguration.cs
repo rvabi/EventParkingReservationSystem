@@ -29,10 +29,6 @@ public class ParkingReservationConfiguration
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
-        builder.Property(reservation => reservation.IsActive)
-            .IsRequired()
-            .HasDefaultValue(true);
-
         builder.Property(reservation => reservation.CreatedAt)
             .IsRequired();
 
@@ -56,9 +52,7 @@ public class ParkingReservationConfiguration
                 "UX_ParkingReservations_BookingId");
 
         builder.HasIndex(reservation => reservation.ParkingSlotId)
-            .IsUnique()
-            .HasFilter("[IsActive] = 1")
             .HasDatabaseName(
-                "UX_ParkingReservations_ParkingSlotId_Active");
+                "IX_ParkingReservations_ParkingSlotId");
     }
 }
