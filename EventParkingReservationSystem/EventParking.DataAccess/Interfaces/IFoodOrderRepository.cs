@@ -13,6 +13,9 @@ public interface IFoodOrderRepository
     Task<IReadOnlyList<FoodOrder>> GetAllAsync(
         FoodOrderStatus? status = null);
 
+    Task<Booking?> GetBookingByIdAsync(
+        int bookingId);
+
     Task<bool> OrderNumberExistsAsync(
         string orderNumber);
 

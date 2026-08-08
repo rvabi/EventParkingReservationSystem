@@ -69,6 +69,16 @@ public class FoodOrderRepository : IFoodOrderRepository
             .ToListAsync();
     }
 
+    public async Task<Booking?> GetBookingByIdAsync(
+    int bookingId)
+    {
+        return await _context.Bookings
+            .AsNoTracking()
+            .Include(booking => booking.Event)
+            .FirstOrDefaultAsync(
+                booking => booking.Id == bookingId);
+    }
+
     public async Task<bool> OrderNumberExistsAsync(
         string orderNumber)
     {
