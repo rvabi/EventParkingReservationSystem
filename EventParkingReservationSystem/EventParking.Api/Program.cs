@@ -1,3 +1,4 @@
+using EventParking.Api.Security;
 using Microsoft.OpenApi.Models;
 using EventParking.Api.Middleware;
 using EventParking.Api.Extensions;
@@ -8,7 +9,6 @@ using EventParking.DataAccess.Interfaces;
 using EventParking.DataAccess.Repositories;
 using EventParking.DataAccess.Seed;
 using Microsoft.EntityFrameworkCore;
-using EventParking.Api.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
