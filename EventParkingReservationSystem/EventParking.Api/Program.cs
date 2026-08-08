@@ -1,3 +1,4 @@
+using EventParking.Api.Security;
 using Microsoft.OpenApi.Models;
 using EventParking.Api.Middleware;
 using EventParking.Api.Extensions;
@@ -8,7 +9,6 @@ using EventParking.DataAccess.Interfaces;
 using EventParking.DataAccess.Repositories;
 using EventParking.DataAccess.Seed;
 using Microsoft.EntityFrameworkCore;
-using EventParking.Api.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -73,7 +73,7 @@ builder.Services.AddScoped<ISecurityTokenService, SecurityTokenService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-string jwtKey =
+/*string jwtKey =
     builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException(
         "JWT signing key is not configured.");
@@ -111,7 +111,7 @@ builder.Services
 
                 ClockSkew = TimeSpan.Zero
             };
-    });
+    });*/
 
 builder.Services.AddAuthorization();
 
@@ -136,7 +136,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseCors(
     SharedApiServiceExtensions.FrontendCorsPolicy);
