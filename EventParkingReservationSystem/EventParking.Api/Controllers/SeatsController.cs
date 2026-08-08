@@ -134,6 +134,15 @@ public class SeatsController : ControllerBase
             });
         }
 
+        var existingSeat = await _seatService.GetByIdAsync(seatId);
+        if (existingSeat is null)
+        {
+            return NotFound(new
+            {
+                message = "Seat not found."
+            });
+        }
+
         var updated = await _seatService.UpdateSeatAsync(eventId, seatId, seatDto);
         if (!updated)
         {
@@ -154,6 +163,15 @@ public class SeatsController : ControllerBase
         int eventId,
         int seatId)
     {
+        var existingSeat = await _seatService.GetByIdAsync(seatId);
+        if (existingSeat is null)
+        {
+            return NotFound(new
+            {
+                message = "Seat not found."
+            });
+        }
+
         var deleted = await _seatService.DeleteSeatAsync(eventId, seatId);
         if (!deleted)
         {
