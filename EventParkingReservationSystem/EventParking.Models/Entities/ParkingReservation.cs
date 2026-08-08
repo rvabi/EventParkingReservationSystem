@@ -19,6 +19,4 @@ public class ParkingReservation : BaseEntity
     public ParkingSlot ParkingSlot { get; set; } = null!;
 
     public decimal FeeAtReservation { get; set; }
-
-    public bool IsActive { get; set; } = true;
 }

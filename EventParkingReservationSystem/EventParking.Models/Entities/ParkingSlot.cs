@@ -19,11 +19,8 @@ public class ParkingSlot : BaseEntity
 
     public string? Zone { get; set; }
 
-    public decimal? FeeOverride { get; set; }
-
     public ParkingSlotStatus Status { get; set; }
         = ParkingSlotStatus.Available;
-
     public ICollection<ParkingReservation> ParkingReservations { get; set; }
-        = new List<ParkingReservation>();
+    = new List<ParkingReservation>();
 }
