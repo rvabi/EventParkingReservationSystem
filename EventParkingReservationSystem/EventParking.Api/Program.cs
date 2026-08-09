@@ -1,14 +1,22 @@
-using EventParking.Api.Security;
-using Microsoft.OpenApi.Models;
-using EventParking.Api.Middleware;
+
 using EventParking.Api.Extensions;
+using EventParking.Api.Middleware;
+using EventParking.Api.Security;
+
 using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
+
 using EventParking.DataAccess.Context;
 using EventParking.DataAccess.Interfaces;
 using EventParking.DataAccess.Repositories;
 using EventParking.DataAccess.Seed;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +27,8 @@ var connectionString =
 
 builder.Services.AddControllers();
 
-builder.Services.AddSharedApiFoundation();
-builder.Services.AddSharedJwtAuthentication(
-    builder.Configuration);
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -57,6 +64,8 @@ builder.Services.AddSwaggerGen(options =>
         });
 });
 
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(connectionString);
@@ -73,16 +82,24 @@ builder.Services.AddScoped<ISecurityTokenService, SecurityTokenService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddScoped<IVenueRepository, VenueRepository>();
-builder.Services.AddScoped<IEventCategoryRepository, EventCategoryRepository>();
-builder.Services.AddScoped<IVenueFacilityRepository, VenueFacilityRepository>();
-
-builder.Services.AddScoped<IVenueService, VenueService>();
-builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
-builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IVenueFacilityService, VenueFacilityService>();
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<IParkingSlotRepository, ParkingSlotRepository>();
+builder.Services.AddScoped<IParkingSlotService, ParkingSlotService>();
+
+builder.Services.AddScoped<IFoodStallRepository, FoodStallRepository>();
+builder.Services.AddScoped<IFoodItemRepository, FoodItemRepository>();
+
+builder.Services.AddScoped<IFoodStallService, FoodStallService>();
+builder.Services.AddScoped<IFoodItemService, FoodItemService>();
+
+builder.Services.AddScoped<IFoodOrderRepository, FoodOrderRepository>();
+builder.Services.AddScoped<IFoodOrderService, FoodOrderService>();
+
+builder.Services.AddScoped<IParkingReservationRepository,ParkingReservationRepository>();
+builder.Services.AddScoped< IParkingReservationService, ParkingReservationService>();
+
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
@@ -104,13 +121,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+
 app.UseCors(
     SharedApiServiceExtensions.FrontendCorsPolicy);
 
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();

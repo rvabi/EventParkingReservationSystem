@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace EventParking.Models.Enums;
 
-public enum ParkingSlotStatus
+public enum FoodOrderStatus
 {
-    Available = 1,
-    Held = 2,
-    Reserved = 3,
-    Unavailable = 4,
-    Occupied = 5
+    Pending = 1,
+    Confirmed = 2,
+    Preparing = 3,
+    ReadyForPickup = 4,
+    Collected = 5,
+    Cancelled = 6
 }

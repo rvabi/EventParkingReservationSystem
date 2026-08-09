@@ -4,6 +4,7 @@ using EventParking.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventParking.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260808071010_AddFoodCourtEntities")]
+    partial class AddFoodCourtEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -526,11 +529,6 @@ namespace EventParking.DataAccess.Migrations
                     b.Property<decimal>("FeeAtReservation")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
                     b.Property<int>("ParkingSlotId")
                         .HasColumnType("int");
 
@@ -544,9 +542,7 @@ namespace EventParking.DataAccess.Migrations
                         .HasDatabaseName("UX_ParkingReservations_BookingId");
 
                     b.HasIndex("ParkingSlotId")
-                        .IsUnique()
-                        .HasDatabaseName("UX_ParkingReservations_ParkingSlotId_Active")
-                        .HasFilter("[IsActive] = 1");
+                        .HasDatabaseName("IX_ParkingReservations_ParkingSlotId");
 
                     b.ToTable("ParkingReservations", null, t =>
                         {
@@ -739,67 +735,6 @@ namespace EventParking.DataAccess.Migrations
                         {
                             t.HasCheckConstraint("CK_Venues_TotalCapacity_Positive", "[TotalCapacity] > 0");
                         });
-                });
-
-            modelBuilder.Entity("EventParking.Models.Entities.VenueFacility", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Directions")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("FacilityType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Floor")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsAccessible")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("VenueId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Zone")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FacilityType")
-                        .HasDatabaseName("IX_VenueFacilities_FacilityType");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("IX_VenueFacilities_Status");
-
-                    b.HasIndex("VenueId")
-                        .HasDatabaseName("IX_VenueFacilities_VenueId");
-
-                    b.ToTable("VenueFacilities", (string)null);
                 });
 
             modelBuilder.Entity("EventParking.Models.Entities.Booking", b =>
@@ -998,17 +933,6 @@ namespace EventParking.DataAccess.Migrations
                     b.Navigation("Event");
                 });
 
-            modelBuilder.Entity("EventParking.Models.Entities.VenueFacility", b =>
-                {
-                    b.HasOne("EventParking.Models.Entities.Venue", "Venue")
-                        .WithMany("Facilities")
-                        .HasForeignKey("VenueId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Venue");
-                });
-
             modelBuilder.Entity("EventParking.Models.Entities.Booking", b =>
                 {
                     b.Navigation("BookingSeats");
@@ -1071,8 +995,6 @@ namespace EventParking.DataAccess.Migrations
             modelBuilder.Entity("EventParking.Models.Entities.Venue", b =>
                 {
                     b.Navigation("Events");
-
-                    b.Navigation("Facilities");
                 });
 #pragma warning restore 612, 618
         }
