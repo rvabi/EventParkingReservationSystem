@@ -30,32 +30,32 @@
     <main>
 
         <!-- =========================
-             Hero Section
+             Hero
              ========================= -->
-        <section class="hero-section">
+        <section class="home-hero">
 
-            <div class="hero-container">
+            <div class="home-hero-container">
 
-                <!-- Hero Left -->
-                <div class="hero-content">
+                <div class="home-hero-content">
 
-                    <span class="hero-eyebrow">
-                        SMART EVENT EXPERIENCE
+                    <span class="home-hero-eyebrow">
+                        SMART EVENTS. SEAMLESS EXPERIENCE.
                     </span>
 
-                    <h1 class="hero-title hero-title-tagline">
-                        Plan. Park. Book. Enjoy.
+                    <h1 class="home-hero-title">
+                        Plan. Park.
+                        <span>Book. Enjoy.</span>
                     </h1>
 
-                    <p class="hero-description">
-                        Discover events, reserve seats, add parking,
-                        and enjoy your event through one seamless platform.
+                    <p class="home-hero-description">
+                        Discover events, reserve the right seats,
+                        add parking and enjoy your event through
+                        one seamless platform.
                     </p>
 
                     <div class="hero-actions">
 
                         <a
-                            id="heroExploreLink"
                             data-entry="events"
                             href="./pages/login.html"
                             class="btn btn-primary btn-large">
@@ -72,96 +72,19 @@
 
                 </div>
 
+                <div class="home-hero-visual">
 
-                <!-- Hero Right -->
-                <div class="hero-visual">
-
-                    <div class="experience-card">
-
-                        <div class="experience-card-header">
-
-                            <span class="live-dot"></span>
-
-                            <span>
-                                Your Event Journey
-                            </span>
-
-                        </div>
-
-                        <div class="experience-card-body">
-
-                            <div class="journey-item">
-
-                                <div class="journey-number">
-                                    01
-                                </div>
-
-                                <div>
-                                    <h3>Choose Event</h3>
-
-                                    <p>
-                                        Find the event that
-                                        matches your interest.
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                            <div class="journey-line"></div>
-
-
-                            <div class="journey-item">
-
-                                <div class="journey-number">
-                                    02
-                                </div>
-
-                                <div>
-                                    <h3>Reserve Your Place</h3>
-
-                                    <p>
-                                        Select seats and optional
-                                        parking in one flow.
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                            <div class="journey-line"></div>
-
-
-                            <div class="journey-item">
-
-                                <div class="journey-number">
-                                    03
-                                </div>
-
-                                <div>
-                                    <h3>Enjoy The Experience</h3>
-
-                                    <p>
-                                        Access bookings, food,
-                                        and event-day updates.
-                                    </p>
-                                </div>
-
-                            </div>
-
-                        </div>
-
+                    <div class="home-hero-image-frame">
+                        <img
+                            src="./assets/images/login-hero-bg.png"
+                            alt="Event venue with seating and parking"
+                            class="home-hero-image">
                     </div>
 
-                    <div class="floating-card floating-card-top">
-                        <span>✓</span>
-                        Smart Booking
-                    </div>
-
-                    <div class="floating-card floating-card-bottom">
-                        <span>●</span>
-                        Event Ready
-                    </div>
+                    <p class="home-hero-caption">
+                        Every event. Every seat. Every parking spot -
+                        one platform.
+                    </p>
 
                 </div>
 
@@ -173,147 +96,60 @@
         <!-- =========================
              Service Shortcuts
              ========================= -->
-        <section
-            id="services"
-            class="services-section">
+        <section id="services" class="home-section">
 
             <div class="section-container">
 
                 <div class="section-heading">
-
-                    <span class="section-eyebrow">
-                        ONE PLATFORM
-                    </span>
-
-                    <h2>
-                        Everything you need for
-                        a smoother event day.
-                    </h2>
-
-                    <p>
-                        From discovering an event to managing
-                        your booking, SmartEvent brings the
-                        complete experience together.
-                    </p>
-
+                    <span class="section-eyebrow">ONE PLATFORM</span>
+                    <h2>Everything for a smoother event day.</h2>
                 </div>
 
+                <div class="home-services-row">
 
-                <div class="service-grid">
-
-                    <!-- Events -->
-                    <a
-                        class="service-card service-card-link"
-                        data-entry="events"
-                        href="./pages/login.html">
-
-                        <div class="service-number">01</div>
-
-                        <div class="service-icon">E</div>
-
-                        <h3>Events</h3>
-
-                        <p>
-                            Discover upcoming events,
-                            venues and categories.
-                        </p>
-
-                        <span class="service-link">
-                            Explore events →
+                    <a class="home-service-item" data-entry="events" href="./pages/login.html">
+                        <span class="home-service-icon">E</span>
+                        <span class="home-service-text">
+                            <strong>Events</strong>
+                            <span>Browse events by venue and category.</span>
                         </span>
-
+                        <span class="home-service-arrow" aria-hidden="true">→</span>
                     </a>
 
-                    <!-- Seat Booking -->
-                    <a
-                        class="service-card service-card-link featured-service"
-                        data-entry="events"
-                        href="./pages/login.html">
-
-                        <div class="service-number">02</div>
-
-                        <div class="service-icon">S</div>
-
-                        <h3>Seat Booking</h3>
-
-                        <p>
-                            Pick an event, then choose the
-                            right seats for your visit.
-                        </p>
-
-                        <span class="service-link">
-                            Choose your seat →
+                    <a class="home-service-item" data-entry="events" href="./pages/login.html">
+                        <span class="home-service-icon">S</span>
+                        <span class="home-service-text">
+                            <strong>Seat Booking</strong>
+                            <span>Pick your seats from a live seat map.</span>
                         </span>
-
+                        <span class="home-service-arrow" aria-hidden="true">→</span>
                     </a>
 
-                    <!-- Parking -->
-                    <a
-                        class="service-card service-card-link"
-                        data-entry="events"
-                        href="./pages/login.html">
-
-                        <div class="service-number">03</div>
-
-                        <div class="service-icon">P</div>
-
-                        <h3>Parking</h3>
-
-                        <p>
-                            Add an optional parking slot
-                            alongside your seat booking.
-                        </p>
-
-                        <span class="service-link">
-                            View parking →
+                    <a class="home-service-item" data-entry="events" href="./pages/login.html">
+                        <span class="home-service-icon">P</span>
+                        <span class="home-service-text">
+                            <strong>Parking</strong>
+                            <span>Reserve a slot alongside your seats.</span>
                         </span>
-
+                        <span class="home-service-arrow" aria-hidden="true">→</span>
                     </a>
 
-                    <!-- Food Pre-order -->
-                    <a
-                        class="service-card service-card-link"
-                        data-entry="events"
-                        href="./pages/login.html">
-
-                        <div class="service-number">04</div>
-
-                        <div class="service-icon">F</div>
-
-                        <h3>Food Pre-order</h3>
-
-                        <p>
-                            Pre-order from event food stalls
-                            once your booking is confirmed.
-                        </p>
-
-                        <span class="service-link">
-                            Browse food →
+                    <a class="home-service-item" data-entry="events" href="./pages/login.html">
+                        <span class="home-service-icon">F</span>
+                        <span class="home-service-text">
+                            <strong>Food Pre-order</strong>
+                            <span>Order ahead once your booking is confirmed.</span>
                         </span>
-
+                        <span class="home-service-arrow" aria-hidden="true">→</span>
                     </a>
 
-                    <!-- Notifications -->
-                    <a
-                        class="service-card service-card-link"
-                        data-entry="notifications"
-                        href="./pages/login.html">
-
-                        <div class="service-number">05</div>
-
-                        <div class="service-icon">N</div>
-
-                        <h3>Notifications</h3>
-
-                        <p>
-                            Stay updated on holds, payments
-                            and booking confirmations.
-                        </p>
-
-                        <span class="service-link">
-                            View updates →
+                    <a class="home-service-item" data-entry="notifications" href="./pages/login.html">
+                        <span class="home-service-icon">N</span>
+                        <span class="home-service-text">
+                            <strong>Notifications</strong>
+                            <span>Track holds, payments and confirmations.</span>
                         </span>
-
+                        <span class="home-service-arrow" aria-hidden="true">→</span>
                     </a>
 
                 </div>
@@ -324,29 +160,18 @@
 
 
         <!-- =========================
-             Upcoming Events Preview
+             Upcoming Events
              ========================= -->
-        <section id="upcomingEventsSection" class="featured-events-section" hidden>
+        <section id="upcomingEventsSection" class="home-section home-section-white" hidden>
 
             <div class="section-container">
 
                 <div class="section-heading">
-
-                    <span class="section-eyebrow">
-                        HAPPENING SOON
-                    </span>
-
-                    <h2>
-                        Upcoming events.
-                    </h2>
-
-                    <p>
-                        A quick look at what's coming up next.
-                    </p>
-
+                    <span class="section-eyebrow">HAPPENING SOON</span>
+                    <h2>Upcoming events.</h2>
                 </div>
 
-                <div id="featuredEventsGrid" class="featured-events-grid"></div>
+                <div id="featuredEventsGrid" class="home-events-row"></div>
 
             </div>
 
@@ -356,52 +181,45 @@
         <!-- =========================
              How It Works
              ========================= -->
-        <section id="how-it-works" class="how-it-works-section">
+        <section id="how-it-works" class="home-section">
 
             <div class="section-container">
 
                 <div class="section-heading">
-
-                    <span class="section-eyebrow">
-                        SIMPLE BY DESIGN
-                    </span>
-
-                    <h2>
-                        How it works.
-                    </h2>
-
+                    <span class="section-eyebrow">SIMPLE BY DESIGN</span>
+                    <h2>How it works.</h2>
                 </div>
 
-                <div class="how-it-works-row">
+                <div class="home-how-row">
 
-                    <div class="how-it-works-step">
-                        <span class="how-it-works-number">01</span>
+                    <div class="home-how-step">
+                        <span class="home-how-number">01</span>
                         <h3>Find Event</h3>
-                        <p>Search and browse events by category, venue or date.</p>
+                        <p>Search by category, venue or date.</p>
                     </div>
 
-                    <div class="how-it-works-connector"></div>
+                    <div class="home-how-connector"></div>
 
-                    <div class="how-it-works-step">
-                        <span class="how-it-works-number">02</span>
+                    <div class="home-how-step">
+                        <span class="home-how-number">02</span>
                         <h3>Select Seats</h3>
-                        <p>Pick your seats from a real, live seat map.</p>
+                        <p>Choose from a real, live seat map.</p>
                     </div>
 
-                    <div class="how-it-works-connector"></div>
+                    <div class="home-how-connector"></div>
 
-                    <div class="how-it-works-step">
-                        <span class="how-it-works-number">03</span>
+                    <div class="home-how-step">
+                        <span class="home-how-number">03</span>
                         <h3>Add Parking</h3>
-                        <p>Reserve an optional parking slot in the same flow.</p>
+                        <p>Reserve a slot in the same flow.</p>
                     </div>
 
-                    <div class="how-it-works-connector"></div>
+                    <div class="home-how-connector"></div>
 
-                    <div class="how-it-works-step">
-                        <span class="how-it-works-number">04</span>
+                    <div class="home-how-step">
+                        <span class="home-how-number">04</span>
                         <h3>Pay &amp; Enjoy</h3>
-                        <p>Complete payment and get ready for event day.</p>
+                        <p>Complete payment and you're set.</p>
                     </div>
 
                 </div>
@@ -412,52 +230,34 @@
 
 
         <!-- =========================
-             Event Experience Section
+             Event Experience
              ========================= -->
-        <section
-            id="experience"
-            class="experience-section">
+        <section id="experience" class="home-experience">
 
-            <div class="section-container">
+            <div class="section-container home-experience-grid">
 
-                <div class="experience-banner">
-
-                    <div>
-
-                        <span class="section-eyebrow light">
-                            ONE CONNECTED SYSTEM
-                        </span>
-
-                        <h2>
-                            Every part of your event,
-                            in one place.
-                        </h2>
-
-                        <p>
-                            Reservations and event-day services stay
-                            connected from the moment you book.
-                        </p>
-
-                        <div class="entry-pill-chain">
-                            <span class="entry-pill">Event</span>
-                            <span class="entry-pill-plus">+</span>
-                            <span class="entry-pill">Seat Reservation</span>
-                            <span class="entry-pill-plus">+</span>
-                            <span class="entry-pill">Parking</span>
-                            <span class="entry-pill-plus">+</span>
-                            <span class="entry-pill">Food Pre-order</span>
-                            <span class="entry-pill-plus">+</span>
-                            <span class="entry-pill">Notifications</span>
-                        </div>
-
-                    </div>
-
-                    <a
-                        href="#services"
-                        class="btn btn-light btn-large">
+                <div class="home-experience-text">
+                    <span class="section-eyebrow">ONE CONNECTED SYSTEM</span>
+                    <h2>Every part of your event, in one place.</h2>
+                    <p>
+                        Reservations and event-day services stay
+                        connected from the moment you book.
+                    </p>
+                    <a href="#services" class="btn btn-secondary">
                         Explore Platform
                     </a>
+                </div>
 
+                <div class="home-experience-flow">
+                    <div class="home-flow-item">Event</div>
+                    <div class="home-flow-line"></div>
+                    <div class="home-flow-item">Seat Reservation</div>
+                    <div class="home-flow-line"></div>
+                    <div class="home-flow-item">Parking</div>
+                    <div class="home-flow-line"></div>
+                    <div class="home-flow-item">Food Pre-order</div>
+                    <div class="home-flow-line"></div>
+                    <div class="home-flow-item">Notifications</div>
                 </div>
 
             </div>
@@ -468,9 +268,9 @@
         <!-- =========================
              Final CTA
              ========================= -->
-        <section class="final-cta-section">
+        <section class="home-cta">
 
-            <div class="section-container final-cta-container">
+            <div class="section-container home-cta-inner">
 
                 <h2>Ready for your next event?</h2>
 
@@ -501,16 +301,12 @@
                     SmartEvent
                 </strong>
 
-                <p>
-                    Smart Event Experience &
-                    Reservation System
-                </p>
-
                 <nav class="footer-links" aria-label="Footer">
                     <a href="./index.html">Home</a>
                     <a href="#services">Services</a>
                     <a data-entry="events" href="./pages/login.html">Events</a>
                     <a href="./pages/login.html">Login</a>
+                    <a href="#contact">Contact</a>
                 </nav>
 
             </div>

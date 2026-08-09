@@ -109,14 +109,14 @@ function renderFeaturedEvents(events) {
         const destination = eventDetailsDestination(eventItem.id);
 
         return `
-            <a class="featured-event-card" href="${destination}">
-                <div class="featured-event-icon">${escapeHtml(categoryInitial(categoryName))}</div>
-                <span class="featured-event-category">${escapeHtml(categoryName)}</span>
+            <a class="home-event-card" href="${destination}">
+                <div class="home-event-icon">${escapeHtml(categoryInitial(categoryName))}</div>
+                <span class="home-event-category">${escapeHtml(categoryName)}</span>
                 <h3>${escapeHtml(eventItem.name)}</h3>
-                <p class="featured-event-meta">
+                <p class="home-event-meta">
                     ${formatDate(eventItem.startDateTime)} · ${escapeHtml(venueName)}
                 </p>
-                <span class="featured-event-price">
+                <span class="home-event-price">
                     From LKR ${formatMoney(eventItem.ticketPrice)}
                 </span>
             </a>
