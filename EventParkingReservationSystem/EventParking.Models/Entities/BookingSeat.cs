@@ -17,4 +17,6 @@ public class BookingSeat : BaseEntity
     public int SeatId { get; set; }
 
     public Seat Seat { get; set; } = null!;
+
+    public decimal UnitPriceAtBooking { get; set; }
 }

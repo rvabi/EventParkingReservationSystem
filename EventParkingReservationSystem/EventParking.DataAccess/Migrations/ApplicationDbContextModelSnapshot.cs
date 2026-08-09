@@ -96,6 +96,9 @@ namespace EventParking.DataAccess.Migrations
                     b.Property<int>("SeatId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("UnitPriceAtBooking")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -108,7 +111,10 @@ namespace EventParking.DataAccess.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_BookingSeats_BookingId_SeatId");
 
-                    b.ToTable("BookingSeats", (string)null);
+                    b.ToTable("BookingSeats", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_BookingSeats_UnitPriceAtBooking_NonNegative", "[UnitPriceAtBooking] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("EventParking.Models.Entities.Customer", b =>
