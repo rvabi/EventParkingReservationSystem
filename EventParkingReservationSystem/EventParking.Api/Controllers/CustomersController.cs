@@ -5,11 +5,15 @@ using EventParking.Business.Interfaces;
 using EventParking.Models.Entities;
 using EventParking.Models.Enums;
 
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 
 namespace EventParking.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CustomersController : ControllerBase
 {
     private readonly ICustomerService _customerService;
@@ -20,7 +24,9 @@ public class CustomersController : ControllerBase
         _customerService = customerService;
     }
 
+    
     [HttpGet]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<IEnumerable<CustomerDto>>> GetAll()
     {
         var customers = await _customerService.GetAllAsync();
@@ -32,9 +38,26 @@ public class CustomersController : ControllerBase
         return Ok(customerDtos);
     }
 
+    [HttpGet("search")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<ActionResult<IEnumerable<CustomerDto>>> Search(
+    [FromQuery] string searchTerm)
+    {
+        var customers =
+            await _customerService.SearchAsync(searchTerm);
+
+        var customerDtos =
+            customers
+                .Select(MapToDto)
+                .ToList();
+
+        return Ok(customerDtos);
+    }
+
     [HttpGet("{customerId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<CustomerDto>> GetById(
-        int customerId)
+    int customerId)
     {
         var customer =
             await _customerService.GetByIdAsync(customerId);
@@ -50,31 +73,71 @@ public class CustomersController : ControllerBase
         return Ok(MapToDto(customer));
     }
 
-    [HttpPut("{customerId:int}/profile")]
-    public async Task<IActionResult> UpdateProfile(
-        int customerId,
-        [FromBody] UpdateCustomerProfileRequest request)
+    [HttpGet("me")]
+    [Authorize(Roles = "Customer")]
+    public async Task<ActionResult<CustomerDto>> GetMyProfile()
     {
+        int? customerId = GetAuthenticatedCustomerId();
+
+        if (!customerId.HasValue)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid authentication token."
+            });
+        }
+
+        var customer =
+            await _customerService.GetByIdAsync(
+                customerId.Value);
+
+        if (customer is null)
+        {
+            return NotFound(new
+            {
+                message = "Customer profile not found."
+            });
+        }
+
+        return Ok(MapToDto(customer));
+    }
+
+    [HttpPut("me")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> UpdateMyProfile(
+    [FromBody] UpdateCustomerProfileRequest request)
+    {
+        int? customerId = GetAuthenticatedCustomerId();
+
+        if (!customerId.HasValue)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid authentication token."
+            });
+        }
+
         var existingCustomer =
-            await _customerService.GetByIdAsync(customerId);
+            await _customerService.GetByIdAsync(
+                customerId.Value);
 
         if (existingCustomer is null)
         {
             return NotFound(new
             {
-                message = "Customer not found."
+                message = "Customer profile not found."
             });
         }
 
         var customer = new Customer
         {
-            Id = customerId,
+            Id = customerId.Value,
             FullName = request.FullName,
             Email = request.Email,
             Phone = request.Phone
         };
 
-        var updated =
+        bool updated =
             await _customerService.UpdateProfileAsync(customer);
 
         if (!updated)
@@ -82,12 +145,13 @@ public class CustomersController : ControllerBase
             return BadRequest(new
             {
                 message =
-                    "Unable to update customer profile. Check the submitted data or email address."
+                    "Unable to update profile. Check the submitted data or email address."
             });
         }
 
         var updatedCustomer =
-            await _customerService.GetByIdAsync(customerId);
+            await _customerService.GetByIdAsync(
+                customerId.Value);
 
         return Ok(new
         {
@@ -98,52 +162,87 @@ public class CustomersController : ControllerBase
         });
     }
 
-    [HttpPatch("{customerId:int}/status")]
-    public async Task<IActionResult> ChangeStatus(
-        int customerId,
-        [FromBody] ChangeCustomerStatusRequest request)
+    [HttpPatch("{customerId:int}/deactivate")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> Deactivate(
+    int customerId)
     {
-        if (!Enum.TryParse<CustomerStatus>(
-                request.Status,
-                true,
-                out var status))
+        var result =
+            await _customerService.DeactivateAsync(
+                customerId);
+
+        if (!result.Success)
         {
+            if (result.ErrorCode == "CUSTOMER_NOT_FOUND")
+            {
+                return NotFound(new
+                {
+                    message = result.Message
+                });
+            }
+
+            if (result.ErrorCode == "ACTIVE_FUTURE_BOOKING")
+            {
+                return Conflict(new
+                {
+                    message = result.Message
+                });
+            }
+
             return BadRequest(new
             {
-                message =
-                    "Invalid customer status. Use Active or Deactivated."
-            });
-        }
-
-        var existingCustomer =
-            await _customerService.GetByIdAsync(customerId);
-
-        if (existingCustomer is null)
-        {
-            return NotFound(new
-            {
-                message = "Customer not found."
-            });
-        }
-
-        var changed =
-            await _customerService.ChangeStatusAsync(
-                customerId,
-                status);
-
-        if (!changed)
-        {
-            return BadRequest(new
-            {
-                message = "Unable to change customer status."
+                message = result.Message
             });
         }
 
         return Ok(new
         {
-            message =
-                $"Customer status changed to {status} successfully."
+            message = result.Message
         });
+    }
+
+    [HttpPatch("{customerId:int}/reactivate")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> Reactivate(
+    int customerId)
+    {
+        var result =
+            await _customerService.ReactivateAsync(
+                customerId);
+
+        if (!result.Success)
+        {
+            if (result.ErrorCode == "CUSTOMER_NOT_FOUND")
+            {
+                return NotFound(new
+                {
+                    message = result.Message
+                });
+            }
+
+            return BadRequest(new
+            {
+                message = result.Message
+            });
+        }
+
+        return Ok(new
+        {
+            message = result.Message
+        });
+    }
+
+    private int? GetAuthenticatedCustomerId()
+    {
+        string? customerIdValue =
+            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(customerIdValue, out int customerId))
+        {
+            return null;
+        }
+
+        return customerId;
     }
 
     private static CustomerDto MapToDto(Customer customer)

@@ -19,9 +19,10 @@ public static class JwtAuthenticationExtensions
             ?? throw new InvalidOperationException(
                 "JWT configuration is missing.");
 
-        if (string.IsNullOrWhiteSpace(jwtOptions.Issuer) ||
-            string.IsNullOrWhiteSpace(jwtOptions.Audience) ||
-            string.IsNullOrWhiteSpace(jwtOptions.Key))
+        if (string.IsNullOrWhiteSpace(jwtOptions.Key) ||
+            string.IsNullOrWhiteSpace(jwtOptions.Issuer) ||
+            string.IsNullOrWhiteSpace(jwtOptions.Audience) 
+            )
         {
             throw new InvalidOperationException(
                 "JWT configuration is incomplete.");

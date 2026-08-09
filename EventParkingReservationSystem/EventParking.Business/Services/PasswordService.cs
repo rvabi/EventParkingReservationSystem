@@ -43,6 +43,23 @@ public class PasswordService : IPasswordService
             return false;
         }
 
+        // Support existing development users seeded with BCrypt.
+        if (storedHash.StartsWith("$2a$") ||
+            storedHash.StartsWith("$2b$") ||
+            storedHash.StartsWith("$2y$"))
+        {
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(
+                    password,
+                    storedHash);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         string[] parts = storedHash.Split('.');
 
         if (parts.Length != 3)
