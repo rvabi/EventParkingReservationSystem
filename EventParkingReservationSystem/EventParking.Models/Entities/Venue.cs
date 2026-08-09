@@ -18,4 +18,7 @@ public class Venue : BaseEntity
 
     public ICollection<Event> Events { get; set; }
         = new List<Event>();
+
+    public ICollection<VenueFacility> Facilities { get; set; }
+    = new List<VenueFacility>();
 }

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Events | SmartEvent</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/main.css">
+</head>
+
+<body>
+
+    <!-- Shared Navigation -->
+    <header id="navbar"></header>
+
+
+    <main>
+
+        <!-- Events Header -->
+        <section class="services-section">
+
+            <div class="section-container">
+
+                <div class="section-heading">
+
+                    <span class="section-eyebrow">
+                        DISCOVER EVENTS
+                    </span>
+
+                    <h2>
+                        Find your next event.
+                    </h2>
+
+                    <p>
+                        Search upcoming events by name,
+                        date, venue or category.
+                    </p>
+
+                </div>
+
+
+                <!-- Global Feedback -->
+                <div
+                    id="globalFeedback"
+                    class="feedback"
+                    hidden>
+                </div>
+
+
+                <!-- Event Filters -->
+                <div id="eventFilters">
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="eventName">
+                            Event Name
+                        </label>
+
+                        <input
+                            id="eventName"
+                            class="form-control"
+                            type="text"
+                            placeholder="Search by event name">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="eventDate">
+                            Event Date
+                        </label>
+
+                        <input
+                            id="eventDate"
+                            class="form-control"
+                            type="date">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="venueId">
+                            Venue
+                        </label>
+
+                        <select
+                            id="venueId"
+                            class="form-control">
+
+                            <option value="">
+                                All Venues
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="categoryId">
+                            Category
+                        </label>
+
+                        <select
+                            id="categoryId"
+                            class="form-control">
+
+                            <option value="">
+                                All Categories
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="hero-actions">
+
+                        <button
+                            id="searchEventsButton"
+                            class="btn btn-primary"
+                            type="button">
+                            Search Events
+                        </button>
+
+                        <button
+                            id="clearFiltersButton"
+                            class="btn btn-secondary"
+                            type="button">
+                            Clear Filters
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Event Results -->
+                <div
+                    id="eventList"
+                    class="service-grid">
+
+                    <!-- Events loaded by JavaScript -->
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div>
+
+                <strong class="footer-brand">
+                    SmartEvent
+                </strong>
+
+                <p>
+                    Discover events and plan
+                    your event experience.
+                </p>
+
+            </div>
+
+            <p class="footer-note">
+                Smart Event Experience &
+                Reservation System
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <script
+        type="module"
+        src="../js/events.js">
+    </script>
+
+</body>
+
+</html>

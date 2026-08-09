@@ -25,6 +25,8 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Event> Events { get; set; } = null!;
 
+    public DbSet<VenueFacility> VenueFacilities { get; set; } = null!;
+
     public DbSet<Seat> Seats { get; set; } = null!;
 
     public DbSet<ParkingSlot> ParkingSlots { get; set; } = null!;
@@ -38,6 +40,13 @@ public class ApplicationDbContext : DbContext
     public DbSet<Payment> Payments { get; set; } = null!;
 
     public DbSet<Notification> Notifications { get; set; } = null!;
+    public DbSet<FoodStall> FoodStalls { get; set; } = null!;
+
+    public DbSet<FoodItem> FoodItems { get; set; } = null!;
+
+    public DbSet<FoodOrder> FoodOrders { get; set; } = null!;
+
+    public DbSet<FoodOrderItem> FoodOrderItems { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
