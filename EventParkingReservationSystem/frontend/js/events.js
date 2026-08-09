@@ -285,6 +285,11 @@ function renderEvents(events) {
                     eventItem.ticketPrice
                 )}
             </span>
+            <a
+            href="./event-details.html?id=${eventItem.id}"
+            class="btn btn-primary">
+            View Details
+            </a>
         `;
 
         eventList.appendChild(card);

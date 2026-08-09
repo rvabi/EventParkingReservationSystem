@@ -2,6 +2,7 @@
 using EventParking.Business.Interfaces;
 using EventParking.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EventParking.Api.Controllers;
 
@@ -50,6 +51,7 @@ public class FacilitiesController : ControllerBase
     }
 
     [HttpPost("~/api/venues/{venueId:int}/facilities")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(
         int venueId,
         [FromBody] CreateVenueFacilityRequest request)
@@ -95,6 +97,7 @@ public class FacilitiesController : ControllerBase
     }
 
     [HttpPut("{facilityId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Update(
         int facilityId,
         [FromBody] UpdateVenueFacilityRequest request)
@@ -149,6 +152,7 @@ public class FacilitiesController : ControllerBase
     }
 
     [HttpDelete("{facilityId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete(int facilityId)
     {
         var existingFacility =

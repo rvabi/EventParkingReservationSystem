@@ -2,6 +2,7 @@
 using EventParking.Business.Interfaces;
 using EventParking.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EventParking.Api.Controllers;
 
@@ -54,6 +55,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(
         [FromBody] CreateEventRequest request)
     {
@@ -89,6 +91,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpPut("{eventId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Update(
         int eventId,
         [FromBody] UpdateEventRequest request)
@@ -143,6 +146,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpDelete("{eventId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete(int eventId)
     {
         var existingEvent =

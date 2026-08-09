@@ -224,46 +224,45 @@ function renderFacilities(facilities) {
 function getFacilityTypeName(type) {
 
     const types = {
-        1: "Washroom",
-        2: "First Aid",
-        3: "Prayer Room",
-        4: "ATM",
-        5: "Information Desk",
-        6: "Exit"
+        Washroom: "Washroom",
+        FirstAid: "First Aid",
+        PrayerRoom: "Prayer Room",
+        ATM: "ATM",
+        Atm: "ATM",
+        InformationDesk: "Information Desk",
+        Exit: "Exit"
     };
 
-    return types[type] ||
-        "Facility";
+    return types[type] || type || "Facility";
 }
 
 
 function getFacilityStatusName(status) {
 
     const statuses = {
-        1: "Open",
-        2: "Closed",
-        3: "Under Maintenance"
+        Open: "Open",
+        Closed: "Closed",
+        UnderMaintenance: "Under Maintenance"
     };
 
-    return statuses[status] ||
-        "Unknown";
+    return statuses[status] || status || "Unknown";
 }
 
 
 function getFacilityIcon(type) {
 
     const icons = {
-        1: "W",
-        2: "+",
-        3: "P",
-        4: "$",
-        5: "i",
-        6: "→"
+        Washroom: "W",
+        FirstAid: "+",
+        PrayerRoom: "P",
+        ATM: "$",
+        Atm: "$",
+        InformationDesk: "i",
+        Exit: "→"
     };
 
     return icons[type] || "F";
 }
-
 
 function escapeHtml(value) {
 

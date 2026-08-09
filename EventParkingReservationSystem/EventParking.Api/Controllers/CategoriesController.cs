@@ -2,6 +2,7 @@
 using EventParking.Business.Interfaces;
 using EventParking.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EventParking.Api.Controllers;
 
@@ -49,6 +50,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(
         [FromBody] CreateEventCategoryRequest request)
     {
@@ -77,6 +79,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{categoryId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Update(
         int categoryId,
         [FromBody] UpdateEventCategoryRequest request)
@@ -124,6 +127,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{categoryId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete(int categoryId)
     {
         var existingCategory =
