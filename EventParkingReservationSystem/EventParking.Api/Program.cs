@@ -2,12 +2,15 @@ using EventParking.Api.Security;
 using Microsoft.OpenApi.Models;
 using EventParking.Api.Middleware;
 using EventParking.Api.Extensions;
+
 using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
+
 using EventParking.DataAccess.Context;
 using EventParking.DataAccess.Interfaces;
 using EventParking.DataAccess.Repositories;
 using EventParking.DataAccess.Seed;
+
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,9 +23,12 @@ var connectionString =
 builder.Services.AddControllers();
 
 builder.Services.AddSharedApiFoundation();
+
 builder.Services.AddSharedJwtAuthentication(
     builder.Configuration);
+
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition(
@@ -62,27 +68,118 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IEventRepository, EventRepository>();
-builder.Services.AddScoped<ISeatRepository, SeatRepository>();
-builder.Services.AddScoped<ISeatService, SeatService>();
+// Customer
+builder.Services.AddScoped<
+    ICustomerRepository,
+    CustomerRepository>();
 
-builder.Services.AddScoped<IPasswordService, PasswordService>();
-builder.Services.AddScoped<ISecurityTokenService, SecurityTokenService>();
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<
+    ICustomerService,
+    CustomerService>();
 
-builder.Services.AddScoped<IVenueRepository, VenueRepository>();
-builder.Services.AddScoped<IEventCategoryRepository, EventCategoryRepository>();
-builder.Services.AddScoped<IVenueFacilityRepository, VenueFacilityRepository>();
+// Event / Seat
+builder.Services.AddScoped<
+    IEventRepository,
+    EventRepository>();
 
-builder.Services.AddScoped<IVenueService, VenueService>();
-builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
-builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IVenueFacilityService, VenueFacilityService>();
+builder.Services.AddScoped<
+    ISeatRepository,
+    SeatRepository>();
+
+builder.Services.AddScoped<
+    ISeatService,
+    SeatService>();
+
+// Authentication
+builder.Services.AddScoped<
+    IPasswordService,
+    PasswordService>();
+
+builder.Services.AddScoped<
+    ISecurityTokenService,
+    SecurityTokenService>();
+
+builder.Services.AddScoped<
+    IJwtTokenService,
+    JwtTokenService>();
+
+builder.Services.AddScoped<
+    IAuthService,
+    AuthService>();
+
+// Venue / Category / Facility
+builder.Services.AddScoped<
+    IVenueRepository,
+    VenueRepository>();
+
+builder.Services.AddScoped<
+    IEventCategoryRepository,
+    EventCategoryRepository>();
+
+builder.Services.AddScoped<
+    IVenueFacilityRepository,
+    VenueFacilityRepository>();
+
+builder.Services.AddScoped<
+    IVenueService,
+    VenueService>();
+
+builder.Services.AddScoped<
+    IEventCategoryService,
+    EventCategoryService>();
+
+builder.Services.AddScoped<
+    IEventService,
+    EventService>();
+
+builder.Services.AddScoped<
+    IVenueFacilityService,
+    VenueFacilityService>();
+
+// Parking
+builder.Services.AddScoped<
+    IParkingSlotRepository,
+    ParkingSlotRepository>();
+
+builder.Services.AddScoped<
+    IParkingSlotService,
+    ParkingSlotService>();
+
+builder.Services.AddScoped<
+    IParkingReservationRepository,
+    ParkingReservationRepository>();
+
+builder.Services.AddScoped<
+    IParkingReservationService,
+    ParkingReservationService>();
+
+// Food Court
+builder.Services.AddScoped<
+    IFoodStallRepository,
+    FoodStallRepository>();
+
+builder.Services.AddScoped<
+    IFoodItemRepository,
+    FoodItemRepository>();
+
+builder.Services.AddScoped<
+    IFoodOrderRepository,
+    FoodOrderRepository>();
+
+builder.Services.AddScoped<
+    IFoodStallService,
+    FoodStallService>();
+
+builder.Services.AddScoped<
+    IFoodItemService,
+    FoodItemService>();
+
+builder.Services.AddScoped<
+    IFoodOrderService,
+    FoodOrderService>();
 
 builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();

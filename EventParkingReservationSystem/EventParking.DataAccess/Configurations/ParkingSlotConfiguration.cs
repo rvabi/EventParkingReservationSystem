@@ -15,7 +15,12 @@ public class ParkingSlotConfiguration
 {
     public void Configure(EntityTypeBuilder<ParkingSlot> builder)
     {
-        builder.ToTable("ParkingSlots");
+        builder.ToTable("ParkingSlots", table =>
+        {
+            table.HasCheckConstraint(
+                "CK_ParkingSlots_FeeOverride_NonNegative",
+                "[FeeOverride] IS NULL OR [FeeOverride] >= 0");
+        });
 
         builder.HasKey(slot => slot.Id);
 
@@ -25,6 +30,10 @@ public class ParkingSlotConfiguration
 
         builder.Property(slot => slot.Zone)
             .HasMaxLength(50);
+
+        builder.Property(slot => slot.FeeOverride)
+            .HasColumnType("decimal(18,2)")
+            .IsRequired(false);
 
         builder.Property(slot => slot.Status)
             .HasConversion<int>()
