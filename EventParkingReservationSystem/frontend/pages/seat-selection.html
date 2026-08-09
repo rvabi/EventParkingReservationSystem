@@ -40,62 +40,137 @@
 
                 <div id="globalFeedback" class="feedback" hidden></div>
 
+                <div id="authGuardPanel" class="auth-guard-panel" hidden>
+                    <p id="authGuardMessage"></p>
+                    <div class="hero-actions">
+                        <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+                    </div>
+                </div>
+
                 <div id="seatSelectionLayout" class="seat-selection-layout" hidden>
 
                     <div class="seat-map-panel">
 
-                        <div class="seat-map-toolbar">
-                            <button id="refreshSeatsButton" type="button" class="btn btn-secondary btn-small">
-                                Refresh
-                            </button>
+                        <div id="seatMapView">
+
+                            <div class="seat-map-toolbar">
+                                <button id="refreshSeatsButton" type="button" class="btn btn-secondary btn-small">
+                                    Refresh
+                                </button>
+                            </div>
+
+                            <div id="seatMapContainer" class="seat-map-container"></div>
+
+                            <div class="seat-legend">
+                                <span class="seat-legend-item">
+                                    <span class="seat-legend-swatch seat-status-available"></span>
+                                    Available
+                                </span>
+                                <span class="seat-legend-item">
+                                    <span class="seat-legend-swatch seat-status-held"></span>
+                                    Held
+                                </span>
+                                <span class="seat-legend-item">
+                                    <span class="seat-legend-swatch seat-status-booked"></span>
+                                    Booked
+                                </span>
+                                <span class="seat-legend-item">
+                                    <span class="seat-legend-swatch seat-status-unavailable"></span>
+                                    Unavailable
+                                </span>
+                            </div>
+
                         </div>
 
-                        <div id="seatMapContainer" class="seat-map-container"></div>
+                        <article id="eventOverviewPanel" class="event-overview-panel" hidden>
 
-                        <div class="seat-legend">
-                            <span class="seat-legend-item">
-                                <span class="seat-legend-swatch seat-status-available"></span>
-                                Available
-                            </span>
-                            <span class="seat-legend-item">
-                                <span class="seat-legend-swatch seat-selected-swatch"></span>
-                                Selected
-                            </span>
-                            <span class="seat-legend-item">
-                                <span class="seat-legend-swatch seat-status-held"></span>
-                                Held
-                            </span>
-                            <span class="seat-legend-item">
-                                <span class="seat-legend-swatch seat-status-booked"></span>
-                                Booked
-                            </span>
-                            <span class="seat-legend-item">
-                                <span class="seat-legend-swatch seat-status-unavailable"></span>
-                                Unavailable
-                            </span>
-                        </div>
+                            <div class="event-overview-hero">
+                                <svg class="event-overview-hero-icon" viewBox="0 0 64 64" aria-hidden="true">
+                                    <rect x="8" y="16" width="48" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="2.4" />
+                                    <line x1="8" y1="26" x2="56" y2="26" stroke="currentColor" stroke-width="2.4" />
+                                    <line x1="18" y1="10" x2="18" y2="20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+                                    <line x1="46" y1="10" x2="46" y2="20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+                                    <circle cx="22" cy="36" r="2.4" fill="currentColor" />
+                                    <circle cx="32" cy="36" r="2.4" fill="currentColor" />
+                                    <circle cx="42" cy="36" r="2.4" fill="currentColor" />
+                                    <circle cx="22" cy="44" r="2.4" fill="currentColor" />
+                                    <circle cx="32" cy="44" r="2.4" fill="currentColor" />
+                                </svg>
+                                <h3 id="overviewEventName" class="event-overview-hero-title">Event overview</h3>
+                            </div>
+
+                            <div class="event-overview-body">
+
+                                <p id="overviewEventMeta" class="event-overview-meta"></p>
+                                <p id="overviewVenue" class="event-overview-meta"></p>
+                                <p id="overviewCategory" class="event-overview-meta"></p>
+
+                                <p id="overviewDescription" class="event-overview-description"></p>
+
+                                <p id="overviewTicketPrice" class="event-overview-meta"></p>
+
+                                <div class="ticket-section">
+                                    <h5>Selected Seats</h5>
+                                    <div id="overviewSelectedSeats" class="selected-seats-list"></div>
+                                </div>
+
+                                <div class="selected-seats-total">
+                                    <span>Seat Total</span>
+                                    <span id="overviewSeatTotal">LKR 0.00</span>
+                                </div>
+
+                            </div>
+
+                        </article>
 
                     </div>
 
                     <aside class="seat-summary-panel">
 
-                        <h3>Your Selection</h3>
+                        <div id="selectionView">
 
-                        <div id="selectedSeatsList" class="selected-seats-list">
-                            <p class="selected-seats-empty">No seats selected yet.</p>
+                            <h3>Your Selection</h3>
+
+                            <div id="selectedSeatsList" class="selected-seats-list">
+                                <p class="selected-seats-empty">No seats selected yet.</p>
+                            </div>
+
+                            <div class="selected-seats-total">
+                                <span>Total</span>
+                                <span id="selectedSeatsTotal">LKR 0.00</span>
+                            </div>
+
+                            <div id="validationFeedback" class="feedback" hidden></div>
+
+                            <div id="continueButtonRow" class="hero-actions">
+                                <button id="continueButton" class="btn btn-primary" type="button" disabled>
+                                    Continue
+                                </button>
+                            </div>
+
                         </div>
 
-                        <div class="selected-seats-total">
-                            <span>Total</span>
-                            <span id="selectedSeatsTotal">LKR 0.00</span>
-                        </div>
+                        <div id="parkingStep" class="checkout-step" hidden>
 
-                        <div id="validationFeedback" class="feedback" hidden></div>
+                            <div id="seatsAvailableStrip" class="success-strip" hidden>
+                                <span class="success-strip-icon" aria-hidden="true">&check;</span>
+                                <span>Seats are available</span>
+                            </div>
 
-                        <div class="hero-actions">
-                            <button id="continueButton" class="btn btn-primary" type="button" disabled>
-                                Continue
-                            </button>
+                            <h3 id="parkingStepHeading" tabindex="-1">Parking (optional)</h3>
+                            <p class="form-footer-text">Choose parking if needed, then create your booking.</p>
+
+                            <div id="parkingOptions" class="parking-option-list"></div>
+
+                            <div id="parkingFeedback" class="feedback" hidden></div>
+
+                            <div id="bookingFeedback" class="feedback" hidden></div>
+
+                            <div class="hero-actions">
+                                <button id="createBookingButton" class="btn btn-primary" type="button">
+                                    Create Booking
+                                </button>
+                            </div>
                         </div>
 
                     </aside>

@@ -58,6 +58,17 @@ html {
     scroll-behavior: smooth;
 }
 
+/*
+ * Several components (.btn, .hero-actions, .seat-selection-layout,
+ * .booking-layout, etc.) set `display` explicitly. Author rules of equal
+ * specificity beat the UA stylesheet's `[hidden] { display: none }`, so
+ * toggling the `hidden` property on those elements silently failed to
+ * hide them. This restores `hidden` as authoritative everywhere.
+ */
+[hidden] {
+    display: none !important;
+}
+
 body {
     min-height: 100vh;
 
@@ -157,7 +168,7 @@ select {
     gap: 28px;
 }
 
-.nav-links a,
+.nav-links a:not(.btn),
 .nav-placeholder {
     position: relative;
 
@@ -171,12 +182,12 @@ select {
     transition: var(--transition);
 }
 
-.nav-links a:hover,
+.nav-links a:not(.btn):hover,
 .nav-placeholder:hover {
     color: var(--white);
 }
 
-.nav-links a::after {
+.nav-links a:not(.btn)::after {
     content: "";
 
     position: absolute;
@@ -194,7 +205,7 @@ select {
     transition: var(--transition);
 }
 
-.nav-links a:hover::after {
+.nav-links a:not(.btn):hover::after {
     width: 100%;
 }
 
@@ -277,8 +288,6 @@ select {
 
     background:
         rgba(255, 255, 255, 0.07);
-
-    backdrop-filter: blur(10px);
 }
 
 .btn-outline:hover {
@@ -319,165 +328,17 @@ button:disabled {
 
 
 /* =========================================================
-   5. Hero Section
+   5. (moved - Hero markup now lives in section 28 Homepage)
    ========================================================= */
-
-.hero-section {
-    position: relative;
-
-    min-height: 690px;
-
-    display: flex;
-    align-items: center;
-
-    overflow: hidden;
-
-    background:
-        radial-gradient(
-            circle at 82% 20%,
-            rgba(179, 207, 229, 0.22),
-            transparent 27%
-        ),
-        radial-gradient(
-            circle at 10% 85%,
-            rgba(74, 127, 167, 0.27),
-            transparent 34%
-        ),
-        linear-gradient(
-            125deg,
-            #0A1931 0%,
-            #102E50 48%,
-            #1A3D63 74%,
-            #4A7FA7 125%
-        );
-}
-
-.hero-section::before {
-    content: "";
-
-    position: absolute;
-
-    width: 460px;
-    height: 460px;
-
-    right: -170px;
-    top: -190px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.09);
-
-    border-radius: 50%;
-}
-
-.hero-section::after {
-    content: "";
-
-    position: absolute;
-
-    width: 620px;
-    height: 620px;
-
-    left: -330px;
-    bottom: -430px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.08);
-
-    border-radius: 50%;
-}
-
-.hero-container {
-    position: relative;
-    z-index: 2;
-
-    width: min(1240px, 92%);
-
-    margin: 0 auto;
-
-    padding:
-        80px 0 90px;
-
-    display: grid;
-
-    grid-template-columns:
-        minmax(0, 1.08fr)
-        minmax(380px, 0.92fr);
-
-    align-items: center;
-
-    gap: 80px;
-}
 
 
 /* =========================================================
    6. Hero Left Content
+
+   .hero-actions is shared by 18+ pages (auth, booking, admin
+   button rows) - kept here unchanged. Homepage-only hero
+   content classes now live in section 28.
    ========================================================= */
-
-.hero-content {
-    max-width: 690px;
-}
-
-.hero-eyebrow {
-    display: inline-flex;
-
-    align-items: center;
-
-    margin-bottom: 22px;
-
-    padding:
-        8px 14px;
-
-    border:
-        1px solid rgba(179, 207, 229, 0.25);
-
-    border-radius: 999px;
-
-    color: var(--light-blue);
-
-    background:
-        rgba(179, 207, 229, 0.08);
-
-    font-size: 0.75rem;
-    font-weight: 800;
-
-    letter-spacing: 2.4px;
-}
-
-.hero-title {
-    max-width: 680px;
-
-    color: var(--white);
-
-    font-size:
-        clamp(3rem, 5.4vw, 5.4rem);
-
-    font-weight: 800;
-
-    line-height: 0.98;
-
-    letter-spacing: -3px;
-}
-
-.hero-title span {
-    display: block;
-
-    margin-top: 10px;
-
-    color: var(--light-blue);
-}
-
-.hero-description {
-    max-width: 600px;
-
-    margin-top: 28px;
-
-    color:
-        rgba(246, 250, 253, 0.76);
-
-    font-size: 1.06rem;
-
-    line-height: 1.8;
-}
 
 .hero-actions {
     margin-top: 34px;
@@ -490,302 +351,18 @@ button:disabled {
 
 
 /* =========================================================
-   7. Hero Highlights
+   8. (moved - Hero visual markup now lives in section 28)
    ========================================================= */
-
-.hero-highlights {
-    margin-top: 46px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 22px;
-}
-
-.highlight-item {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 2px;
-}
-
-.highlight-item strong {
-    color: var(--white);
-
-    font-size: 1.05rem;
-}
-
-.highlight-item span {
-    color:
-        rgba(179, 207, 229, 0.72);
-
-    font-size: 0.78rem;
-}
-
-.highlight-divider {
-    width: 1px;
-    height: 32px;
-
-    background:
-        rgba(179, 207, 229, 0.25);
-}
 
 
 /* =========================================================
-   8. Hero Right Visual
+   9. (removed - old floating hero cards no longer used)
    ========================================================= */
-
-.hero-visual {
-    position: relative;
-
-    display: flex;
-    justify-content: center;
-}
-
-.experience-card {
-    position: relative;
-
-    width: min(100%, 470px);
-
-    padding: 28px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.18);
-
-    border-radius: var(--radius-lg);
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(246, 250, 253, 0.15),
-            rgba(179, 207, 229, 0.06)
-        );
-
-    box-shadow: var(--shadow-lg);
-
-    backdrop-filter: blur(22px);
-}
-
-.experience-card-header {
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    padding-bottom: 22px;
-
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.12);
-
-    color: var(--white);
-
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
-.live-dot {
-    width: 9px;
-    height: 9px;
-
-    border-radius: 50%;
-
-    background-color: var(--light-blue);
-
-    box-shadow:
-        0 0 0 6px rgba(179, 207, 229, 0.12);
-}
-
-.experience-card-body {
-    padding-top: 25px;
-}
-
-.journey-item {
-    display: grid;
-
-    grid-template-columns:
-        48px 1fr;
-
-    align-items: start;
-
-    gap: 18px;
-}
-
-.journey-number {
-    width: 46px;
-    height: 46px;
-
-    display: grid;
-    place-items: center;
-
-    border:
-        1px solid rgba(179, 207, 229, 0.25);
-
-    border-radius: 13px;
-
-    color: var(--light-blue);
-
-    background:
-        rgba(179, 207, 229, 0.08);
-
-    font-size: 0.78rem;
-    font-weight: 800;
-}
-
-.journey-item h3 {
-    margin-bottom: 5px;
-
-    color: var(--white);
-
-    font-size: 1rem;
-}
-
-.journey-item p {
-    color:
-        rgba(246, 250, 253, 0.67);
-
-    font-size: 0.85rem;
-
-    line-height: 1.6;
-}
-
-.journey-line {
-    width: 1px;
-    height: 26px;
-
-    margin:
-        7px 0 7px 22px;
-
-    background:
-        rgba(179, 207, 229, 0.23);
-}
 
 
 /* =========================================================
-   9. Floating Hero Cards
+   10. (removed - Platform Information Strip no longer used)
    ========================================================= */
-
-.floating-card {
-    position: absolute;
-
-    display: flex;
-    align-items: center;
-
-    gap: 9px;
-
-    padding:
-        11px 16px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.24);
-
-    border-radius: 13px;
-
-    color: var(--primary-dark);
-
-    background:
-        rgba(246, 250, 253, 0.94);
-
-    box-shadow: var(--shadow-md);
-
-    font-size: 0.8rem;
-    font-weight: 800;
-
-    backdrop-filter: blur(16px);
-
-    animation:
-        floatCard 5s ease-in-out infinite;
-}
-
-.floating-card span {
-    color: var(--accent-blue);
-}
-
-.floating-card-top {
-    top: -22px;
-    right: -28px;
-}
-
-.floating-card-bottom {
-    left: -40px;
-    bottom: 34px;
-
-    animation-delay: 1.1s;
-}
-
-@keyframes floatCard {
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-8px);
-    }
-}
-
-
-/* =========================================================
-   10. Platform Information Strip
-   ========================================================= */
-
-.platform-strip {
-    position: relative;
-
-    z-index: 5;
-
-    margin-top: -1px;
-
-    background-color: var(--white);
-
-    border-bottom:
-        1px solid var(--border-light);
-}
-
-.platform-strip-container {
-    width: min(1240px, 92%);
-
-    margin: 0 auto;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-}
-
-.platform-stat {
-    padding:
-        27px 32px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 4px;
-
-    border-right:
-        1px solid var(--border-light);
-}
-
-.platform-stat:last-child {
-    border-right: 0;
-}
-
-.platform-stat span {
-    color: var(--accent-blue);
-
-    font-size: 0.73rem;
-    font-weight: 800;
-
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-}
-
-.platform-stat strong {
-    color: var(--primary-dark);
-
-    font-size: 1rem;
-}
 
 
 /* =========================================================
@@ -927,21 +504,6 @@ button:disabled {
     transform: scale(1.35);
 }
 
-.service-number {
-    position: absolute;
-
-    top: 25px;
-    right: 26px;
-
-    color:
-        rgba(26, 61, 99, 0.24);
-
-    font-size: 0.72rem;
-    font-weight: 800;
-
-    letter-spacing: 1px;
-}
-
 .service-icon {
     width: 50px;
     height: 50px;
@@ -987,158 +549,11 @@ button:disabled {
     line-height: 1.7;
 }
 
-.service-link {
-    margin-top: auto;
-    padding-top: 24px;
-
-    color: var(--accent-blue);
-
-    font-size: 0.84rem;
-    font-weight: 800;
-}
-
-.featured-service {
-    color: var(--white);
-
-    border-color: transparent;
-
-    background:
-        linear-gradient(
-            145deg,
-            var(--primary-dark),
-            var(--secondary-dark)
-        );
-
-    box-shadow:
-        0 20px 45px rgba(10, 25, 49, 0.19);
-}
-
-.featured-service::before {
-    background:
-        rgba(179, 207, 229, 0.1);
-}
-
-.featured-service h3 {
-    color: var(--white);
-}
-
-.featured-service p {
-    color:
-        rgba(246, 250, 253, 0.7);
-}
-
-.featured-service .service-link {
-    color: var(--light-blue);
-}
-
-.featured-service .service-number {
-    color:
-        rgba(246, 250, 253, 0.22);
-}
-
-.featured-service .service-icon {
-    color: var(--primary-dark);
-
-    background: var(--light-blue);
-}
-
 
 /* =========================================================
-   13. Experience CTA Section
+   13. (removed - old dark Experience banner no longer used;
+   see section 28 Homepage for the new split Experience layout)
    ========================================================= */
-
-.experience-section {
-    padding:
-        25px 0 110px;
-
-    background-color: var(--white);
-}
-
-.experience-banner {
-    position: relative;
-
-    overflow: hidden;
-
-    min-height: 300px;
-
-    padding:
-        58px 62px;
-
-    border-radius: var(--radius-lg);
-
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 40px;
-
-    background:
-        radial-gradient(
-            circle at 85% 20%,
-            rgba(179, 207, 229, 0.18),
-            transparent 27%
-        ),
-        linear-gradient(
-            125deg,
-            var(--primary-dark),
-            var(--secondary-dark)
-        );
-
-    box-shadow: var(--shadow-md);
-}
-
-.experience-banner::after {
-    content: "";
-
-    position: absolute;
-
-    width: 320px;
-    height: 320px;
-
-    right: -90px;
-    bottom: -200px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.09);
-
-    border-radius: 50%;
-}
-
-.section-eyebrow.light {
-    color: var(--light-blue);
-}
-
-.experience-banner h2 {
-    max-width: 600px;
-
-    color: var(--white);
-
-    font-size:
-        clamp(2rem, 3.4vw, 3.2rem);
-
-    line-height: 1.08;
-
-    letter-spacing: -1.5px;
-}
-
-.experience-banner p {
-    max-width: 520px;
-
-    margin-top: 17px;
-
-    color:
-        rgba(246, 250, 253, 0.7);
-
-    line-height: 1.75;
-}
-
-.experience-banner .btn {
-    position: relative;
-    z-index: 2;
-
-    flex-shrink: 0;
-}
 
 
 /* =========================================================
@@ -1601,24 +1016,6 @@ button:disabled {
 
 @media (max-width: 1050px) {
 
-    .hero-container {
-        grid-template-columns: 1fr;
-
-        gap: 65px;
-    }
-
-    .hero-content {
-        max-width: 760px;
-    }
-
-    .hero-visual {
-        max-width: 570px;
-
-        margin: 0 auto;
-
-        width: 100%;
-    }
-
     .service-grid {
         grid-template-columns:
             repeat(2, minmax(0, 1fr));
@@ -1658,28 +1055,6 @@ button:disabled {
         flex-wrap: wrap;
     }
 
-    .hero-section {
-        min-height: auto;
-    }
-
-    .hero-container {
-        padding:
-            65px 0 75px;
-
-        gap: 55px;
-    }
-
-    .hero-title {
-        font-size:
-            clamp(2.7rem, 13vw, 4.1rem);
-
-        letter-spacing: -2px;
-    }
-
-    .hero-description {
-        font-size: 0.96rem;
-    }
-
     .hero-actions {
         flex-direction: column;
 
@@ -1688,37 +1063,6 @@ button:disabled {
 
     .hero-actions .btn {
         width: 100%;
-    }
-
-    .hero-highlights {
-        gap: 14px;
-    }
-
-    .experience-card {
-        padding: 22px;
-    }
-
-    .floating-card-top {
-        right: -5px;
-    }
-
-    .floating-card-bottom {
-        left: -5px;
-    }
-
-    .platform-strip-container {
-        grid-template-columns: 1fr;
-    }
-
-    .platform-stat {
-        border-right: 0;
-
-        border-bottom:
-            1px solid var(--border-light);
-    }
-
-    .platform-stat:last-child {
-        border-bottom: 0;
     }
 
     .services-section {
@@ -1740,25 +1084,6 @@ button:disabled {
         padding: 20px;
     }
 
-    .experience-section {
-        padding-bottom: 80px;
-    }
-
-    .experience-banner {
-        min-height: auto;
-
-        padding:
-            42px 28px;
-
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
-
-    .experience-banner .btn {
-        width: 100%;
-    }
-
     .footer-container {
         align-items: flex-start;
 
@@ -1777,38 +1102,9 @@ button:disabled {
 
 @media (max-width: 480px) {
 
-    .hero-eyebrow {
+    .home-hero-eyebrow {
         font-size: 0.67rem;
         letter-spacing: 1.6px;
-    }
-
-    .hero-highlights {
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
-
-    .highlight-divider {
-        width: 45px;
-        height: 1px;
-    }
-
-    .journey-item {
-        grid-template-columns:
-            42px 1fr;
-    }
-
-    .journey-number {
-        width: 40px;
-        height: 40px;
-    }
-
-    .journey-line {
-        margin-left: 19px;
-    }
-
-    .floating-card {
-        display: none;
     }
 }
 
@@ -2288,7 +1584,7 @@ button:disabled {
 
 .seat-selection-layout {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr minmax(320px, 420px);
     gap: 26px;
     align-items: start;
     margin-top: 26px;
@@ -2306,6 +1602,64 @@ button:disabled {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 14px;
+}
+
+/* ---- Event Overview (replaces the seat map once seats are validated) ---- */
+
+.event-overview-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 180px;
+    margin: -24px -24px 20px;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: linear-gradient(135deg, var(--secondary-dark), var(--accent-blue));
+    overflow: hidden;
+}
+
+.event-overview-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+    opacity: 0.6;
+}
+
+.event-overview-hero-icon {
+    position: absolute;
+    width: 96px;
+    height: 96px;
+    color: rgba(255, 255, 255, 0.16);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.event-overview-hero-title {
+    position: relative;
+    max-width: 90%;
+    padding: 0 20px;
+    color: var(--white);
+    font-size: 1.35rem;
+    text-align: center;
+    text-shadow: 0 2px 10px rgba(10, 25, 49, 0.35);
+}
+
+.event-overview-meta {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    margin-bottom: 4px;
+}
+
+.event-overview-description {
+    margin: 12px 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
 }
 
 .seat-summary-panel {
@@ -2326,7 +1680,7 @@ button:disabled {
 .selected-seats-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     min-height: 40px;
     margin-bottom: 16px;
 }
@@ -2334,7 +1688,7 @@ button:disabled {
 .selected-seat-row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: 6px 12px;
     border-radius: var(--radius-sm);
     background: var(--background);
     font-size: 0.88rem;
@@ -2447,5 +1801,846 @@ button:disabled {
 
     .row-price-item-controls .row-price-input {
         max-width: none;
+    }
+}
+
+
+/* =========================================================
+   26. Booking Checkout
+   ========================================================= */
+
+.auth-guard-panel {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 32px;
+    text-align: center;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.success-strip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    margin-top: 14px;
+    border-radius: 999px;
+    background: rgba(74, 127, 167, 0.12);
+    color: var(--secondary-dark);
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.success-strip-icon {
+    color: var(--accent-blue);
+    font-weight: 800;
+}
+
+.checkout-step {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+.checkout-step h3 {
+    margin-bottom: 4px;
+    color: var(--primary-dark);
+}
+
+.parking-option-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.parking-option {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: border-color var(--transition), background-color var(--transition);
+}
+
+.parking-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.parking-option.is-selected {
+    border-color: var(--accent-blue);
+    background: rgba(74, 127, 167, 0.08);
+}
+
+.parking-option.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.parking-option-title {
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.parking-option-detail {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+}
+
+/* ---- Ticket-style summary / confirmation card ---- */
+
+.booking-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    margin-top: 26px;
+}
+
+.ticket-card {
+    position: relative;
+    width: min(100%, 620px);
+    padding: 32px;
+    border-radius: 24px;
+    background-color: var(--white);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(161, 191, 219, 0.35);
+}
+
+.ticket-card .auth-status-icon {
+    margin: 0 auto 14px;
+}
+
+.ticket-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.ticket-card-header h3 {
+    color: var(--primary-dark);
+    font-size: 1.3rem;
+}
+
+.hold-countdown-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    border-radius: var(--radius-sm);
+    background: rgba(201, 149, 51, 0.14);
+    border: 1px solid rgba(201, 149, 51, 0.4);
+}
+
+.hold-countdown {
+    color: #7a5a15;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.ticket-card-body h4 {
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+}
+
+.ticket-section {
+    margin-top: 18px;
+}
+
+.ticket-section h5 {
+    margin-bottom: 8px;
+    color: var(--secondary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ticket-totals {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border-light);
+}
+
+.ticket-card .hero-actions {
+    margin-top: 22px;
+}
+
+/* ---- Optional food ordering ---- */
+
+.food-order-card h3 {
+    color: var(--primary-dark);
+}
+
+.food-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.food-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.food-item-row div {
+    display: flex;
+    flex-direction: column;
+}
+
+.food-item-quantity {
+    max-width: 90px;
+    text-align: center;
+}
+
+.food-orders-list {
+    margin-top: 22px;
+}
+
+.food-orders-list h4 {
+    margin-bottom: 10px;
+    color: var(--primary-dark);
+}
+
+.food-order-summary {
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+/* ---- Notifications ---- */
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 720px;
+}
+
+.notification-card {
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+    border-left: 3px solid transparent;
+    transition: background-color var(--transition), border-color var(--transition);
+}
+
+.notification-card.is-unread {
+    border-left-color: var(--accent-blue);
+    background: rgba(74, 127, 167, 0.07);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+}
+
+.notification-card.is-unread:hover,
+.notification-card.is-unread:focus-visible {
+    background: rgba(74, 127, 167, 0.12);
+}
+
+.notification-card.is-unread:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+}
+
+.notification-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.notification-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--border-light);
+}
+
+.notification-card.is-unread .notification-dot {
+    background: var(--accent-blue);
+}
+
+.notification-title {
+    flex: 1;
+    min-width: 0;
+    color: var(--primary-dark);
+    font-size: 0.96rem;
+}
+
+.notification-card:not(.is-unread) .notification-title {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.notification-message {
+    margin: 0 0 6px 18px;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.notification-created {
+    margin: 0 0 10px 18px;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    opacity: 0.85;
+}
+
+.notification-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 18px;
+}
+
+.notification-card-actions:empty {
+    display: none;
+}
+
+
+/* =========================================================
+   27. Booking Checkout Responsive
+   ========================================================= */
+
+@media (max-width: 760px) {
+    .ticket-card {
+        padding: 22px;
+    }
+
+    .hold-countdown-block {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .food-item-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .food-item-quantity {
+        max-width: none;
+    }
+
+    .notification-card-actions {
+        flex-direction: column;
+        align-items: stretch;
+        margin-left: 0;
+    }
+
+    .notification-card-actions .btn {
+        width: 100%;
+    }
+
+    .event-overview-hero {
+        height: 110px;
+        margin: -24px -24px 16px;
+    }
+
+    .event-overview-hero-icon {
+        width: 64px;
+        height: 64px;
+    }
+
+    .event-overview-hero-title {
+        font-size: 1.1rem;
+    }
+}
+
+
+/* =========================================================
+   28. Homepage
+   ========================================================= */
+
+/* ---- Hero ---- */
+
+.home-hero {
+    position: relative;
+    overflow: hidden;
+
+    min-height: calc(100vh - var(--navbar-height));
+    display: flex;
+    align-items: center;
+
+    background:
+        radial-gradient(circle at 85% 15%, rgba(179, 207, 229, 0.2), transparent 30%),
+        linear-gradient(155deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+}
+
+.home-hero-container {
+    position: relative;
+    z-index: 2;
+    width: min(1240px, 92%);
+    margin: 0 auto;
+    padding: 56px 0;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+    align-items: center;
+    gap: 60px;
+}
+
+.home-hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 8px 14px;
+    border: 1px solid rgba(179, 207, 229, 0.25);
+    border-radius: 999px;
+    background: rgba(179, 207, 229, 0.08);
+    color: var(--light-blue);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.home-hero-title {
+    max-width: 620px;
+    color: var(--white);
+    font-size: clamp(2.6rem, 4.6vw, 4.4rem);
+    font-weight: 800;
+    line-height: 1.04;
+    letter-spacing: -2px;
+}
+
+.home-hero-title span {
+    display: block;
+    color: var(--light-blue);
+}
+
+.home-hero-description {
+    max-width: 540px;
+    margin-top: 22px;
+    color: rgba(246, 250, 253, 0.78);
+    font-size: 1.02rem;
+    line-height: 1.7;
+}
+
+.home-hero-visual {
+    position: relative;
+}
+
+.home-hero-image-frame {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(179, 207, 229, 0.3);
+    box-shadow: var(--shadow-lg);
+    aspect-ratio: 4 / 5;
+}
+
+.home-hero-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.home-hero-caption {
+    margin-top: 16px;
+    text-align: center;
+    color: rgba(246, 250, 253, 0.65);
+    font-size: 0.84rem;
+}
+
+/* ---- Shared homepage section shell ---- */
+
+.home-section {
+    padding: 64px 0;
+    background-color: var(--background);
+}
+
+.home-section-white {
+    background-color: var(--white);
+}
+
+.home-section .section-heading {
+    max-width: 620px;
+    margin-bottom: 34px;
+}
+
+/* ---- Service Shortcut Strip ---- */
+
+.home-services-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.home-service-item {
+    flex: 1 1 210px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+    background: var(--white);
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.home-service-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-sm);
+    border-color: rgba(74, 127, 167, 0.45);
+}
+
+.home-service-icon {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    color: var(--white);
+    background: linear-gradient(135deg, var(--accent-blue), var(--secondary-dark));
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+.home-service-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.home-service-text strong {
+    color: var(--primary-dark);
+    font-size: 0.96rem;
+}
+
+.home-service-text span {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.home-service-arrow {
+    flex: 0 0 auto;
+    color: var(--accent-blue);
+    font-weight: 800;
+}
+
+/* ---- Upcoming Events ---- */
+
+.home-events-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.home-event-card {
+    flex: 0 1 320px;
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    background: var(--background);
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.home-event-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-sm);
+    border-color: rgba(74, 127, 167, 0.5);
+}
+
+.home-event-icon {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 14px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    color: var(--white);
+    background: linear-gradient(135deg, var(--accent-blue), var(--secondary-dark));
+    font-size: 0.84rem;
+    font-weight: 800;
+}
+
+.home-event-category {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--accent-blue);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+}
+
+.home-event-card h3 {
+    margin-bottom: 6px;
+    color: var(--primary-dark);
+    font-size: 1.06rem;
+}
+
+.home-event-meta {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+}
+
+.home-event-price {
+    margin-top: auto;
+    padding-top: 14px;
+    color: var(--secondary-dark);
+    font-size: 0.84rem;
+    font-weight: 800;
+}
+
+/* ---- How It Works ---- */
+
+.home-how-row {
+    display: flex;
+    align-items: flex-start;
+}
+
+.home-how-step {
+    flex: 1;
+    min-width: 0;
+}
+
+.home-how-number {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: var(--accent-blue);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.home-how-step h3 {
+    margin-bottom: 6px;
+    color: var(--primary-dark);
+    font-size: 1.04rem;
+}
+
+.home-how-step p {
+    max-width: 220px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.home-how-connector {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 1px;
+    margin-top: 8px;
+    background: var(--border-light);
+}
+
+/* ---- Event Experience (split layout) ---- */
+
+.home-experience {
+    padding: 64px 0;
+    background: var(--background);
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.home-experience-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
+    align-items: center;
+    gap: 50px;
+}
+
+.home-experience-text .section-eyebrow {
+    display: inline-block;
+    margin-bottom: 14px;
+}
+
+.home-experience-text h2 {
+    color: var(--primary-dark);
+    font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+    letter-spacing: -1px;
+    line-height: 1.15;
+}
+
+.home-experience-text p {
+    max-width: 440px;
+    margin: 14px 0 22px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.home-experience-flow {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+}
+
+.home-flow-item {
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(74, 127, 167, 0.3);
+    background: var(--white);
+    color: var(--primary-dark);
+    font-size: 0.86rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-sm);
+}
+
+.home-flow-line {
+    width: 1px;
+    height: 20px;
+    margin-left: 26px;
+    background: var(--border-light);
+}
+
+/* ---- Final CTA ---- */
+
+.home-cta {
+    padding: 56px 0;
+    background-color: var(--white);
+}
+
+.home-cta-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    text-align: center;
+}
+
+.home-cta-inner h2 {
+    max-width: 520px;
+    color: var(--primary-dark);
+    font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+    letter-spacing: -1px;
+}
+
+/* ---- Footer links (homepage only) ---- */
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 14px;
+}
+
+.footer-links a {
+    color: var(--light-blue);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+.footer-links a:hover {
+    color: var(--white);
+}
+
+
+/* =========================================================
+   29. Homepage Responsive
+   ========================================================= */
+
+@media (max-width: 1050px) {
+    .home-hero-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 48px 0;
+    }
+
+    .home-hero-visual {
+        max-width: 420px;
+        margin: 0 auto;
+    }
+
+    .home-experience-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .home-experience-flow {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .home-flow-line {
+        width: 20px;
+        height: 1px;
+        margin: 0 4px;
+    }
+
+    .home-how-row {
+        flex-wrap: wrap;
+        row-gap: 28px;
+    }
+
+    .home-how-step {
+        flex: 1 1 40%;
+    }
+
+    .home-how-connector {
+        display: none;
+    }
+}
+
+@media (max-width: 760px) {
+    .home-hero {
+        min-height: auto;
+    }
+
+    .home-hero-image-frame {
+        aspect-ratio: 16 / 9;
+    }
+
+    .home-services-row {
+        flex-direction: column;
+    }
+
+    .home-service-item {
+        flex: 1 1 auto;
+    }
+
+    .home-event-card {
+        flex: 1 1 100%;
+    }
+
+    .home-how-step {
+        flex: 1 1 100%;
+    }
+
+    .home-how-step p {
+        max-width: none;
+    }
+
+    .home-cta-inner .btn {
+        width: 100%;
     }
 }

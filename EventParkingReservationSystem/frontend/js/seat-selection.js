@@ -8,18 +8,43 @@ import {
 } from "./ui.js";
 
 import { renderSeatMap, SEAT_STATUS } from "./seat-map.js";
+import { isAuthenticated, getCustomerRole } from "./auth.js";
 
 
 const eventNameHeading = document.getElementById("eventNameHeading");
 const eventMetaLine = document.getElementById("eventMetaLine");
 const backToEventLink = document.getElementById("backToEventLink");
+const authGuardPanel = document.getElementById("authGuardPanel");
+const authGuardMessage = document.getElementById("authGuardMessage");
+const authGuardLink = document.getElementById("authGuardLink");
 const seatSelectionLayout = document.getElementById("seatSelectionLayout");
+const seatMapView = document.getElementById("seatMapView");
 const seatMapContainer = document.getElementById("seatMapContainer");
 const refreshSeatsButton = document.getElementById("refreshSeatsButton");
+const selectionView = document.getElementById("selectionView");
 const selectedSeatsList = document.getElementById("selectedSeatsList");
 const selectedSeatsTotal = document.getElementById("selectedSeatsTotal");
+const continueButtonRow = document.getElementById("continueButtonRow");
 const continueButton = document.getElementById("continueButton");
 const validationFeedback = document.getElementById("validationFeedback");
+const seatsAvailableStrip = document.getElementById("seatsAvailableStrip");
+
+const eventOverviewPanel = document.getElementById("eventOverviewPanel");
+const overviewEventName = document.getElementById("overviewEventName");
+const overviewEventMeta = document.getElementById("overviewEventMeta");
+const overviewVenue = document.getElementById("overviewVenue");
+const overviewCategory = document.getElementById("overviewCategory");
+const overviewDescription = document.getElementById("overviewDescription");
+const overviewTicketPrice = document.getElementById("overviewTicketPrice");
+const overviewSelectedSeats = document.getElementById("overviewSelectedSeats");
+const overviewSeatTotal = document.getElementById("overviewSeatTotal");
+
+const parkingStep = document.getElementById("parkingStep");
+const parkingStepHeading = document.getElementById("parkingStepHeading");
+const parkingOptions = document.getElementById("parkingOptions");
+const parkingFeedback = document.getElementById("parkingFeedback");
+const bookingFeedback = document.getElementById("bookingFeedback");
+const createBookingButton = document.getElementById("createBookingButton");
 
 /*
  * No persisted layout-type field exists on Event/Venue/Seat yet (verified
@@ -30,9 +55,16 @@ const validationFeedback = document.getElementById("validationFeedback");
 const LAYOUT_MODE = "square";
 
 let eventId = null;
+let eventItem = null;
+let eventVenue = null;
+let eventCategory = null;
 let seatMap = null;
 let selectedSeatIds = new Set();
 let selectedSeats = new Map();
+
+let parkingSlots = [];
+let selectedParkingSlotId = null;
+let seatsAreLocked = false;
 
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -52,7 +84,31 @@ async function initializePage() {
 
     backToEventLink.href = `./event-details.html?id=${eventId}`;
 
+    if (!isAuthenticated()) {
+        showAuthGuard(
+            "Please log in with a customer account to select seats and book.",
+            "login.html"
+        );
+        return;
+    }
+
+    if (getCustomerRole() !== "Customer") {
+        showAuthGuard(
+            "Seat booking is only available to customer accounts. " +
+            "Administrators should use the admin dashboard.",
+            "manage-events.html"
+        );
+        return;
+    }
+
     await loadEventAndSeats();
+}
+
+
+function showAuthGuard(message, linkHref) {
+    authGuardMessage.textContent = message;
+    authGuardLink.href = linkHref;
+    authGuardPanel.hidden = false;
 }
 
 
@@ -62,13 +118,17 @@ async function loadEventAndSeats() {
         seatSelectionLayout.hidden = true;
         eventMetaLine.textContent = "Loading event information...";
 
-        const eventItem = await api.get(`/api/Events/${eventId}`);
-        const venue = await api.get(`/api/Venues/${eventItem.venueId}`);
+        eventItem = await api.get(`/api/Events/${eventId}`);
+
+        [eventVenue, eventCategory] = await Promise.all([
+            api.get(`/api/Venues/${eventItem.venueId}`),
+            api.get(`/api/Categories/${eventItem.eventCategoryId}`)
+        ]);
 
         eventNameHeading.textContent = eventItem.name;
 
         eventMetaLine.textContent =
-            `${venue.name} | ${formatDate(eventItem.startDateTime)} | ` +
+            `${eventVenue.name} | ${formatDate(eventItem.startDateTime)} | ` +
             `${formatTime(eventItem.startDateTime)} - ${formatTime(eventItem.endDateTime)}`;
 
         await loadSeatMap();
@@ -92,6 +152,8 @@ async function loadSeatMap() {
 
         selectedSeatIds = new Set();
         selectedSeats = new Map();
+        seatsAreLocked = false;
+        resetParkingStep();
 
         seatSelectionLayout.hidden = false;
 
@@ -134,7 +196,7 @@ function renderSeats() {
         layout: LAYOUT_MODE,
         mode: "customer",
         selectedSeatIds,
-        onSeatClick: handleSeatClick
+        onSeatClick: seatsAreLocked ? null : handleSeatClick
     });
 }
 
@@ -190,7 +252,10 @@ function updateSummary() {
     }).join("");
 
     selectedSeatsTotal.textContent = formatMoney(total);
-    continueButton.disabled = false;
+
+    if (!seatsAreLocked) {
+        continueButton.disabled = false;
+    }
 }
 
 
@@ -207,11 +272,15 @@ async function handleContinue() {
 
         await api.post(`/api/events/${eventId}/seats/validate`, seatIds);
 
-        showValidationFeedback(
-            "Your seat selection is valid. Booking checkout isn't implemented " +
-            "yet - that's the next required integration.",
-            "success"
-        );
+        seatsAreLocked = true;
+        continueButtonRow.hidden = true;
+        seatsAvailableStrip.hidden = false;
+
+        showParkingFocusedView();
+
+        await loadParkingStep();
+
+        moveFocusToParkingStep();
     } catch (error) {
         showValidationFeedback(
             error?.data?.message ||
@@ -222,6 +291,248 @@ async function handleContinue() {
     } finally {
         setButtonLoading(continueButton, false);
     }
+}
+
+
+function moveFocusToParkingStep() {
+    const reducedMotion =
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    parkingStep.scrollIntoView({
+        behavior: reducedMotion ? "auto" : "smooth",
+        block: "start"
+    });
+
+    parkingStepHeading.focus({ preventScroll: true });
+}
+
+
+/* ---------------- Parking (optional, attached at booking creation) ---------------- */
+
+function resetParkingStep() {
+    parkingStep.hidden = true;
+    parkingOptions.innerHTML = "";
+    parkingSlots = [];
+    selectedParkingSlotId = null;
+    continueButtonRow.hidden = false;
+    seatsAvailableStrip.hidden = true;
+    hideValidationFeedback();
+    hideParkingFeedback();
+    hideBookingFeedback();
+
+    seatMapView.hidden = false;
+    eventOverviewPanel.hidden = true;
+    selectionView.hidden = false;
+}
+
+
+/*
+ * Switches the left column from the seat map (with its SeatStatus legend)
+ * to a read-only Event Overview once seats are validated - the legend is
+ * only meaningful while actively picking seats. The right column drops
+ * the "Your Selection" block at the same time since the same seat/total
+ * data now lives in the overview instead, keeping the Parking step from
+ * competing with duplicate information.
+ */
+function showParkingFocusedView() {
+    seatMapView.hidden = true;
+    selectionView.hidden = true;
+
+    renderEventOverview();
+    eventOverviewPanel.hidden = false;
+}
+
+
+function renderEventOverview() {
+    if (!eventItem) {
+        return;
+    }
+
+    overviewEventName.textContent = eventItem.name;
+
+    overviewEventMeta.textContent =
+        `${formatDate(eventItem.startDateTime)} · ${formatTime(eventItem.startDateTime)}`;
+
+    overviewVenue.textContent = eventVenue ? eventVenue.name : "";
+    overviewCategory.textContent = eventCategory ? eventCategory.name : "";
+
+    overviewDescription.textContent = eventItem.description || "";
+    overviewDescription.hidden = !eventItem.description;
+
+    overviewTicketPrice.textContent =
+        `Ticket price: ${formatMoney(eventItem.ticketPrice)}`;
+
+    const selected = Array.from(selectedSeats.values()).sort(
+        (a, b) => a.seatNumber.localeCompare(
+            b.seatNumber,
+            undefined,
+            { numeric: true }
+        )
+    );
+
+    let total = 0;
+
+    overviewSelectedSeats.innerHTML = selected.map((seat) => {
+        total += Number(seat.price) || 0;
+
+        return `
+            <div class="selected-seat-row">
+                <span>${escapeHtml(seat.seatNumber)}</span>
+                <span>${formatMoney(seat.price)}</span>
+            </div>
+        `;
+    }).join("");
+
+    overviewSeatTotal.textContent = formatMoney(total);
+}
+
+
+async function loadParkingStep() {
+    parkingStep.hidden = false;
+    selectedParkingSlotId = null;
+    hideParkingFeedback();
+
+    try {
+        parkingSlots = await api.get(`/api/events/${eventId}/parking-slots`);
+
+        if (!parkingSlots.length) {
+            showParkingFeedback(
+                "No parking slots are currently available. " +
+                "You can continue without parking.",
+                "info"
+            );
+        }
+    } catch (error) {
+        parkingSlots = [];
+        showParkingFeedback(
+            error?.data?.message ||
+            error.message ||
+            "Unable to load parking slots. You can still book without parking.",
+            "error"
+        );
+    }
+
+    renderParkingOptions();
+}
+
+
+function renderParkingOptions() {
+    const noParkingCard = `
+        <label class="parking-option is-selected" data-slot-id="">
+            <input type="radio" name="parkingSlot" value="" checked>
+            <span class="parking-option-title">No Parking</span>
+            <span class="parking-option-detail">Skip parking for this booking.</span>
+        </label>
+    `;
+
+    if (!parkingSlots.length) {
+        parkingOptions.innerHTML = noParkingCard;
+        attachParkingOptionEvents();
+        return;
+    }
+
+    const slotCards = parkingSlots.map((slot) => {
+        const isAvailable = slot.status === "Available";
+
+        return `
+            <label class="parking-option${isAvailable ? "" : " is-disabled"}" data-slot-id="${slot.id}">
+                <input type="radio" name="parkingSlot" value="${slot.id}" ${isAvailable ? "" : "disabled"}>
+                <span class="parking-option-title">
+                    Slot ${escapeHtml(slot.slotNumber)}
+                    ${slot.zone ? `&middot; ${escapeHtml(slot.zone)}` : ""}
+                </span>
+                <span class="parking-option-detail">
+                    ${isAvailable ? formatMoney(slot.effectiveFee) : slot.status}
+                </span>
+            </label>
+        `;
+    }).join("");
+
+    parkingOptions.innerHTML = noParkingCard + slotCards;
+    attachParkingOptionEvents();
+}
+
+
+function attachParkingOptionEvents() {
+    parkingOptions.querySelectorAll(".parking-option input").forEach((input) => {
+        if (input.disabled) {
+            return;
+        }
+
+        input.addEventListener("change", () => {
+            selectedParkingSlotId = input.value ? Number(input.value) : null;
+            updateParkingOptionSelectionStyles();
+        });
+    });
+
+    updateParkingOptionSelectionStyles();
+}
+
+
+function updateParkingOptionSelectionStyles() {
+    parkingOptions.querySelectorAll(".parking-option").forEach((label) => {
+        label.classList.toggle("is-selected", label.querySelector("input").checked);
+    });
+}
+
+
+async function handleCreateBooking() {
+    try {
+        setButtonLoading(createBookingButton, true, "Creating booking...");
+        hideBookingFeedback();
+
+        const booking = await api.post("/api/bookings", {
+            eventId,
+            seatIds: Array.from(selectedSeatIds),
+            parkingSlotId: selectedParkingSlotId
+        });
+
+        window.location.assign(`./booking-summary.html?id=${booking.id}`);
+    } catch (error) {
+        if (error?.status === 401) {
+            showAuthGuard(
+                "Your session has expired. Please log in again to continue.",
+                "login.html"
+            );
+            parkingStep.hidden = true;
+            return;
+        }
+
+        showBookingFeedback(
+            error?.data?.message ||
+            error.message ||
+            "Unable to create your booking. Please refresh and try again.",
+            "error"
+        );
+    } finally {
+        setButtonLoading(createBookingButton, false);
+    }
+}
+
+
+function showParkingFeedback(message, type) {
+    parkingFeedback.textContent = message;
+    parkingFeedback.className = `feedback feedback-${type}`;
+    parkingFeedback.hidden = false;
+}
+
+
+function hideParkingFeedback() {
+    parkingFeedback.hidden = true;
+    parkingFeedback.textContent = "";
+}
+
+
+function showBookingFeedback(message, type) {
+    bookingFeedback.textContent = message;
+    bookingFeedback.className = `feedback feedback-${type}`;
+    bookingFeedback.hidden = false;
+}
+
+
+function hideBookingFeedback() {
+    bookingFeedback.hidden = true;
+    bookingFeedback.textContent = "";
 }
 
 
@@ -278,3 +589,4 @@ function escapeHtml(value) {
 
 refreshSeatsButton.addEventListener("click", loadSeatMap);
 continueButton.addEventListener("click", handleContinue);
+createBookingButton.addEventListener("click", handleCreateBooking);

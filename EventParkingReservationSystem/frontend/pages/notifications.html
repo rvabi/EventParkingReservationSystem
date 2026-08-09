@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notifications | SmartEvent</title>
+
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <header id="navbar"></header>
+
+    <main>
+
+        <section class="services-section">
+
+            <div class="section-container">
+
+                <div class="section-heading">
+                    <span class="section-eyebrow">
+                        NOTIFICATIONS
+                    </span>
+
+                    <h2>Your notifications.</h2>
+
+                    <p>Booking, payment and event updates land here.</p>
+                </div>
+
+                <div class="hero-actions">
+                    <a id="backLink" href="events.html" class="btn btn-secondary">&larr; Back</a>
+                </div>
+
+                <div id="globalFeedback" class="feedback" hidden></div>
+
+                <div id="authGuardPanel" class="auth-guard-panel" hidden>
+                    <p id="authGuardMessage"></p>
+                    <div class="hero-actions">
+                        <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+                    </div>
+                </div>
+
+                <div id="notificationsList" class="notifications-list"></div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script type="module" src="../js/notifications.js"></script>
+
+</body>
+
+</html>
