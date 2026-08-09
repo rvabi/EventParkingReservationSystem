@@ -58,6 +58,17 @@ html {
     scroll-behavior: smooth;
 }
 
+/*
+ * Several components (.btn, .hero-actions, .seat-selection-layout,
+ * .booking-layout, etc.) set `display` explicitly. Author rules of equal
+ * specificity beat the UA stylesheet's `[hidden] { display: none }`, so
+ * toggling the `hidden` property on those elements silently failed to
+ * hide them. This restores `hidden` as authoritative everywhere.
+ */
+[hidden] {
+    display: none !important;
+}
+
 body {
     min-height: 100vh;
 
@@ -157,7 +168,7 @@ select {
     gap: 28px;
 }
 
-.nav-links a,
+.nav-links a:not(.btn),
 .nav-placeholder {
     position: relative;
 
@@ -171,12 +182,12 @@ select {
     transition: var(--transition);
 }
 
-.nav-links a:hover,
+.nav-links a:not(.btn):hover,
 .nav-placeholder:hover {
     color: var(--white);
 }
 
-.nav-links a::after {
+.nav-links a:not(.btn)::after {
     content: "";
 
     position: absolute;
@@ -194,7 +205,7 @@ select {
     transition: var(--transition);
 }
 
-.nav-links a:hover::after {
+.nav-links a:not(.btn):hover::after {
     width: 100%;
 }
 
@@ -277,8 +288,6 @@ select {
 
     background:
         rgba(255, 255, 255, 0.07);
-
-    backdrop-filter: blur(10px);
 }
 
 .btn-outline:hover {
@@ -345,11 +354,21 @@ button:disabled {
         ),
         linear-gradient(
             125deg,
-            #0A1931 0%,
-            #102E50 48%,
-            #1A3D63 74%,
-            #4A7FA7 125%
-        );
+            rgba(10, 25, 49, 0.91) 0%,
+            rgba(16, 46, 80, 0.87) 48%,
+            rgba(26, 61, 99, 0.85) 74%,
+            rgba(74, 127, 167, 0.82) 125%
+        ),
+        url("./assets/images/login-hero-bg.png");
+
+    background-position:
+        center, center, center, center;
+
+    background-repeat:
+        no-repeat, no-repeat, no-repeat, no-repeat;
+
+    background-size:
+        auto, auto, auto, cover;
 }
 
 .hero-section::before {
@@ -490,49 +509,6 @@ button:disabled {
 
 
 /* =========================================================
-   7. Hero Highlights
-   ========================================================= */
-
-.hero-highlights {
-    margin-top: 46px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 22px;
-}
-
-.highlight-item {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 2px;
-}
-
-.highlight-item strong {
-    color: var(--white);
-
-    font-size: 1.05rem;
-}
-
-.highlight-item span {
-    color:
-        rgba(179, 207, 229, 0.72);
-
-    font-size: 0.78rem;
-}
-
-.highlight-divider {
-    width: 1px;
-    height: 32px;
-
-    background:
-        rgba(179, 207, 229, 0.25);
-}
-
-
-/* =========================================================
    8. Hero Right Visual
    ========================================================= */
 
@@ -555,16 +531,9 @@ button:disabled {
 
     border-radius: var(--radius-lg);
 
-    background:
-        linear-gradient(
-            145deg,
-            rgba(246, 250, 253, 0.15),
-            rgba(179, 207, 229, 0.06)
-        );
+    background: var(--secondary-dark);
 
     box-shadow: var(--shadow-lg);
-
-    backdrop-filter: blur(22px);
 }
 
 .experience-card-header {
@@ -683,15 +652,12 @@ button:disabled {
 
     color: var(--primary-dark);
 
-    background:
-        rgba(246, 250, 253, 0.94);
+    background: var(--white);
 
     box-shadow: var(--shadow-md);
 
     font-size: 0.8rem;
     font-weight: 800;
-
-    backdrop-filter: blur(16px);
 
     animation:
         floatCard 5s ease-in-out infinite;
@@ -726,66 +692,8 @@ button:disabled {
 
 
 /* =========================================================
-   10. Platform Information Strip
+   10. (removed - Platform Information Strip no longer used)
    ========================================================= */
-
-.platform-strip {
-    position: relative;
-
-    z-index: 5;
-
-    margin-top: -1px;
-
-    background-color: var(--white);
-
-    border-bottom:
-        1px solid var(--border-light);
-}
-
-.platform-strip-container {
-    width: min(1240px, 92%);
-
-    margin: 0 auto;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-}
-
-.platform-stat {
-    padding:
-        27px 32px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 4px;
-
-    border-right:
-        1px solid var(--border-light);
-}
-
-.platform-stat:last-child {
-    border-right: 0;
-}
-
-.platform-stat span {
-    color: var(--accent-blue);
-
-    font-size: 0.73rem;
-    font-weight: 800;
-
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-}
-
-.platform-stat strong {
-    color: var(--primary-dark);
-
-    font-size: 1rem;
-}
 
 
 /* =========================================================
@@ -1690,10 +1598,6 @@ button:disabled {
         width: 100%;
     }
 
-    .hero-highlights {
-        gap: 14px;
-    }
-
     .experience-card {
         padding: 22px;
     }
@@ -1704,21 +1608,6 @@ button:disabled {
 
     .floating-card-bottom {
         left: -5px;
-    }
-
-    .platform-strip-container {
-        grid-template-columns: 1fr;
-    }
-
-    .platform-stat {
-        border-right: 0;
-
-        border-bottom:
-            1px solid var(--border-light);
-    }
-
-    .platform-stat:last-child {
-        border-bottom: 0;
     }
 
     .services-section {
@@ -1780,17 +1669,6 @@ button:disabled {
     .hero-eyebrow {
         font-size: 0.67rem;
         letter-spacing: 1.6px;
-    }
-
-    .hero-highlights {
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
-
-    .highlight-divider {
-        width: 45px;
-        height: 1px;
     }
 
     .journey-item {
@@ -2288,7 +2166,7 @@ button:disabled {
 
 .seat-selection-layout {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr minmax(320px, 420px);
     gap: 26px;
     align-items: start;
     margin-top: 26px;
@@ -2306,6 +2184,64 @@ button:disabled {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 14px;
+}
+
+/* ---- Event Overview (replaces the seat map once seats are validated) ---- */
+
+.event-overview-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 180px;
+    margin: -24px -24px 20px;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: linear-gradient(135deg, var(--secondary-dark), var(--accent-blue));
+    overflow: hidden;
+}
+
+.event-overview-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+    opacity: 0.6;
+}
+
+.event-overview-hero-icon {
+    position: absolute;
+    width: 96px;
+    height: 96px;
+    color: rgba(255, 255, 255, 0.16);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.event-overview-hero-title {
+    position: relative;
+    max-width: 90%;
+    padding: 0 20px;
+    color: var(--white);
+    font-size: 1.35rem;
+    text-align: center;
+    text-shadow: 0 2px 10px rgba(10, 25, 49, 0.35);
+}
+
+.event-overview-meta {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    margin-bottom: 4px;
+}
+
+.event-overview-description {
+    margin: 12px 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
 }
 
 .seat-summary-panel {
@@ -2326,7 +2262,7 @@ button:disabled {
 .selected-seats-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     min-height: 40px;
     margin-bottom: 16px;
 }
@@ -2334,7 +2270,7 @@ button:disabled {
 .selected-seat-row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: 6px 12px;
     border-radius: var(--radius-sm);
     background: var(--background);
     font-size: 0.88rem;
@@ -2447,5 +2383,621 @@ button:disabled {
 
     .row-price-item-controls .row-price-input {
         max-width: none;
+    }
+}
+
+
+/* =========================================================
+   26. Booking Checkout
+   ========================================================= */
+
+.auth-guard-panel {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 32px;
+    text-align: center;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.success-strip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    margin-top: 14px;
+    border-radius: 999px;
+    background: rgba(74, 127, 167, 0.12);
+    color: var(--secondary-dark);
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.success-strip-icon {
+    color: var(--accent-blue);
+    font-weight: 800;
+}
+
+.checkout-step {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+.checkout-step h3 {
+    margin-bottom: 4px;
+    color: var(--primary-dark);
+}
+
+.parking-option-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.parking-option {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: border-color var(--transition), background-color var(--transition);
+}
+
+.parking-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.parking-option.is-selected {
+    border-color: var(--accent-blue);
+    background: rgba(74, 127, 167, 0.08);
+}
+
+.parking-option.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.parking-option-title {
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.parking-option-detail {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+}
+
+/* ---- Ticket-style summary / confirmation card ---- */
+
+.booking-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    margin-top: 26px;
+}
+
+.ticket-card {
+    position: relative;
+    width: min(100%, 620px);
+    padding: 32px;
+    border-radius: 24px;
+    background-color: var(--white);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(161, 191, 219, 0.35);
+}
+
+.ticket-card .auth-status-icon {
+    margin: 0 auto 14px;
+}
+
+.ticket-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.ticket-card-header h3 {
+    color: var(--primary-dark);
+    font-size: 1.3rem;
+}
+
+.hold-countdown-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    border-radius: var(--radius-sm);
+    background: rgba(201, 149, 51, 0.14);
+    border: 1px solid rgba(201, 149, 51, 0.4);
+}
+
+.hold-countdown {
+    color: #7a5a15;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.ticket-card-body h4 {
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+}
+
+.ticket-section {
+    margin-top: 18px;
+}
+
+.ticket-section h5 {
+    margin-bottom: 8px;
+    color: var(--secondary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ticket-totals {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border-light);
+}
+
+.ticket-card .hero-actions {
+    margin-top: 22px;
+}
+
+/* ---- Optional food ordering ---- */
+
+.food-order-card h3 {
+    color: var(--primary-dark);
+}
+
+.food-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.food-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.food-item-row div {
+    display: flex;
+    flex-direction: column;
+}
+
+.food-item-quantity {
+    max-width: 90px;
+    text-align: center;
+}
+
+.food-orders-list {
+    margin-top: 22px;
+}
+
+.food-orders-list h4 {
+    margin-bottom: 10px;
+    color: var(--primary-dark);
+}
+
+.food-order-summary {
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+/* ---- Notifications ---- */
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 720px;
+}
+
+.notification-card {
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+    border-left: 3px solid transparent;
+    transition: background-color var(--transition), border-color var(--transition);
+}
+
+.notification-card.is-unread {
+    border-left-color: var(--accent-blue);
+    background: rgba(74, 127, 167, 0.07);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+}
+
+.notification-card.is-unread:hover,
+.notification-card.is-unread:focus-visible {
+    background: rgba(74, 127, 167, 0.12);
+}
+
+.notification-card.is-unread:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+}
+
+.notification-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.notification-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--border-light);
+}
+
+.notification-card.is-unread .notification-dot {
+    background: var(--accent-blue);
+}
+
+.notification-title {
+    flex: 1;
+    min-width: 0;
+    color: var(--primary-dark);
+    font-size: 0.96rem;
+}
+
+.notification-card:not(.is-unread) .notification-title {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.notification-message {
+    margin: 0 0 6px 18px;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.notification-created {
+    margin: 0 0 10px 18px;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    opacity: 0.85;
+}
+
+.notification-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 18px;
+}
+
+.notification-card-actions:empty {
+    display: none;
+}
+
+
+/* =========================================================
+   27. Booking Checkout Responsive
+   ========================================================= */
+
+@media (max-width: 760px) {
+    .ticket-card {
+        padding: 22px;
+    }
+
+    .hold-countdown-block {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .food-item-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .food-item-quantity {
+        max-width: none;
+    }
+
+    .notification-card-actions {
+        flex-direction: column;
+        align-items: stretch;
+        margin-left: 0;
+    }
+
+    .notification-card-actions .btn {
+        width: 100%;
+    }
+
+    .event-overview-hero {
+        height: 110px;
+        margin: -24px -24px 16px;
+    }
+
+    .event-overview-hero-icon {
+        width: 64px;
+        height: 64px;
+    }
+
+    .event-overview-hero-title {
+        font-size: 1.1rem;
+    }
+}
+
+
+/* =========================================================
+   28. Homepage Redesign
+   ========================================================= */
+
+.service-card-link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.hero-title-tagline {
+    letter-spacing: -1.5px;
+}
+
+/* ---- Upcoming Events preview ---- */
+
+.featured-events-section {
+    padding: 0 0 30px;
+    background-color: var(--white);
+}
+
+.featured-events-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.featured-event-card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    background: var(--background);
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.featured-event-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-sm);
+    border-color: rgba(74, 127, 167, 0.5);
+}
+
+.featured-event-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 16px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    color: var(--white);
+    background: linear-gradient(135deg, var(--accent-blue), var(--secondary-dark));
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+.featured-event-category {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--accent-blue);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+}
+
+.featured-event-card h3 {
+    margin-bottom: 8px;
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+}
+
+.featured-event-meta {
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+}
+
+.featured-event-price {
+    margin-top: auto;
+    padding-top: 16px;
+    color: var(--secondary-dark);
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+/* ---- How It Works ---- */
+
+.how-it-works-section {
+    padding: 90px 0;
+    background-color: var(--white);
+}
+
+.how-it-works-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+}
+
+.how-it-works-step {
+    flex: 1;
+    min-width: 0;
+}
+
+.how-it-works-number {
+    display: inline-block;
+    margin-bottom: 14px;
+    color: var(--accent-blue);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.how-it-works-step h3 {
+    margin-bottom: 8px;
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+}
+
+.how-it-works-step p {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.65;
+    max-width: 240px;
+}
+
+.how-it-works-connector {
+    flex: 0 0 auto;
+    width: 60px;
+    height: 1px;
+    margin-top: 10px;
+    background: var(--border-light);
+}
+
+/* ---- Event Experience pill chain ---- */
+
+.entry-pill-chain {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+.entry-pill {
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(179, 207, 229, 0.3);
+    background: rgba(179, 207, 229, 0.08);
+    color: var(--white);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.entry-pill-plus {
+    color: var(--light-blue);
+    font-weight: 800;
+}
+
+/* ---- Final CTA ---- */
+
+.final-cta-section {
+    padding: 90px 0;
+    background-color: var(--background);
+    border-top: 1px solid var(--border-light);
+}
+
+.final-cta-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    text-align: center;
+}
+
+.final-cta-container h2 {
+    max-width: 560px;
+    color: var(--primary-dark);
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    letter-spacing: -1px;
+}
+
+/* ---- Footer links ---- */
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 14px;
+}
+
+.footer-links a {
+    color: var(--light-blue);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+.footer-links a:hover {
+    color: var(--white);
+}
+
+
+/* =========================================================
+   29. Homepage Responsive
+   ========================================================= */
+
+@media (max-width: 1050px) {
+    .featured-events-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .how-it-works-row {
+        flex-wrap: wrap;
+        row-gap: 34px;
+    }
+
+    .how-it-works-step {
+        flex: 1 1 40%;
+    }
+
+    .how-it-works-connector {
+        display: none;
+    }
+}
+
+@media (max-width: 760px) {
+    .featured-events-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .how-it-works-step {
+        flex: 1 1 100%;
+    }
+
+    .how-it-works-step p {
+        max-width: none;
+    }
+
+    .final-cta-section {
+        padding: 64px 0;
+    }
+
+    .final-cta-container .btn {
+        width: 100%;
     }
 }

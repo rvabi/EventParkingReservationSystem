@@ -1,5 +1,6 @@
 import {
     isAuthenticated,
+    getCustomerRole,
     removeToken
 } from "./auth.js";
 
@@ -27,6 +28,27 @@ const loginPath =
         ? "./login.html"
         : "./pages/login.html";
 
+const notificationsPath =
+    isInsidePages
+        ? "./notifications.html"
+        : "./pages/notifications.html";
+
+/*
+ * Carries the current page as a safe return target so Notifications can
+ * offer a "Back to Booking" action. Only ever built from the browser's
+ * own trusted location (never from user input), then read back and
+ * re-validated by notifications.js before use.
+ */
+const currentFile =
+    isInsidePages
+        ? window.location.pathname.split("/").pop()
+        : "";
+
+const notificationsHref =
+    currentFile && currentFile !== "notifications.html"
+        ? `${notificationsPath}?return=${encodeURIComponent(currentFile + window.location.search)}`
+        : notificationsPath;
+
     navbar.classList.add("navbar");
 
     navbar.innerHTML = `
@@ -53,6 +75,20 @@ const loginPath =
                 <a href="${homePath}#experience">
                     Experience
                 </a>
+
+                <a href="${homePath}#contact">
+                    Contact
+                </a>
+
+                ${
+                    isAuthenticated() && getCustomerRole() === "Customer"
+                        ? `
+                            <a href="${notificationsHref}">
+                                Notifications
+                            </a>
+                          `
+                        : ""
+                }
 
                 ${
                     isAuthenticated()

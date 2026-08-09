@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Booking Summary | SmartEvent</title>
+
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <header id="navbar"></header>
+
+    <main>
+
+        <section class="services-section">
+
+            <div class="section-container">
+
+                <div class="section-heading">
+                    <span class="section-eyebrow">
+                        BOOKING SUMMARY
+                    </span>
+
+                    <h2>Your booking</h2>
+
+                    <p>Review your seats, parking and payment status.</p>
+                </div>
+
+                <div id="globalFeedback" class="feedback" hidden></div>
+
+                <div id="authGuardPanel" class="auth-guard-panel" hidden>
+                    <p id="authGuardMessage"></p>
+                    <div class="hero-actions">
+                        <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+                    </div>
+                </div>
+
+                <div id="bookingLayout" class="booking-layout" hidden>
+
+                    <article class="ticket-card">
+
+                        <div class="ticket-card-header">
+                            <div>
+                                <span class="form-footer-text">Booking Reference</span>
+                                <h3 id="bookingNumber">-</h3>
+                            </div>
+                            <span id="bookingStatusBadge" class="status-badge">-</span>
+                        </div>
+
+                        <div id="holdCountdownBlock" class="hold-countdown-block" hidden>
+                            <span class="form-footer-text">Complete payment within</span>
+                            <span id="holdCountdown" class="hold-countdown">00:00</span>
+                        </div>
+
+                        <div class="ticket-card-body">
+                            <h4 id="ticketEventName">Event</h4>
+                            <p id="ticketEventMeta" class="form-footer-text"></p>
+
+                            <div class="ticket-section">
+                                <h5>Seats</h5>
+                                <div id="ticketSeatsList" class="selected-seats-list"></div>
+                            </div>
+
+                            <div id="ticketParkingSection" class="ticket-section" hidden>
+                                <h5>Parking</h5>
+                                <div id="ticketParkingRow" class="selected-seat-row"></div>
+                            </div>
+
+                            <div class="ticket-totals">
+                                <div class="selected-seat-row">
+                                    <span>Seat subtotal</span>
+                                    <span id="ticketSeatTotal">LKR 0.00</span>
+                                </div>
+                                <div id="ticketParkingTotalRow" class="selected-seat-row" hidden>
+                                    <span>Parking subtotal</span>
+                                    <span id="ticketParkingTotal">LKR 0.00</span>
+                                </div>
+                                <div class="selected-seats-total">
+                                    <span>Total</span>
+                                    <span id="ticketTotal">LKR 0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="paymentFeedback" class="feedback" hidden></div>
+
+                        <div id="pendingActions" class="hero-actions" hidden>
+                            <button id="payNowButton" class="btn btn-primary" type="button">Pay Now</button>
+                            <button id="cancelBookingButton" class="btn btn-secondary" type="button">Cancel Booking</button>
+                        </div>
+
+                        <div id="confirmedActions" class="hero-actions" hidden>
+                            <a id="viewConfirmationLink" href="#" class="btn btn-primary">View Confirmation</a>
+                        </div>
+
+                        <div id="closedActions" class="hero-actions" hidden>
+                            <a id="chooseSeatsAgainLink" href="#" class="btn btn-primary">Choose Seats Again</a>
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script type="module" src="../js/booking-summary.js"></script>
+
+</body>
+
+</html>
