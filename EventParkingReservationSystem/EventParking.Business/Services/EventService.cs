@@ -1,6 +1,7 @@
 ﻿using EventParking.Business.Interfaces;
 using EventParking.DataAccess.Interfaces;
 using EventParking.Models.Entities;
+using EventParking.Models.Enums;
 
 namespace EventParking.Business.Services;
 
@@ -9,15 +10,21 @@ public class EventService : IEventService
     private readonly IEventRepository _eventRepository;
     private readonly IVenueRepository _venueRepository;
     private readonly IEventCategoryRepository _categoryRepository;
+    private readonly ISeatRepository _seatRepository;
+    private readonly IBookingRepository _bookingRepository;
 
     public EventService(
         IEventRepository eventRepository,
         IVenueRepository venueRepository,
-        IEventCategoryRepository categoryRepository)
+        IEventCategoryRepository categoryRepository,
+        ISeatRepository seatRepository,
+        IBookingRepository bookingRepository)
     {
         _eventRepository = eventRepository;
         _venueRepository = venueRepository;
         _categoryRepository = categoryRepository;
+        _seatRepository = seatRepository;
+        _bookingRepository = bookingRepository;
     }
 
     public async Task<Event?> GetByIdAsync(int eventId)
@@ -106,10 +113,27 @@ public class EventService : IEventService
             return false;
         }
 
+
+
         var existingEvent =
             await _eventRepository.GetByIdAsync(eventEntity.Id);
 
         if (existingEvent is null)
+        {
+            return false;
+        }
+
+        var eventBookings =
+    await _bookingRepository.GetBookingsAsync(
+        eventEntity.Id,
+        null);
+
+        var hasBookings =
+            eventBookings.Count > 0;
+
+        if (hasBookings &&
+            (eventEntity.TicketPrice != existingEvent.TicketPrice ||
+             eventEntity.Capacity != existingEvent.Capacity))
         {
             return false;
         }
@@ -132,6 +156,19 @@ public class EventService : IEventService
         }
 
         if (eventEntity.Capacity > venue.TotalCapacity)
+        {
+            return false;
+        }
+
+        var eventSeats =
+    await _seatRepository.GetByEventIdAsync(
+        eventEntity.Id);
+
+        var bookedSeatCount =
+            eventSeats.Count(
+                seat => seat.Status == SeatStatus.Booked);
+
+        if (eventEntity.Capacity < bookedSeatCount)
         {
             return false;
         }
@@ -188,6 +225,20 @@ public class EventService : IEventService
             await _eventRepository.GetByIdAsync(eventId);
 
         if (eventEntity is null)
+        {
+            return false;
+        }
+        var eventBookings =
+    await _bookingRepository.GetBookingsAsync(
+        eventId,
+        null);
+
+        var hasActiveBooking =
+            eventBookings.Any(booking =>
+                booking.Status == BookingStatus.Pending ||
+                booking.Status == BookingStatus.Confirmed);
+
+        if (hasActiveBooking)
         {
             return false;
         }
