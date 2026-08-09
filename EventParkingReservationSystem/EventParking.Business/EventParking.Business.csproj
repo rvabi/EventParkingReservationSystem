@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="PDFsharp" Version="6.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Common\" />
     <Folder Include="Validators\" />
   </ItemGroup>
