@@ -2,6 +2,7 @@ using EventParking.Api.Security;
 using Microsoft.OpenApi.Models;
 using EventParking.Api.Middleware;
 using EventParking.Api.Extensions;
+using EventParking.Api.BackgroundServices;
 
 using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
@@ -12,6 +13,8 @@ using EventParking.DataAccess.Repositories;
 using EventParking.DataAccess.Seed;
 
 using Microsoft.EntityFrameworkCore;
+using EventParking.Business.Options;
+using PdfSharp.Fonts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +70,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(connectionString);
 });
+
+var bookingOptions =
+    builder.Configuration
+        .GetSection(BookingOptions.SectionName)
+        .Get<BookingOptions>()
+    ?? new BookingOptions();
+
+builder.Services.AddSingleton(bookingOptions);
 
 // Customer
 builder.Services.AddScoped<
@@ -178,9 +189,27 @@ builder.Services.AddScoped<
     IFoodOrderService,
     FoodOrderService>();
 
+// Booking / Payment / Notifications
+builder.Services.AddScoped<
+    IBookingRepository,
+    BookingRepository>();
+
+builder.Services.AddScoped<
+    IBookingService,
+    BookingService>();
+
+builder.Services.AddScoped<
+    INotificationService,
+    NotificationService>();
+
+builder.Services.AddHostedService<
+    BookingExpiryBackgroundService>();
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+GlobalFontSettings.UseWindowsFontsUnderWindows = true;
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
