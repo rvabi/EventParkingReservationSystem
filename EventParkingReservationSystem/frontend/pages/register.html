@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | SmartEvent</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <header id="navbar"></header>
+
+    <main class="login-shell">
+
+        <div class="login-hero">
+            <img
+                src="../assets/images/login-hero-bg.png"
+                alt="Event venue, seating and parking"
+                class="login-hero-image"
+            />
+        </div>
+
+        <div class="login-form-panel">
+
+            <div class="login-form-card">
+
+                <div class="form-heading">
+                    <span class="eyebrow">Create account</span>
+                    <h2>Join SmartEvent</h2>
+                    <p>Register with your details and verify your email before signing in.</p>
+                </div>
+
+                <div id="globalFeedback" class="feedback" hidden></div>
+
+                <form id="registerForm" novalidate>
+
+                    <div class="form-group">
+                        <label class="form-label" for="fullName">Full Name</label>
+                        <input id="fullName" class="form-control" type="text" placeholder="Your full name" maxlength="150" required>
+                        <span id="fullNameFeedback" class="field-feedback" hidden></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input id="email" class="form-control" type="email" placeholder="you@example.com" maxlength="255" required>
+                        <span id="emailFeedback" class="field-feedback" hidden></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="phone">Phone</label>
+                        <input id="phone" class="form-control" type="tel" placeholder="071 000 0000" maxlength="30" required>
+                        <span id="phoneFeedback" class="field-feedback" hidden></span>
+                    </div>
+
+                    <div class="form-group password-group">
+                        <label class="form-label" for="password">Password</label>
+                        <div class="password-field">
+                            <input id="password" class="form-control" type="password" placeholder="Create a password" minlength="8" maxlength="100" required>
+                            <button id="passwordToggle" type="button" class="password-toggle" aria-label="Show password">Show</button>
+                        </div>
+                        <span id="passwordFeedback" class="field-feedback" hidden></span>
+                    </div>
+
+                    <div class="form-group password-group">
+                        <label class="form-label" for="confirmPassword">Confirm Password</label>
+                        <div class="password-field">
+                            <input id="confirmPassword" class="form-control" type="password" placeholder="Re-enter your password" minlength="8" maxlength="100" required>
+                            <button id="confirmPasswordToggle" type="button" class="password-toggle" aria-label="Show confirm password">Show</button>
+                        </div>
+                        <span id="confirmPasswordFeedback" class="field-feedback" hidden></span>
+                    </div>
+
+                    <div class="hero-actions">
+                        <button id="registerButton" class="btn btn-primary" type="submit">Create Account</button>
+                    </div>
+
+                </form>
+
+                <div id="registerSuccess" class="register-success" hidden>
+                    <div class="form-heading">
+                        <span class="eyebrow">Success</span>
+                        <h2>Registration complete</h2>
+                        <p>Registration successful. Please verify your email.</p>
+                    </div>
+                    <div class="hero-actions">
+                        <a href="login.html" class="btn btn-secondary">Return to Login</a>
+                    </div>
+                    <div id="registerDevHint" class="dev-only-hint" hidden></div>
+                </div>
+
+                <div class="form-footer">
+                    <span class="form-footer-text">Already have an account?</span>
+                    <a href="login.html" class="btn btn-secondary">Login</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <script type="module" src="../js/register.js"></script>
+
+</body>
+
+</html>

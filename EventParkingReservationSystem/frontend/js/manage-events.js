@@ -274,6 +274,12 @@ function renderEvents() {
                     Edit
                 </button>
 
+                <a
+                    href="./manage-seats.html?id=${event.id}"
+                    class="btn btn-secondary">
+                    Manage Seats
+                </a>
+
                 <button
                     class="btn btn-secondary delete-event-button"
                     type="button"
