@@ -22,6 +22,11 @@ const homePath =
         ? "../index.html"
         : "./index.html";
 
+const loginPath =
+    isInsidePages
+        ? "./login.html"
+        : "./pages/login.html";
+
     navbar.classList.add("navbar");
 
     navbar.innerHTML = `
@@ -60,11 +65,11 @@ const homePath =
                             </button>
                           `
                         : `
-                            <span
-                                class="btn btn-secondary"
-                                title="Login will be connected after authentication module integration">
+                            <a
+                                href="${loginPath}"
+                                class="btn btn-secondary">
                                 Login
-                            </span>
+                            </a>
                           `
                 }
 

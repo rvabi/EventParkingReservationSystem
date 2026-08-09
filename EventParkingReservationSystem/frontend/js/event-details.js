@@ -94,14 +94,14 @@ function renderEventDetails(
 ) {
 
     eventDetails.innerHTML = `
-        <article class="service-card">
+        <article class="service-card event-detail-card">
 
             <div class="service-number">
                 #${eventItem.id}
             </div>
 
             <div class="service-icon">
-                E
+                ${escapeHtml(categoryInitial(category.name))}
             </div>
 
             <h3>
@@ -176,8 +176,26 @@ function renderEventDetails(
                 ${venue.totalCapacity}
             </p>
 
+            <div class="hero-actions">
+                <a
+                    href="./seat-selection.html?id=${eventItem.id}"
+                    id="selectSeatsButton"
+                    class="btn btn-primary">
+                    Select Seats
+                </a>
+            </div>
+
         </article>
     `;
+}
+
+
+function categoryInitial(categoryName) {
+    const trimmed = String(categoryName ?? "").trim();
+
+    return trimmed
+        ? trimmed.charAt(0).toUpperCase()
+        : "E";
 }
 
 

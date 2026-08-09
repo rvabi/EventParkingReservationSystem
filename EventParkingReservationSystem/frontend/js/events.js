@@ -108,6 +108,16 @@ async function loadCategories() {
 }
 
 
+function hasActiveFilters() {
+    return Boolean(
+        eventNameInput.value.trim() ||
+        eventDateInput.value ||
+        venueSelect.value ||
+        categorySelect.value
+    );
+}
+
+
 async function loadEvents() {
     try {
         setButtonLoading(
@@ -118,6 +128,12 @@ async function loadEvents() {
 
         hideFeedback();
 
+        eventList.innerHTML = `
+            <p class="event-list-status">
+                Loading events...
+            </p>
+        `;
+
         const query =
             buildEventQuery();
 
@@ -126,7 +142,16 @@ async function loadEvents() {
                 `/api/Events${query}`
             );
 
-        renderEvents(events);
+        const searchText =
+            eventNameInput.value.trim().toLowerCase();
+
+        const filteredEvents =
+            searchText
+                ? events.filter((eventItem) =>
+                    matchesSearchText(eventItem, searchText))
+                : events;
+
+        renderEvents(filteredEvents);
     } catch (error) {
         eventList.innerHTML = "";
 
@@ -144,12 +169,24 @@ async function loadEvents() {
 }
 
 
+function matchesSearchText(eventItem, searchText) {
+    const venueName =
+        getVenueName(eventItem.venueId).toLowerCase();
+
+    const categoryName =
+        getCategoryName(eventItem.eventCategoryId).toLowerCase();
+
+    return (
+        eventItem.name.toLowerCase().includes(searchText) ||
+        venueName.includes(searchText) ||
+        categoryName.includes(searchText)
+    );
+}
+
+
 function buildEventQuery() {
     const parameters =
         new URLSearchParams();
-
-    const name =
-        eventNameInput.value.trim();
 
     const date =
         eventDateInput.value;
@@ -160,13 +197,13 @@ function buildEventQuery() {
     const categoryId =
         categorySelect.value;
 
-
-    if (name) {
-        parameters.append(
-            "name",
-            name
-        );
-    }
+    /*
+     * The "name" search box also matches venue and category
+     * names, which the backend Events search does not support,
+     * so text matching happens client-side in matchesSearchText.
+     * Date/venue/category stay server-side since the backend
+     * already combines them with AND semantics.
+     */
 
     if (date) {
         parameters.append(
@@ -203,15 +240,19 @@ function renderEvents(events) {
     eventList.innerHTML = "";
 
     if (!events || events.length === 0) {
-        showFeedback(
-            "No events found for the selected filters.",
-            "info"
-        );
+        const message =
+            hasActiveFilters()
+                ? "No matching events found."
+                : "There are no events available right now.";
+
+        eventList.innerHTML = `
+            <p class="event-list-status">
+                ${escapeHtml(message)}
+            </p>
+        `;
 
         return;
     }
-
-    hideFeedback();
 
     events.forEach((eventItem) => {
 
@@ -229,7 +270,7 @@ function renderEvents(events) {
             document.createElement("article");
 
         card.className =
-            "service-card";
+            "service-card event-card";
 
         card.innerHTML = `
             <div class="service-number">
@@ -237,7 +278,7 @@ function renderEvents(events) {
             </div>
 
             <div class="service-icon">
-                E
+                ${escapeHtml(categoryInitial(categoryName))}
             </div>
 
             <h3>
@@ -292,8 +333,26 @@ function renderEvents(events) {
             </a>
         `;
 
+        card.addEventListener("click", (event) => {
+            if (event.target.closest("a")) {
+                return;
+            }
+
+            window.location.href =
+                `./event-details.html?id=${eventItem.id}`;
+        });
+
         eventList.appendChild(card);
     });
+}
+
+
+function categoryInitial(categoryName) {
+    const trimmed = categoryName.trim();
+
+    return trimmed
+        ? trimmed.charAt(0).toUpperCase()
+        : "E";
 }
 
 
@@ -374,6 +433,17 @@ function escapeHtml(value) {
 searchButton.addEventListener(
     "click",
     loadEvents
+);
+
+
+eventNameInput.addEventListener(
+    "keydown",
+    (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            loadEvents();
+        }
+    }
 );
 
 

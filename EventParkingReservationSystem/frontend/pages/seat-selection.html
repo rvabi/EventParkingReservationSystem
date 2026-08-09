@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Select Seats | SmartEvent</title>
+
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <header id="navbar"></header>
+
+    <main>
+
+        <section class="services-section">
+
+            <div class="section-container">
+
+                <div class="section-heading">
+                    <span class="section-eyebrow">
+                        SEAT SELECTION
+                    </span>
+
+                    <h2 id="eventNameHeading">
+                        Select your seats
+                    </h2>
+
+                    <p id="eventMetaLine">
+                        Loading event information...
+                    </p>
+                </div>
+
+                <div class="hero-actions">
+                    <a href="./events.html" id="backToEventLink" class="btn btn-secondary">&larr; Back to Event</a>
+                </div>
+
+                <div id="globalFeedback" class="feedback" hidden></div>
+
+                <div id="seatSelectionLayout" class="seat-selection-layout" hidden>
+
+                    <div class="seat-map-panel">
+
+                        <div class="seat-map-toolbar">
+                            <button id="refreshSeatsButton" type="button" class="btn btn-secondary btn-small">
+                                Refresh
+                            </button>
+                        </div>
+
+                        <div id="seatMapContainer" class="seat-map-container"></div>
+
+                        <div class="seat-legend">
+                            <span class="seat-legend-item">
+                                <span class="seat-legend-swatch seat-status-available"></span>
+                                Available
+                            </span>
+                            <span class="seat-legend-item">
+                                <span class="seat-legend-swatch seat-selected-swatch"></span>
+                                Selected
+                            </span>
+                            <span class="seat-legend-item">
+                                <span class="seat-legend-swatch seat-status-held"></span>
+                                Held
+                            </span>
+                            <span class="seat-legend-item">
+                                <span class="seat-legend-swatch seat-status-booked"></span>
+                                Booked
+                            </span>
+                            <span class="seat-legend-item">
+                                <span class="seat-legend-swatch seat-status-unavailable"></span>
+                                Unavailable
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <aside class="seat-summary-panel">
+
+                        <h3>Your Selection</h3>
+
+                        <div id="selectedSeatsList" class="selected-seats-list">
+                            <p class="selected-seats-empty">No seats selected yet.</p>
+                        </div>
+
+                        <div class="selected-seats-total">
+                            <span>Total</span>
+                            <span id="selectedSeatsTotal">LKR 0.00</span>
+                        </div>
+
+                        <div id="validationFeedback" class="feedback" hidden></div>
+
+                        <div class="hero-actions">
+                            <button id="continueButton" class="btn btn-primary" type="button" disabled>
+                                Continue
+                            </button>
+                        </div>
+
+                    </aside>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script type="module" src="../js/seat-selection.js"></script>
+
+</body>
+
+</html>
