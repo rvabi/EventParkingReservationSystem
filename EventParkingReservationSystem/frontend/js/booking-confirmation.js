@@ -11,7 +11,6 @@ import {
 import {
     isAuthenticated,
     getCustomerRole,
-    getCustomerId,
     getToken
 } from "./auth.js";
 
@@ -352,21 +351,11 @@ async function handlePlaceFoodOrder() {
         return;
     }
 
-    const customerId = getCustomerId();
-
-    if (!customerId) {
-        showFoodOrderFeedback(
-            "Unable to identify your account. Please log in again.",
-            "error"
-        );
-        return;
-    }
-
     try {
         setButtonLoading(placeFoodOrderButton, true, "Placing order...");
         hideFoodOrderFeedback();
 
-        await api.post(`/api/food-orders?customerId=${customerId}`, {
+        await api.post("/api/food-orders", {
             bookingId,
             foodStallId,
             pickupTime: pickupTimeInput.value,
@@ -395,16 +384,8 @@ async function handlePlaceFoodOrder() {
 
 
 async function loadMyFoodOrders() {
-    const customerId = getCustomerId();
-
-    if (!customerId) {
-        return;
-    }
-
     try {
-        const orders = await api.get(
-            `/api/food-orders/my-orders?customerId=${customerId}`
-        );
+        const orders = await api.get("/api/food-orders/my-orders");
 
         const bookingOrders = orders.filter(
             (order) => order.bookingId === bookingId

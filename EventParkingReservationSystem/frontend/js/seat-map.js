@@ -30,6 +30,18 @@ export function seatStatusName(status) {
 }
 
 /*
+ * Maps the persisted Event.SeatingLayoutType string (as returned by
+ * EventDto - "StraightRows" or "CircularArena", see
+ * EventParking.Models.Enums.SeatingLayoutType) to the layout keyword this
+ * renderer understands ("square" | "circular"). Shared by manage-seats.js
+ * (admin) and seat-selection.js (customer) so both read the same persisted
+ * field the same way instead of duplicating the mapping.
+ */
+export function layoutModeFromSeatingLayoutType(seatingLayoutType) {
+    return seatingLayoutType === "CircularArena" ? "circular" : "square";
+}
+
+/*
  * Converts a bijective base-26 row label (A, B, ... Z, AA, AB, ...) back
  * into its generation index, matching SeatService.GetRowLabel exactly, so
  * rows sort in real generation order rather than plain string order
@@ -76,13 +88,18 @@ export function groupSeatsByRow(seats) {
     return rows;
 }
 
-function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick }) {
+function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick, shape, unitLabel }) {
     const button = document.createElement("button");
     button.type = "button";
 
     const statusName = seatStatusName(seat.status);
 
     button.className = `seat-btn seat-status-${statusName.toLowerCase()}`;
+
+    if (shape === "circle") {
+        button.classList.add("seat-btn-circle");
+    }
+
     button.dataset.seatId = String(seat.id);
 
     const isSelected = Boolean(selectedSeatIds && selectedSeatIds.has(seat.id));
@@ -107,7 +124,7 @@ function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick }) {
 
     button.setAttribute(
         "aria-label",
-        `Seat ${seat.seatNumber}, Row ${seat.rowLabel || "-"}, ${statusName}${priceText}`
+        `Seat ${seat.seatNumber}, ${unitLabel || "Row"} ${seat.rowLabel || "-"}, ${statusName}${priceText}`
     );
 
     button.title = `${seat.seatNumber} - ${statusName}${priceText}`;
@@ -147,87 +164,107 @@ function renderSquareLayout(wrapper, rows, options) {
 }
 
 /*
- * Ground/fan layout: distributes the real rows across three visual bands
- * (front/mid/back) and applies a per-seat curve computed from column
- * position within its row. This is presentation-only geometry derived at
- * render time from real row/column data - no coordinates are invented or
- * persisted anywhere.
+ * True 360-degree circular arena renderer. Rows returned by
+ * groupSeatsByRow are already sorted in real backend generation order
+ * (A, B, C, ...), which - because GenerateSeatMapAsync assigns row labels
+ * in the order rows were submitted - lines up exactly with "Ring A =
+ * nearest center, Ring B = next, ..." from the admin's Number of Rings
+ * input. Each ring is a concentric circle of the given radius; seats
+ * within a ring are spaced evenly around the full 360 degrees using
+ * simple trigonometry. This is presentation-only geometry computed at
+ * render time from real row/column data - nothing here is persisted.
+ *
+ * container is passed in (not just the wrapper) so the renderer can
+ * measure real available width after layout and scale the whole arena
+ * down to fit small screens without causing page-level horizontal
+ * overflow - the seat-map-container's own overflow-x:auto remains as a
+ * fallback if an unusually large ring count still doesn't fit.
  */
-function renderGroundLayout(wrapper, rows, options) {
-    const fan = document.createElement("div");
-    fan.className = "seat-ground-fan";
+function renderCircularLayout(container, wrapper, rows, options) {
+    const STAGE_RADIUS = 56;
+    const RING_GAP = 44;
+    const SEAT_SIZE = 26;
+    const OUTER_PADDING = 14;
 
-    const totalRows = rows.length;
-    const bandWidths = [58, 76, 94];
-    const bandArc = [12, 22, 32];
+    const arenaHolder = document.createElement("div");
+    arenaHolder.className = "seat-arena-holder";
 
-    const bands = [[], [], []];
+    const arena = document.createElement("div");
+    arena.className = "seat-arena";
 
-    rows.forEach((row, index) => {
-        const bandIndex =
-            totalRows <= 1
-                ? 0
-                : Math.min(2, Math.floor((index * 3) / totalRows));
+    const ringCount = rows.length;
+    const outerRadius = STAGE_RADIUS + RING_GAP * ringCount;
+    const containerRadius = outerRadius + SEAT_SIZE / 2 + OUTER_PADDING;
+    const containerSize = containerRadius * 2;
 
-        bands[bandIndex].push(row);
-    });
+    arena.style.width = `${containerSize}px`;
+    arena.style.height = `${containerSize}px`;
 
-    bands.forEach((bandRows, bandIndex) => {
-        if (!bandRows.length) {
+    const stage = document.createElement("div");
+    stage.className = "seat-arena-stage";
+    stage.style.width = `${STAGE_RADIUS * 2}px`;
+    stage.style.height = `${STAGE_RADIUS * 2}px`;
+    stage.textContent = "EVENT / STAGE";
+    arena.appendChild(stage);
+
+    rows.forEach((row, ringIndex) => {
+        const radius = STAGE_RADIUS + RING_GAP * (ringIndex + 1);
+        const seatCount = row.seats.length;
+
+        if (seatCount === 0) {
             return;
         }
 
-        const bandEl = document.createElement("div");
-        bandEl.className = `seat-ground-band seat-ground-band-${bandIndex + 1}`;
-        bandEl.style.maxWidth = `${bandWidths[bandIndex]}%`;
+        const angleStep = 360 / seatCount;
 
-        bandRows.forEach((row) => {
-            const rowEl = document.createElement("div");
-            rowEl.className = "seat-row seat-row-ground";
+        row.seats.forEach((seat, seatIndex) => {
+            const angleDeg = angleStep * seatIndex - 90;
+            const angleRad = (angleDeg * Math.PI) / 180;
 
-            const label = document.createElement("span");
-            label.className = "seat-row-label";
-            label.textContent = row.rowLabel || "-";
-            rowEl.appendChild(label);
+            const x = radius * Math.cos(angleRad);
+            const y = radius * Math.sin(angleRad);
 
-            const seatsEl = document.createElement("div");
-            seatsEl.className = "seat-row-seats seat-row-seats-ground";
-
-            const count = row.seats.length;
-            const arc = bandArc[bandIndex];
-
-            row.seats.forEach((seat, seatIndex) => {
-                const button = createSeatButton(seat, options);
-
-                const t =
-                    count > 1
-                        ? (seatIndex - (count - 1) / 2) / ((count - 1) / 2)
-                        : 0;
-
-                const yOffset = arc * (1 - Math.cos(t * (Math.PI / 2.4)));
-                const rotate = t * 5;
-
-                button.style.transform =
-                    `translateY(${yOffset.toFixed(1)}px) rotate(${rotate.toFixed(1)}deg)`;
-
-                seatsEl.appendChild(button);
+            const button = createSeatButton(seat, {
+                ...options,
+                shape: "circle",
+                unitLabel: "Ring"
             });
 
-            rowEl.appendChild(seatsEl);
-            bandEl.appendChild(rowEl);
-        });
+            button.classList.add("seat-btn-arena");
+            button.style.left = `calc(50% + ${x.toFixed(2)}px)`;
+            button.style.top = `calc(50% + ${y.toFixed(2)}px)`;
 
-        fan.appendChild(bandEl);
+            arena.appendChild(button);
+        });
     });
 
-    wrapper.appendChild(fan);
+    arenaHolder.appendChild(arena);
+    wrapper.appendChild(arenaHolder);
+
+    /*
+     * Deferred to a frame after the wrapper has actually been attached to
+     * `container` (renderSeatMap appends `wrapper` to `container`
+     * immediately after this function returns, which happens
+     * synchronously before the next animation frame), so container.
+     * clientWidth reflects the real, already-laid-out available width.
+     */
+    requestAnimationFrame(() => {
+        const availableWidth = container.clientWidth;
+
+        if (availableWidth > 0 && containerSize > availableWidth) {
+            const scale = Math.max(0.55, availableWidth / containerSize);
+
+            arena.style.transform = `scale(${scale})`;
+            arenaHolder.style.height = `${containerSize * scale}px`;
+        }
+    });
 }
 
 /*
  * container: element to render into (its content is replaced).
  * options.seats: array of SeatDto-shaped objects (id, seatNumber,
  *   rowLabel, columnNumber, status, price).
- * options.layout: "square" | "ground".
+ * options.layout: "square" | "circular".
  * options.mode: "customer" | "admin" - controls which statuses are
  *   clickable (customer: Available only; admin: Available/Unavailable
  *   toggle; Held/Booked are always locked in both modes).
@@ -256,20 +293,21 @@ export function renderSeatMap(container, options = {}) {
     }
 
     const rows = groupSeatsByRow(seats);
+    const isCircular = layout === "circular";
 
     const wrapper = document.createElement("div");
-    wrapper.className = `seat-map seat-map-${layout === "ground" ? "ground" : "square"}`;
+    wrapper.className = `seat-map seat-map-${isCircular ? "circular" : "square"}`;
 
-    const stage = document.createElement("div");
-    stage.className = "seat-stage";
-    stage.textContent = "STAGE";
-    wrapper.appendChild(stage);
+    const renderOptions = { mode, selectedSeatIds, onSeatClick, unitLabel: isCircular ? "Ring" : "Row" };
 
-    const renderOptions = { mode, selectedSeatIds, onSeatClick };
-
-    if (layout === "ground") {
-        renderGroundLayout(wrapper, rows, renderOptions);
+    if (isCircular) {
+        renderCircularLayout(container, wrapper, rows, renderOptions);
     } else {
+        const stage = document.createElement("div");
+        stage.className = "seat-stage";
+        stage.textContent = "STAGE";
+        wrapper.appendChild(stage);
+
         renderSquareLayout(wrapper, rows, renderOptions);
     }
 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using EventParking.Models.Entities;
+using EventParking.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -59,6 +60,11 @@ public class EventConfiguration
 
         builder.Property(eventItem => eventItem.Capacity)
             .IsRequired();
+
+        builder.Property(eventItem => eventItem.SeatingLayoutType)
+            .IsRequired()
+            .HasConversion<int>()
+            .HasDefaultValue(SeatingLayoutType.StraightRows);
 
         builder.Property(eventItem => eventItem.CreatedAt)
             .IsRequired();

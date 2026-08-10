@@ -1389,20 +1389,6 @@ button:disabled {
     color: #b33945;
 }
 
-/* ---- Layout preview toggle ---- */
-
-.seat-layout-toggle {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 20px;
-}
-
-.seat-layout-toggle .form-footer-text {
-    width: 100%;
-}
-
 /* ---- Seat map + seat buttons (shared renderer output) ---- */
 
 .seat-map-container {
@@ -1526,33 +1512,6 @@ button:disabled {
     color: var(--text-secondary);
     border-color: var(--border-light);
     text-decoration: line-through;
-}
-
-/* ---- Ground / fan layout ---- */
-
-.seat-ground-fan {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 26px;
-}
-
-.seat-ground-band {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin: 0 auto;
-}
-
-.seat-row-ground {
-    justify-content: center;
-}
-
-.seat-row-seats-ground .seat-btn {
-    width: 30px;
-    height: 30px;
-    font-size: 0.6rem;
 }
 
 /* ---- Legend ---- */
@@ -2642,5 +2601,1970 @@ button:disabled {
 
     .home-cta-inner .btn {
         width: 100%;
+    }
+}
+
+
+/* =========================================================
+   30. Admin Event Wizard
+   ========================================================= */
+
+.wizard-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 30px;
+}
+
+.wizard-step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 0;
+    min-width: 150px;
+}
+
+.wizard-step-number {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid var(--border-light);
+    background: var(--white);
+    color: var(--text-secondary);
+    font-weight: 800;
+    font-size: 0.9rem;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.wizard-step-label {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.wizard-step-indicator.is-active .wizard-step-number {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: var(--white);
+}
+
+.wizard-step-indicator.is-active .wizard-step-label {
+    color: var(--primary-dark);
+}
+
+.wizard-step-indicator.is-complete .wizard-step-number {
+    background: var(--secondary-dark);
+    border-color: var(--secondary-dark);
+    color: var(--white);
+}
+
+.wizard-step-panel[hidden] {
+    display: none;
+}
+
+.wizard-step-panel h3 {
+    margin-bottom: 4px;
+    color: var(--primary-dark);
+}
+
+.wizard-step-intro {
+    margin-bottom: 18px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.wizard-nav-spacer {
+    flex: 1 1 auto;
+}
+
+/* ---- Layout selector (Hall/Straight vs Ground/Full Round) ---- */
+
+.layout-selector {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 10px 0 6px;
+}
+
+.layout-option {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    background: var(--background);
+    border: 2px solid var(--border-light);
+    cursor: pointer;
+    transition: border-color var(--transition), background-color var(--transition);
+}
+
+.layout-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.layout-option.is-selected {
+    border-color: var(--accent-blue);
+    background: rgba(74, 127, 167, 0.08);
+}
+
+.layout-option-icon {
+    width: 40px;
+    height: 40px;
+    color: var(--accent-blue);
+}
+
+.layout-option-title {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+.layout-option-detail {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+/* ---- Review step ---- */
+
+.wizard-review-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 24px;
+    margin: 14px 0 20px;
+}
+
+.wizard-review-item {
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.wizard-review-label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.wizard-review-value {
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.94rem;
+    word-break: break-word;
+}
+
+.layout-badge {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(74, 127, 167, 0.14);
+    color: var(--secondary-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   31. Admin Seat Auto-Distribute + Layout-Aware Labels
+   ========================================================= */
+
+.seat-admin-layout-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(74, 127, 167, 0.1);
+    color: var(--secondary-dark);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.row-count-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px;
+    margin-bottom: 6px;
+}
+
+.row-count-controls .form-group {
+    margin-bottom: 0;
+    max-width: 220px;
+}
+
+.row-total-summary.row-total-summary-ok {
+    color: var(--secondary-dark);
+}
+
+
+/* =========================================================
+   32. Full 360-Degree Circular Arena Renderer
+   ========================================================= */
+
+.seat-map-circular {
+    gap: 0;
+}
+
+.seat-arena-holder {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+}
+
+.seat-arena {
+    position: relative;
+    margin: 0 auto;
+    transform-origin: top center;
+}
+
+.seat-arena-stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--primary-dark);
+    color: var(--white);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+
+.seat-btn-circle {
+    width: 26px;
+    height: 26px;
+    font-size: 0.56rem;
+    border-radius: 50%;
+}
+
+.seat-btn-arena {
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+
+/* =========================================================
+   33. Admin + Circular Arena Responsive
+   ========================================================= */
+
+@media (max-width: 760px) {
+    .wizard-steps {
+        gap: 10px;
+    }
+
+    .wizard-step-label {
+        display: none;
+    }
+
+    .layout-selector,
+    .wizard-review-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .row-count-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .row-count-controls .form-group {
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .wizard-nav {
+        flex-wrap: wrap;
+    }
+
+    .wizard-nav .btn {
+        flex: 1 1 auto;
+    }
+}
+
+
+/* =========================================================
+   34. Admin Control Center Shell
+   ========================================================= */
+
+/*
+ * Deliberately its own palette (Deep Slate Blue / Steel Blue / Dusty Blue /
+ * Powder Blue / Ivory / Charcoal / Muted Gold), scoped to .admin-shell only
+ * so Customer pages keep the existing site-wide tokens untouched. Content
+ * reused from Customer-shared components inside .admin-content (form
+ * controls, buttons, the wizard, the seat map) intentionally keeps using
+ * the global tokens above - only the Admin chrome (sidebar/topbar/
+ * dashboard) uses this palette, which is what makes Admin read as a
+ * distinct control center without risking the shared component styling.
+ */
+.admin-shell {
+    --admin-slate: #334E68;
+    --admin-steel: #5E7F9E;
+    --admin-dusty: #9CB8CF;
+    --admin-powder: #DCE8F2;
+    --admin-ivory: #FAF8F3;
+    --admin-white: #FFFFFF;
+    --admin-charcoal: #24313D;
+    --admin-gold: #C9A96E;
+
+    display: flex;
+    align-items: stretch;
+    min-height: 100vh;
+    background: var(--admin-ivory);
+}
+
+.admin-sidebar {
+    width: 258px;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    background: var(--admin-slate);
+    padding: 24px 0 18px;
+}
+
+.admin-sidebar-brand {
+    padding: 0 22px 20px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.admin-sidebar-brand-name {
+    display: block;
+    color: var(--admin-white);
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.admin-sidebar-brand-tag {
+    display: block;
+    margin-top: 2px;
+    color: var(--admin-dusty);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+}
+
+.admin-sidebar-nav {
+    flex: 1 1 auto;
+    padding: 0 14px;
+    overflow-y: auto;
+}
+
+.admin-sidebar-group-label {
+    display: block;
+    margin: 18px 10px 8px;
+    color: var(--admin-dusty);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.admin-sidebar-group-label:first-child {
+    margin-top: 0;
+}
+
+.admin-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 2px;
+    border-radius: 8px;
+    color: var(--admin-powder);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color var(--transition), color var(--transition);
+}
+
+a.admin-sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--admin-white);
+}
+
+.admin-sidebar-link.is-active {
+    background: var(--admin-steel);
+    color: var(--admin-white);
+    font-weight: 700;
+}
+
+.admin-sidebar-link.is-disabled {
+    color: rgba(220, 232, 242, 0.4);
+    cursor: default;
+}
+
+.admin-sidebar-tag {
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(201, 169, 110, 0.2);
+    color: var(--admin-gold);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.admin-sidebar-footer {
+    padding: 16px 22px 4px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.admin-sidebar-footer .btn {
+    width: 100%;
+}
+
+.admin-sidebar-footer .btn-secondary {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: var(--admin-white);
+}
+
+.admin-sidebar-footer .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.admin-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    background: rgba(36, 49, 61, 0.5);
+}
+
+.admin-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-topbar {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--admin-white);
+    border-bottom: 1px solid rgba(51, 78, 104, 0.16);
+    position: sticky;
+    top: 0;
+    z-index: 12;
+}
+
+.admin-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    border: 1px solid rgba(51, 78, 104, 0.25);
+    background: var(--admin-white);
+    color: var(--admin-slate);
+    font-size: 1.05rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.admin-topbar-brand {
+    color: var(--admin-slate);
+    font-weight: 800;
+    font-size: 0.94rem;
+}
+
+.admin-content {
+    flex: 1 1 auto;
+    padding: 34px;
+}
+
+.admin-content .services-section {
+    padding: 0;
+    background: none;
+}
+
+.admin-content .section-container {
+    padding: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+}
+
+
+/* =========================================================
+   35. Admin Dashboard
+   ========================================================= */
+
+.admin-page-header {
+    margin-bottom: 26px;
+}
+
+.admin-eyebrow {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(51, 78, 104, 0.1);
+    color: var(--admin-slate);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+.admin-page-title {
+    margin-bottom: 6px;
+    color: var(--admin-charcoal);
+    font-size: 1.7rem;
+    font-weight: 800;
+}
+
+.admin-page-subtitle {
+    max-width: 640px;
+    color: var(--admin-slate);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.admin-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 22px 0 30px;
+}
+
+.admin-quick-action {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 20px;
+    border-radius: var(--radius-sm);
+    background: var(--admin-white);
+    border: 1px solid rgba(51, 78, 104, 0.16);
+    color: var(--admin-slate);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    box-shadow: 0 6px 18px rgba(51, 78, 104, 0.08);
+    transition: border-color var(--transition), transform var(--transition);
+}
+
+a.admin-quick-action:hover {
+    border-color: var(--admin-steel);
+    transform: translateY(-2px);
+}
+
+.admin-quick-action.is-primary {
+    background: var(--admin-slate);
+    border-color: var(--admin-slate);
+    color: var(--admin-white);
+}
+
+a.admin-quick-action.is-primary:hover {
+    border-color: var(--admin-gold);
+}
+
+.admin-quick-action.is-disabled {
+    cursor: default;
+    opacity: 0.6;
+}
+
+.admin-quick-action-icon {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+}
+
+/* ---- Compact summary strip ---- */
+
+.admin-summary-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 34px;
+    border-radius: var(--radius-sm);
+    background: var(--admin-white);
+    border: 1px solid rgba(51, 78, 104, 0.14);
+    box-shadow: 0 6px 18px rgba(51, 78, 104, 0.06);
+    overflow: hidden;
+}
+
+.admin-summary-item {
+    flex: 1 1 160px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 22px;
+    border-right: 1px solid rgba(51, 78, 104, 0.1);
+}
+
+.admin-summary-item:last-child {
+    border-right: none;
+}
+
+.admin-summary-label {
+    color: var(--admin-slate);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.admin-summary-value {
+    color: var(--admin-charcoal);
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+/* ---- Event Operations Board ---- */
+
+.admin-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+    color: var(--admin-charcoal);
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.admin-section-subtitle {
+    margin-bottom: 18px;
+    color: var(--admin-slate);
+    font-size: 0.86rem;
+}
+
+.admin-event-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.admin-event-card {
+    display: flex;
+    flex-direction: column;
+    padding: 18px 20px;
+    border-radius: var(--radius-sm);
+    background: var(--admin-white);
+    border: 1px solid rgba(51, 78, 104, 0.14);
+    box-shadow: 0 6px 18px rgba(51, 78, 104, 0.06);
+}
+
+.admin-event-card-title {
+    margin-bottom: 2px;
+    color: var(--admin-charcoal);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.admin-event-card-meta {
+    margin-bottom: 12px;
+    color: var(--admin-steel);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.admin-event-card-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(51, 78, 104, 0.12);
+}
+
+.admin-event-card-detail-label {
+    display: block;
+    color: var(--admin-steel);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.admin-event-card-detail-value {
+    color: var(--admin-charcoal);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.admin-layout-chip {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(201, 169, 110, 0.18);
+    color: #8a6d2f;
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.admin-event-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.admin-event-card-actions .btn {
+    flex: 1 1 auto;
+}
+
+.admin-empty-note {
+    padding: 20px;
+    border-radius: var(--radius-sm);
+    background: var(--admin-white);
+    border: 1px dashed rgba(51, 78, 104, 0.3);
+    color: var(--admin-slate);
+    font-size: 0.9rem;
+}
+
+
+/* =========================================================
+   36. Admin Shell Responsive
+   ========================================================= */
+
+@media (max-width: 1080px) {
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 20;
+        transform: translateX(-100%);
+        box-shadow: var(--shadow-lg);
+        transition: transform var(--transition);
+    }
+
+    .admin-shell.is-sidebar-open .admin-sidebar {
+        transform: translateX(0);
+    }
+
+    .admin-shell.is-sidebar-open .admin-sidebar-backdrop {
+        display: block;
+    }
+
+    .admin-topbar {
+        display: flex;
+    }
+
+    .admin-content {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 760px) {
+    .admin-content {
+        padding: 18px;
+    }
+
+    .admin-summary-item {
+        flex: 1 1 45%;
+    }
+
+    .admin-event-board {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-event-card-actions .btn {
+        flex: 1 1 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-sidebar {
+        width: 84vw;
+        max-width: 300px;
+    }
+
+    .admin-quick-actions {
+        flex-direction: column;
+    }
+
+    .admin-quick-action {
+        justify-content: center;
+    }
+
+    .admin-summary-item {
+        flex: 1 1 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(51, 78, 104, 0.1);
+    }
+
+    .admin-summary-item:last-child {
+        border-bottom: none;
+    }
+}
+
+
+/* =========================================================
+   37. Admin Parking Management
+   ========================================================= */
+
+.parking-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.parking-status-available {
+    background: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.parking-status-held {
+    background: rgba(201, 149, 51, 0.24);
+    color: #7a5a15;
+}
+
+.parking-status-reserved {
+    background: var(--primary-dark);
+    color: var(--white);
+}
+
+.parking-status-unavailable {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+.parking-status-occupied {
+    background: rgba(201, 169, 110, 0.22);
+    color: #8a6d2f;
+}
+
+.parking-fee-override-badge {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(191, 155, 61, 0.18);
+    color: #8a6d1f;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+
+.parking-slot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.parking-slot-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.parking-slot-main {
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.parking-slot-number {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.96rem;
+}
+
+.parking-slot-zone {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.parking-slot-fee {
+    min-width: 130px;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.parking-slot-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 150px;
+}
+
+.parking-slot-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.parking-slot-locked-note {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+}
+
+@media (max-width: 760px) {
+    .parking-slot-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .parking-slot-actions {
+        margin-left: 0;
+    }
+
+    .parking-slot-actions .btn {
+        flex: 1 1 auto;
+    }
+}
+
+
+/* =========================================================
+   38. Admin Parking Status Summary / Search / Filter / Zones
+   ========================================================= */
+
+.parking-status-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.parking-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px;
+    margin: 26px 0 6px;
+}
+
+.parking-filter-bar .form-group {
+    flex: 1 1 200px;
+    min-width: 180px;
+    margin-bottom: 0;
+}
+
+.parking-filter-bar .btn {
+    flex: 0 0 auto;
+}
+
+.parking-zone-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.parking-zone-group + .parking-zone-group {
+    margin-top: 24px;
+}
+
+.parking-zone-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0;
+    color: var(--primary-dark);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.parking-zone-count {
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.admin-empty-note .btn {
+    margin-top: 12px;
+}
+
+@media (max-width: 760px) {
+    .parking-status-summary {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .parking-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .parking-filter-bar .form-group {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .parking-status-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   39. Admin Food Court Management
+   ========================================================= */
+
+.admin-tab-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(51, 78, 104, 0.16);
+}
+
+.admin-tab-button {
+    padding: 10px 18px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color var(--transition), border-color var(--transition);
+}
+
+.admin-tab-button:hover {
+    color: var(--primary-dark);
+}
+
+.admin-tab-button.is-active {
+    color: var(--primary-dark);
+    border-bottom-color: var(--accent-blue);
+}
+
+.admin-tab-panel[hidden] {
+    display: none;
+}
+
+/* ---- Food stall rows ---- */
+
+.food-stall-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.food-stall-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.food-stall-main {
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.food-stall-name {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.96rem;
+}
+
+.food-stall-description {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.food-stall-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(94, 127, 158, 0.16);
+    color: var(--secondary-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.food-stall-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+/* ---- Menu items grouped by stall ---- */
+
+.food-menu-group {
+    margin-bottom: 22px;
+}
+
+.food-menu-group-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0 0 10px;
+    color: var(--primary-dark);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.food-menu-group-count {
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.food-menu-item-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.food-menu-item-main {
+    flex: 1 1 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.food-menu-item-name {
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.food-menu-item-description {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+}
+
+.food-menu-item-price {
+    min-width: 100px;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.food-availability-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.food-availability-available {
+    background: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.food-availability-unavailable {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+.food-menu-item-actions {
+    margin-left: auto;
+}
+
+/* ---- Food order queue ---- */
+
+.food-order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.food-order-row {
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.food-order-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.food-order-number {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.94rem;
+}
+
+.food-order-time {
+    margin-left: auto;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+}
+
+.food-order-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.food-order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    border: 1px solid var(--border-light);
+}
+
+.food-order-item-line {
+    display: flex;
+    justify-content: space-between;
+    color: var(--primary-dark);
+    font-size: 0.84rem;
+}
+
+.food-order-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.food-order-total {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.94rem;
+}
+
+.food-order-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.food-order-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.food-order-status-pending {
+    background: rgba(201, 149, 51, 0.24);
+    color: #7a5a15;
+}
+
+.food-order-status-confirmed {
+    background: rgba(94, 127, 158, 0.18);
+    color: var(--secondary-dark);
+}
+
+.food-order-status-preparing {
+    background: rgba(201, 169, 110, 0.22);
+    color: #8a6d2f;
+}
+
+.food-order-status-readyforpickup {
+    background: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.food-order-status-collected {
+    background: var(--primary-dark);
+    color: var(--white);
+}
+
+.food-order-status-cancelled {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+/* ---- Food order filter bar (reuses .parking-filter-bar layout) ---- */
+
+.food-order-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px;
+    margin: 20px 0 6px;
+}
+
+.food-order-filter-bar .form-group {
+    flex: 1 1 200px;
+    min-width: 180px;
+    margin-bottom: 0;
+}
+
+.food-order-filter-bar .btn {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 760px) {
+    .food-stall-row,
+    .food-menu-item-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .food-stall-actions,
+    .food-menu-item-actions {
+        margin-left: 0;
+    }
+
+    .food-stall-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .food-order-time {
+        margin-left: 0;
+    }
+
+    .food-order-actions {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .food-order-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .food-order-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .food-order-filter-bar .form-group {
+        min-width: 0;
+    }
+}
+
+
+/* =========================================================
+   40. Admin Facilities Management
+   ========================================================= */
+
+.facility-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px;
+    margin: 20px 0 6px;
+}
+
+.facility-filter-bar .form-group {
+    flex: 1 1 200px;
+    min-width: 180px;
+    margin-bottom: 0;
+}
+
+.facility-filter-bar .btn {
+    flex: 0 0 auto;
+}
+
+.facility-type-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.facility-type-group + .facility-type-group {
+    margin-top: 24px;
+}
+
+.facility-type-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0;
+    color: var(--primary-dark);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.facility-type-count {
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.facility-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.facility-main {
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.facility-name {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.96rem;
+}
+
+.facility-meta {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.facility-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 160px;
+}
+
+.facility-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.facility-status-open {
+    background: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.facility-status-closed {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+.facility-status-undermaintenance {
+    background: rgba(201, 149, 51, 0.24);
+    color: #7a5a15;
+}
+
+.facility-accessibility-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    background: rgba(94, 127, 158, 0.16);
+    color: var(--secondary-dark);
+}
+
+.facility-accessibility-badge.is-not-accessible {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+.facility-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+@media (max-width: 760px) {
+    .facility-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .facility-actions {
+        margin-left: 0;
+    }
+
+    .facility-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .facility-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .facility-filter-bar .form-group {
+        min-width: 0;
+    }
+}
+
+
+/* =========================================================
+   41. Admin Bookings Management
+   ========================================================= */
+
+.booking-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px;
+    margin: 20px 0 6px;
+}
+
+.booking-filter-bar .form-group {
+    flex: 1 1 190px;
+    min-width: 170px;
+    margin-bottom: 0;
+}
+
+.booking-filter-bar .btn {
+    flex: 0 0 auto;
+}
+
+.booking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.booking-row {
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.booking-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.booking-number {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.94rem;
+}
+
+.booking-time {
+    margin-left: auto;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+}
+
+.booking-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.booking-meta strong {
+    color: var(--primary-dark);
+    font-weight: 700;
+}
+
+.booking-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.booking-total {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.94rem;
+}
+
+.booking-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.booking-status-badge,
+.booking-payment-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.booking-status-pending {
+    background: rgba(201, 149, 51, 0.24);
+    color: #7a5a15;
+}
+
+.booking-status-confirmed {
+    background: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.booking-status-cancelled {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+.booking-status-expired {
+    background: rgba(94, 127, 158, 0.16);
+    color: var(--secondary-dark);
+}
+
+.booking-payment-badge {
+    background: rgba(94, 127, 158, 0.16);
+    color: var(--secondary-dark);
+}
+
+.booking-payment-badge.is-completed {
+    background: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.booking-payment-badge.is-failed {
+    background: rgba(179, 61, 61, 0.16);
+    color: #8a2f2f;
+}
+
+.booking-payment-badge.is-none {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+/* ---- Detail panel (expands under a row on "View Details") ---- */
+
+.booking-detail-panel {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-light);
+}
+
+.booking-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+    margin-bottom: 12px;
+}
+
+.booking-detail-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.booking-detail-value {
+    color: var(--primary-dark);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.booking-seats-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.booking-seat-chip {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--white);
+    border: 1px solid var(--border-light);
+    color: var(--primary-dark);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+@media (max-width: 760px) {
+    .booking-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .booking-filter-bar .form-group {
+        min-width: 0;
+    }
+
+    .booking-time {
+        margin-left: 0;
+    }
+
+    .booking-actions {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .booking-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .booking-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   42. Admin Customers Management
+   ========================================================= */
+
+.customer-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px;
+    margin: 20px 0 6px;
+}
+
+.customer-filter-bar .form-group {
+    flex: 1 1 190px;
+    min-width: 170px;
+    margin-bottom: 0;
+}
+
+.customer-filter-bar .btn {
+    flex: 0 0 auto;
+}
+
+.customer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.customer-row {
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.customer-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.customer-name {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.94rem;
+}
+
+.customer-role-tag {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(201, 169, 110, 0.2);
+    color: #8a6d2f;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.customer-time {
+    margin-left: auto;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+}
+
+.customer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.customer-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.customer-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.customer-status-badge,
+.customer-verified-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.customer-status-active {
+    background: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.customer-status-deactivated {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+.customer-verified-badge {
+    background: rgba(94, 127, 158, 0.16);
+    color: var(--secondary-dark);
+}
+
+.customer-verified-badge.is-unverified {
+    background: rgba(201, 149, 51, 0.24);
+    color: #7a5a15;
+}
+
+/* ---- Detail panel ---- */
+
+.customer-detail-panel {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-light);
+}
+
+.customer-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+    margin-bottom: 12px;
+}
+
+.customer-detail-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.customer-detail-value {
+    color: var(--primary-dark);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.customer-filter-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(94, 127, 158, 0.12);
+    color: var(--secondary-dark);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+@media (max-width: 760px) {
+    .customer-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .customer-filter-bar .form-group {
+        min-width: 0;
+    }
+
+    .customer-time {
+        margin-left: 0;
+    }
+
+    .customer-actions {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .customer-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .customer-detail-grid {
+        grid-template-columns: 1fr;
     }
 }

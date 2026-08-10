@@ -22,6 +22,8 @@ public class EventDto
 
     public int Capacity { get; set; }
 
+    public string SeatingLayoutType { get; set; } = string.Empty;
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
