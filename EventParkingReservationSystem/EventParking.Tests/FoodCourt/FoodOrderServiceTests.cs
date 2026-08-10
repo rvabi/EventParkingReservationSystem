@@ -1,4 +1,5 @@
 ﻿using EventParking.Business.DTOs.FoodCourt;
+using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
 using EventParking.DataAccess.Interfaces;
 using EventParking.Models.Entities;
@@ -19,6 +20,9 @@ public class FoodOrderServiceTests
     private readonly Mock<IFoodStallRepository>
         _foodStallRepositoryMock;
 
+    private readonly Mock<INotificationService>
+        _notificationServiceMock;
+
     private readonly FoodOrderService _service;
 
     public FoodOrderServiceTests()
@@ -32,14 +36,27 @@ public class FoodOrderServiceTests
         _foodStallRepositoryMock =
             new Mock<IFoodStallRepository>();
 
+        _notificationServiceMock =
+            new Mock<INotificationService>();
+
+        _notificationServiceMock
+            .Setup(service =>
+                service.NotifyFoodReadyAsync(
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         _service = new FoodOrderService(
             _foodOrderRepositoryMock.Object,
             _foodItemRepositoryMock.Object,
-            _foodStallRepositoryMock.Object);
+            _foodStallRepositoryMock.Object,
+            _notificationServiceMock.Object);
     }
 
     [Fact]
-    public async Task CreateAsync_ValidOrder_CalculatesTotalsAndPriceSnapshots()
+    public async Task
+        CreateAsync_ValidOrder_CalculatesTotalsAndPriceSnapshots()
     {
         // Arrange
         var customerId = 7;
@@ -51,6 +68,7 @@ public class FoodOrderServiceTests
                 new DateTime(
                     2026, 8, 10, 17, 0, 0,
                     DateTimeKind.Utc),
+
             EndDateTime =
                 new DateTime(
                     2026, 8, 10, 22, 0, 0,
@@ -96,10 +114,12 @@ public class FoodOrderServiceTests
         {
             BookingId = 5,
             FoodStallId = 2,
+
             PickupTime =
                 new DateTime(
                     2026, 8, 10, 18, 30, 0,
                     DateTimeKind.Utc),
+
             Items =
             [
                 new CreateFoodOrderItemRequest
@@ -107,6 +127,7 @@ public class FoodOrderServiceTests
                     FoodItemId = 4,
                     Quantity = 2
                 },
+
                 new CreateFoodOrderItemRequest
                 {
                     FoodItemId = 6,
@@ -147,23 +168,29 @@ public class FoodOrderServiceTests
             .Setup(repository =>
                 repository.AddAsync(
                     It.IsAny<FoodOrder>()))
-            .Callback<FoodOrder>(foodOrder =>
-            {
-                capturedOrder = foodOrder;
-
-                foreach (var orderItem in foodOrder.Items)
+            .Callback<FoodOrder>(
+                foodOrder =>
                 {
-                    if (orderItem.FoodItemId == burger.Id)
-                    {
-                        orderItem.FoodItem = burger;
-                    }
+                    capturedOrder = foodOrder;
 
-                    if (orderItem.FoodItemId == drink.Id)
+                    foreach (var orderItem
+                             in foodOrder.Items)
                     {
-                        orderItem.FoodItem = drink;
+                        if (orderItem.FoodItemId ==
+                            burger.Id)
+                        {
+                            orderItem.FoodItem =
+                                burger;
+                        }
+
+                        if (orderItem.FoodItemId ==
+                            drink.Id)
+                        {
+                            orderItem.FoodItem =
+                                drink;
+                        }
                     }
-                }
-            })
+                })
             .Returns(Task.CompletedTask);
 
         _foodOrderRepositoryMock
@@ -247,15 +274,18 @@ public class FoodOrderServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_MenuPriceChanges_PreservesOrderPriceSnapshot()
+    public async Task
+        CreateAsync_MenuPriceChanges_PreservesOrderPriceSnapshot()
     {
         // Arrange
         const int customerId = 7;
 
-        var booking = CreateConfirmedBooking(
-            customerId);
+        var booking =
+            CreateConfirmedBooking(
+                customerId);
 
-        var foodStall = CreateFoodStall();
+        var foodStall =
+            CreateFoodStall();
 
         var foodItem = new FoodItem
         {
@@ -266,9 +296,10 @@ public class FoodOrderServiceTests
             IsAvailable = true
         };
 
-        var request = CreateOrderRequest(
-            foodItemId: 4,
-            quantity: 2);
+        var request =
+            CreateOrderRequest(
+                foodItemId: 4,
+                quantity: 2);
 
         FoodOrder? capturedOrder = null;
 
@@ -281,13 +312,15 @@ public class FoodOrderServiceTests
             .Setup(repository =>
                 repository.AddAsync(
                     It.IsAny<FoodOrder>()))
-            .Callback<FoodOrder>(foodOrder =>
-            {
-                capturedOrder = foodOrder;
+            .Callback<FoodOrder>(
+                foodOrder =>
+                {
+                    capturedOrder = foodOrder;
 
-                foodOrder.Items.Single().FoodItem =
-     foodItem;
-            })
+                    foodOrder.Items
+                        .Single()
+                        .FoodItem = foodItem;
+                })
             .Returns(Task.CompletedTask);
 
         _foodOrderRepositoryMock
@@ -312,12 +345,18 @@ public class FoodOrderServiceTests
         Assert.NotNull(capturedOrder);
 
         Assert.Equal(
-     850m,
-     capturedOrder!.Items.Single().UnitPrice);
+            850m,
+            capturedOrder!
+                .Items
+                .Single()
+                .UnitPrice);
 
         Assert.Equal(
             1700m,
-            capturedOrder.Items.Single().LineTotal);
+            capturedOrder
+                .Items
+                .Single()
+                .LineTotal);
 
         Assert.Equal(
             1700m,
@@ -325,25 +364,28 @@ public class FoodOrderServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_UnavailableItem_ThrowsException()
+    public async Task
+        CreateAsync_UnavailableItem_ThrowsException()
     {
         // Arrange
         const int customerId = 7;
 
         var booking =
-            CreateConfirmedBooking(customerId);
+            CreateConfirmedBooking(
+                customerId);
 
         var foodStall =
             CreateFoodStall();
 
-        var unavailableItem = new FoodItem
-        {
-            Id = 4,
-            FoodStallId = 2,
-            Name = "Chicken Burger",
-            Price = 850m,
-            IsAvailable = false
-        };
+        var unavailableItem =
+            new FoodItem
+            {
+                Id = 4,
+                FoodStallId = 2,
+                Name = "Chicken Burger",
+                Price = 850m,
+                IsAvailable = false
+            };
 
         _foodOrderRepositoryMock
             .Setup(repository =>
@@ -387,7 +429,8 @@ public class FoodOrderServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_BookingBelongsToAnotherCustomer_ThrowsException()
+    public async Task
+        CreateAsync_BookingBelongsToAnotherCustomer_ThrowsException()
     {
         // Arrange
         const int authenticatedCustomerId = 7;
@@ -428,13 +471,15 @@ public class FoodOrderServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_UnconfirmedBooking_ThrowsException()
+    public async Task
+        CreateAsync_UnconfirmedBooking_ThrowsException()
     {
         // Arrange
         const int customerId = 7;
 
         var booking =
-            CreateConfirmedBooking(customerId);
+            CreateConfirmedBooking(
+                customerId);
 
         booking.Status =
             BookingStatus.Pending;
@@ -471,13 +516,15 @@ public class FoodOrderServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_PickupTimeOutsideEventPeriod_ThrowsException()
+    public async Task
+        CreateAsync_PickupTimeOutsideEventPeriod_ThrowsException()
     {
         // Arrange
         const int customerId = 7;
 
         var booking =
-            CreateConfirmedBooking(customerId);
+            CreateConfirmedBooking(
+                customerId);
 
         var foodStall =
             CreateFoodStall();
@@ -498,7 +545,8 @@ public class FoodOrderServiceTests
                 quantity: 1);
 
         request.PickupTime =
-            booking.Event.EndDateTime
+            booking.Event
+                .EndDateTime
                 .AddHours(1);
 
         // Act
@@ -517,7 +565,8 @@ public class FoodOrderServiceTests
     }
 
     [Fact]
-    public async Task UpdateStatusAsync_InvalidTransition_ThrowsException()
+    public async Task
+        UpdateStatusAsync_InvalidTransition_ThrowsException()
     {
         // Arrange
         var foodOrder =
@@ -556,7 +605,8 @@ public class FoodOrderServiceTests
     }
 
     [Fact]
-    public async Task UpdateStatusAsync_ValidTransition_UpdatesStatus()
+    public async Task
+        UpdateStatusAsync_ValidTransition_UpdatesStatus()
     {
         // Arrange
         var foodOrder =
@@ -595,7 +645,8 @@ public class FoodOrderServiceTests
 
         _foodOrderRepositoryMock.Verify(
             repository =>
-                repository.Update(foodOrder),
+                repository.Update(
+                    foodOrder),
             Times.Once);
 
         _foodOrderRepositoryMock.Verify(
@@ -604,16 +655,19 @@ public class FoodOrderServiceTests
             Times.Once);
     }
 
-    private static Booking CreateConfirmedBooking(
-        int customerId)
+    private static Booking
+        CreateConfirmedBooking(
+            int customerId)
     {
         var eventItem = new Event
         {
             Id = 10,
+
             StartDateTime =
                 new DateTime(
                     2026, 8, 10, 17, 0, 0,
                     DateTimeKind.Utc),
+
             EndDateTime =
                 new DateTime(
                     2026, 8, 10, 22, 0, 0,
@@ -630,7 +684,8 @@ public class FoodOrderServiceTests
         };
     }
 
-    private static FoodStall CreateFoodStall()
+    private static FoodStall
+        CreateFoodStall()
     {
         return new FoodStall
         {
@@ -650,10 +705,12 @@ public class FoodOrderServiceTests
         {
             BookingId = 5,
             FoodStallId = 2,
+
             PickupTime =
                 new DateTime(
                     2026, 8, 10, 18, 30, 0,
                     DateTimeKind.Utc),
+
             Items =
             [
                 new CreateFoodOrderItemRequest
@@ -695,8 +752,9 @@ public class FoodOrderServiceTests
             .ReturnsAsync(false);
     }
 
-    private static FoodOrder CreateExistingFoodOrder(
-        FoodOrderStatus status)
+    private static FoodOrder
+        CreateExistingFoodOrder(
+            FoodOrderStatus status)
     {
         var foodItem = new FoodItem
         {
@@ -713,14 +771,18 @@ public class FoodOrderServiceTests
             BookingId = 5,
             CustomerId = 7,
             FoodStallId = 2,
+
             OrderNumber =
                 "FO-TEST-0001",
+
             PickupTime =
                 new DateTime(
                     2026, 8, 10, 18, 30, 0,
                     DateTimeKind.Utc),
+
             TotalAmount = 850m,
             Status = status,
+
             Items =
             [
                 new FoodOrderItem
