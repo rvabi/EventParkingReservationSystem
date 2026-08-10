@@ -47,6 +47,7 @@ const clearBookingFiltersButton = document.getElementById("clearBookingFiltersBu
 
 const bookingActionFeedback = document.getElementById("bookingActionFeedback");
 const bookingList = document.getElementById("bookingList");
+const customerFilterNote = document.getElementById("customerFilterNote");
 
 
 let bookings = [];
@@ -54,6 +55,7 @@ let bookings = [];
 let searchTerm = "";
 let statusFilterValue = "";
 let eventFilterValue = "";
+let customerFilterValue = "";
 let sortValue = "newest";
 
 
@@ -84,6 +86,7 @@ async function initializePage() {
 
         populateEventFilterOptions();
         applyEventIdFromUrl();
+        applyCustomerIdFromUrl();
 
         renderSummary();
         renderBookingList();
@@ -162,6 +165,36 @@ function applyEventIdFromUrl() {
 }
 
 
+/*
+ * Supports manage-bookings.html?customerId={customerId} (from the Admin
+ * Customers page's "View Bookings" action). Applies as an exact filter on
+ * the already-loaded booking.customerId (never a substring/name match, to
+ * avoid false positives), and can coexist with ?eventId= since both
+ * filters are independent AND conditions in getFilteredSortedBookings().
+ * No new backend endpoint - still the same single GET /api/bookings call.
+ */
+function applyCustomerIdFromUrl() {
+    const requestedCustomerId =
+        Number(new URLSearchParams(window.location.search).get("customerId"));
+
+    if (!requestedCustomerId) {
+        return;
+    }
+
+    customerFilterValue = String(requestedCustomerId);
+
+    const matchingBooking = bookings.find(
+        (booking) => booking.customerId === requestedCustomerId
+    );
+
+    customerFilterNote.textContent = matchingBooking
+        ? `Showing bookings for Customer #${requestedCustomerId} (${matchingBooking.customerName}). Clear Filters to see all bookings.`
+        : `Showing bookings for Customer #${requestedCustomerId}. Clear Filters to see all bookings.`;
+
+    customerFilterNote.hidden = false;
+}
+
+
 /* ---------------- Real, client-derived summary (unfiltered totals) ---------------- */
 
 function renderSummary() {
@@ -197,6 +230,9 @@ function getFilteredSortedBookings() {
         const matchesEvent =
             !eventFilterValue || String(booking.eventId) === eventFilterValue;
 
+        const matchesCustomer =
+            !customerFilterValue || String(booking.customerId) === customerFilterValue;
+
         const matchesSearch =
             !term ||
             String(booking.id).includes(term) ||
@@ -206,7 +242,7 @@ function getFilteredSortedBookings() {
             booking.eventName.toLowerCase().includes(term) ||
             String(booking.eventId).includes(term);
 
-        return matchesStatus && matchesEvent && matchesSearch;
+        return matchesStatus && matchesEvent && matchesCustomer && matchesSearch;
     });
 
     const sorted = filtered.slice();
@@ -251,12 +287,16 @@ clearBookingFiltersButton.addEventListener("click", () => {
     searchTerm = "";
     statusFilterValue = "";
     eventFilterValue = "";
+    customerFilterValue = "";
     sortValue = "newest";
 
     bookingSearchInput.value = "";
     bookingStatusFilter.value = "";
     bookingEventFilter.value = "";
     bookingSortSelect.value = "newest";
+
+    customerFilterNote.hidden = true;
+    customerFilterNote.textContent = "";
 
     renderBookingList();
 });
