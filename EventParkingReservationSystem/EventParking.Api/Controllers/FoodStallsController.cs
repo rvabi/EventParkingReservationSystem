@@ -70,6 +70,7 @@ public class FoodStallsController : ControllerBase
 
     // POST: /api/events/{eventId}/food-stalls
     [HttpPost]
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     public async Task<ActionResult<FoodStallResponse>> Create(
         int eventId,
         [FromBody] CreateFoodStallRequest request)
@@ -109,6 +110,7 @@ public class FoodStallsController : ControllerBase
 
     // PUT: /api/events/{eventId}/food-stalls/{foodStallId}
     [HttpPut("{foodStallId:int}")]
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     public async Task<ActionResult<FoodStallResponse>> Update(
         int eventId,
         int foodStallId,
