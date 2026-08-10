@@ -1,13 +1,16 @@
 import { api } from "./api.js";
 
 import {
-    renderNavbar,
     showFeedback,
     hideFeedback,
     setButtonLoading
 } from "./ui.js";
 
-import { isAuthenticated, getCustomerRole } from "./auth.js";
+import {
+    requireAdministrator,
+    renderAdminSidebar,
+    setupAdminMobileMenu
+} from "./admin-ui.js";
 
 
 /*
@@ -33,9 +36,8 @@ const SEATING_LAYOUT_VALUE_TO_LABEL = {
 };
 
 
-const authGuardPanel = document.getElementById("authGuardPanel");
-const authGuardMessage = document.getElementById("authGuardMessage");
-const authGuardLink = document.getElementById("authGuardLink");
+const adminShell = document.getElementById("adminShell");
+const adminEventsBody = document.getElementById("adminEventsBody");
 
 const eventWizardCard = document.getElementById("eventWizardCard");
 
@@ -107,36 +109,19 @@ document.addEventListener(
     "DOMContentLoaded",
     async () => {
 
-        renderNavbar();
-
-        if (!isAuthenticated()) {
-            showAuthGuard(
-                "Please log in with an administrator account to manage events.",
-                "login.html"
-            );
+        if (!requireAdministrator()) {
             return;
         }
 
-        if (getCustomerRole() !== "Administrator") {
-            showAuthGuard(
-                "Event management is only available to administrator accounts.",
-                "login.html"
-            );
-            return;
-        }
+        renderAdminSidebar("events");
+        setupAdminMobileMenu();
 
-        eventWizardCard.hidden = false;
+        adminShell.hidden = false;
+        adminEventsBody.hidden = false;
 
         await initializePage();
     }
 );
-
-
-function showAuthGuard(message, linkHref) {
-    authGuardMessage.textContent = message;
-    authGuardLink.href = linkHref;
-    authGuardPanel.hidden = false;
-}
 
 
 async function initializePage() {
@@ -151,6 +136,20 @@ async function initializePage() {
         ]);
 
         await loadEvents();
+
+        /*
+         * Supports the Admin Dashboard's "Manage Event" links
+         * (manage-events.html?edit={eventId}), mirroring the ?id= contract
+         * manage-seats.html already supports. Reuses the existing
+         * startEditEvent() click-to-edit mechanism unchanged - this just
+         * triggers it once from the URL instead of a button click.
+         */
+        const requestedEditId =
+            Number(new URLSearchParams(window.location.search).get("edit"));
+
+        if (requestedEditId && events.some((item) => item.id === requestedEditId)) {
+            startEditEvent(requestedEditId);
+        }
 
     } catch (error) {
 
@@ -352,6 +351,12 @@ function renderEvents() {
                     href="./manage-seats.html?id=${event.id}"
                     class="btn btn-secondary">
                     Manage Seats
+                </a>
+
+                <a
+                    href="./manage-parking.html?id=${event.id}"
+                    class="btn btn-secondary">
+                    Manage Parking
                 </a>
 
                 <button

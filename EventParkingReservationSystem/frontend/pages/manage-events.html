@@ -16,436 +16,428 @@
 
 <body>
 
-    <header id="navbar"></header>
+    <div id="authGuardPanel" class="auth-guard-panel" hidden>
+        <p id="authGuardMessage"></p>
+        <div class="hero-actions">
+            <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+        </div>
+    </div>
 
-    <main>
+    <div id="adminShell" class="admin-shell" hidden>
 
-        <section class="services-section">
+        <div id="adminSidebarSlot"></div>
 
-            <div class="section-container">
+        <div class="admin-main">
 
-                <div class="section-heading">
+            <header class="admin-topbar">
+                <button id="adminMenuToggle" class="admin-menu-toggle" type="button" aria-label="Open menu">
+                    <span aria-hidden="true">&#9776;</span>
+                </button>
+                <span class="admin-topbar-brand">SmartEvent Admin</span>
+            </header>
 
-                    <span class="section-eyebrow">
-                        EVENT MANAGEMENT
-                    </span>
+            <main class="admin-content">
 
-                    <h2>
-                        Manage events.
-                    </h2>
+                <section class="services-section">
 
-                    <p>
-                        Create, update and manage events
-                        with venue, seating layout, category and pricing details.
-                    </p>
+                    <div class="section-container">
 
-                </div>
+                        <div class="section-heading">
+
+                            <span class="section-eyebrow">
+                                EVENT MANAGEMENT
+                            </span>
+
+                            <h2>
+                                Manage events.
+                            </h2>
+
+                            <p>
+                                Create, update and manage events
+                                with venue, seating layout, category and pricing details.
+                            </p>
+
+                        </div>
 
 
-                <div
-                    id="globalFeedback"
-                    class="feedback"
-                    hidden>
-                </div>
+                        <div
+                            id="globalFeedback"
+                            class="feedback"
+                            hidden>
+                        </div>
 
 
-                <div id="authGuardPanel" class="auth-guard-panel" hidden>
-                    <p id="authGuardMessage"></p>
-                    <div class="hero-actions">
-                        <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+                        <div id="adminEventsBody" hidden>
+
+                            <article id="eventWizardCard" class="service-card">
+
+                                <div class="service-icon">
+                                    E
+                                </div>
+
+                                <h3 id="eventFormTitle">
+                                    Add New Event
+                                </h3>
+
+
+                                <nav class="wizard-steps" aria-label="Event creation steps">
+
+                                    <div class="wizard-step-indicator" data-step-indicator="1">
+                                        <span class="wizard-step-number">1</span>
+                                        <span class="wizard-step-label">Event Information</span>
+                                    </div>
+
+                                    <div class="wizard-step-indicator" data-step-indicator="2">
+                                        <span class="wizard-step-number">2</span>
+                                        <span class="wizard-step-label">Venue &amp; Seating</span>
+                                    </div>
+
+                                    <div class="wizard-step-indicator" data-step-indicator="3">
+                                        <span class="wizard-step-number">3</span>
+                                        <span class="wizard-step-label">Pricing</span>
+                                    </div>
+
+                                    <div class="wizard-step-indicator" data-step-indicator="4">
+                                        <span class="wizard-step-number">4</span>
+                                        <span class="wizard-step-label">Review</span>
+                                    </div>
+
+                                </nav>
+
+
+                                <form id="eventForm" novalidate>
+
+                                    <input
+                                        id="eventId"
+                                        type="hidden">
+
+
+                                    <!-- STEP 1 - Event Information -->
+                                    <div
+                                        id="wizardStep1"
+                                        class="wizard-step-panel"
+                                        data-step="1">
+
+                                        <p class="wizard-step-intro">
+                                            Enter the basic details describing this event.
+                                        </p>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="eventName">Event Name</label>
+                                            <input
+                                                id="eventName"
+                                                class="form-control"
+                                                type="text"
+                                                maxlength="150"
+                                                placeholder="Enter event name"
+                                                required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="categoryId">Category</label>
+                                            <select id="categoryId" class="form-control" required>
+                                                <option value="">Select Category</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="eventDescription">Description</label>
+                                            <textarea
+                                                id="eventDescription"
+                                                class="form-control"
+                                                maxlength="1000"
+                                                placeholder="Enter event description"
+                                                required></textarea>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="startDateTime">Start Date &amp; Time</label>
+                                            <input
+                                                id="startDateTime"
+                                                class="form-control"
+                                                type="datetime-local"
+                                                required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="endDateTime">End Date &amp; Time</label>
+                                            <input
+                                                id="endDateTime"
+                                                class="form-control"
+                                                type="datetime-local"
+                                                required>
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- STEP 2 - Venue & Seating -->
+                                    <div
+                                        id="wizardStep2"
+                                        class="wizard-step-panel"
+                                        data-step="2"
+                                        hidden>
+
+                                        <p class="wizard-step-intro">
+                                            Choose the venue, capacity and how seating should be arranged.
+                                        </p>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="venueId">Venue</label>
+                                            <select id="venueId" class="form-control" required>
+                                                <option value="">Select Venue</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="eventCapacity">Capacity</label>
+                                            <input
+                                                id="eventCapacity"
+                                                class="form-control"
+                                                type="number"
+                                                min="1"
+                                                placeholder="Enter event capacity"
+                                                required>
+                                            <p class="form-footer-text">Must not exceed the selected venue's total capacity.</p>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">Seating Layout</label>
+
+                                            <div class="layout-selector">
+
+                                                <label class="layout-option" data-layout-value="1">
+                                                    <input
+                                                        type="radio"
+                                                        name="seatingLayoutType"
+                                                        value="1"
+                                                        checked>
+                                                    <svg class="layout-option-icon" viewBox="0 0 48 48" aria-hidden="true">
+                                                        <rect x="6" y="8" width="36" height="4" rx="2" fill="currentColor" />
+                                                        <rect x="10" y="18" width="28" height="3" rx="1.5" fill="currentColor" opacity="0.85" />
+                                                        <rect x="10" y="25" width="28" height="3" rx="1.5" fill="currentColor" opacity="0.7" />
+                                                        <rect x="10" y="32" width="28" height="3" rx="1.5" fill="currentColor" opacity="0.55" />
+                                                        <rect x="10" y="39" width="28" height="3" rx="1.5" fill="currentColor" opacity="0.4" />
+                                                    </svg>
+                                                    <span class="layout-option-title">Hall / Straight</span>
+                                                    <span class="layout-option-detail">
+                                                        Straight rows of seats facing a stage - suited to halls and theatres.
+                                                    </span>
+                                                </label>
+
+                                                <label class="layout-option" data-layout-value="2">
+                                                    <input
+                                                        type="radio"
+                                                        name="seatingLayoutType"
+                                                        value="2">
+                                                    <svg class="layout-option-icon" viewBox="0 0 48 48" aria-hidden="true">
+                                                        <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="2.4" opacity="0.85" />
+                                                        <circle cx="24" cy="24" r="11" fill="none" stroke="currentColor" stroke-width="2.4" opacity="0.6" />
+                                                        <circle cx="24" cy="24" r="4.5" fill="currentColor" />
+                                                    </svg>
+                                                    <span class="layout-option-title">Ground / Full Round</span>
+                                                    <span class="layout-option-detail">
+                                                        A full 360&deg; circular arena of concentric rings surrounding a
+                                                        central event/stage area.
+                                                    </span>
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- STEP 3 - Pricing -->
+                                    <div
+                                        id="wizardStep3"
+                                        class="wizard-step-panel"
+                                        data-step="3"
+                                        hidden>
+
+                                        <p class="wizard-step-intro">
+                                            Set the default ticket price and parking fee for this event.
+                                        </p>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="ticketPrice">Ticket Price</label>
+                                            <input
+                                                id="ticketPrice"
+                                                class="form-control"
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                placeholder="Enter ticket price"
+                                                required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="parkingFee">Parking Fee</label>
+                                            <input
+                                                id="parkingFee"
+                                                class="form-control"
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                placeholder="Enter parking fee"
+                                                required>
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- STEP 4 - Review -->
+                                    <div
+                                        id="wizardStep4"
+                                        class="wizard-step-panel"
+                                        data-step="4"
+                                        hidden>
+
+                                        <p class="wizard-step-intro">
+                                            Review the details below before saving this event.
+                                        </p>
+
+                                        <div class="wizard-review-grid">
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">Event Name</span>
+                                                <span id="reviewName" class="wizard-review-value">-</span>
+                                            </div>
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">Category</span>
+                                                <span id="reviewCategory" class="wizard-review-value">-</span>
+                                            </div>
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">Start</span>
+                                                <span id="reviewStart" class="wizard-review-value">-</span>
+                                            </div>
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">End</span>
+                                                <span id="reviewEnd" class="wizard-review-value">-</span>
+                                            </div>
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">Venue</span>
+                                                <span id="reviewVenue" class="wizard-review-value">-</span>
+                                            </div>
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">Capacity</span>
+                                                <span id="reviewCapacity" class="wizard-review-value">-</span>
+                                            </div>
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">Seating Layout</span>
+                                                <span id="reviewLayout" class="wizard-review-value">-</span>
+                                            </div>
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">Ticket Price</span>
+                                                <span id="reviewTicketPrice" class="wizard-review-value">-</span>
+                                            </div>
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">Parking Fee</span>
+                                                <span id="reviewParkingFee" class="wizard-review-value">-</span>
+                                            </div>
+
+                                            <div class="wizard-review-item">
+                                                <span class="wizard-review-label">Description</span>
+                                                <span id="reviewDescription" class="wizard-review-value">-</span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div id="wizardFeedback" class="feedback" hidden></div>
+
+
+                                    <div class="wizard-nav">
+
+                                        <button
+                                            id="wizardBackButton"
+                                            class="btn btn-secondary"
+                                            type="button"
+                                            hidden>
+                                            &larr; Back
+                                        </button>
+
+                                        <span class="wizard-nav-spacer"></span>
+
+                                        <button
+                                            id="cancelEditButton"
+                                            class="btn btn-secondary"
+                                            type="button"
+                                            hidden>
+                                            Cancel Edit
+                                        </button>
+
+                                        <button
+                                            id="wizardNextButton"
+                                            class="btn btn-primary"
+                                            type="button">
+                                            Next &rarr;
+                                        </button>
+
+                                        <button
+                                            id="saveEventButton"
+                                            class="btn btn-primary"
+                                            type="submit"
+                                            hidden>
+                                            Save Event
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </article>
+
+
+                            <div
+                                class="section-heading"
+                                style="margin-top: 60px;">
+
+                                <span class="section-eyebrow">
+                                    EXISTING EVENTS
+                                </span>
+
+                                <h2>
+                                    Event list
+                                </h2>
+
+                                <p>
+                                    View and manage existing event records.
+                                </p>
+
+                            </div>
+
+
+                            <div
+                                id="eventList"
+                                class="service-grid">
+
+                                <!-- Loaded using manage-events.js -->
+
+                            </div>
+
+                        </div>
+
                     </div>
-                </div>
 
+                </section>
 
-                <article id="eventWizardCard" class="service-card" hidden>
-
-                    <div class="service-icon">
-                        E
-                    </div>
-
-                    <h3 id="eventFormTitle">
-                        Add New Event
-                    </h3>
-
-
-                    <nav class="wizard-steps" aria-label="Event creation steps">
-
-                        <div class="wizard-step-indicator" data-step-indicator="1">
-                            <span class="wizard-step-number">1</span>
-                            <span class="wizard-step-label">Event Information</span>
-                        </div>
-
-                        <div class="wizard-step-indicator" data-step-indicator="2">
-                            <span class="wizard-step-number">2</span>
-                            <span class="wizard-step-label">Venue &amp; Seating</span>
-                        </div>
-
-                        <div class="wizard-step-indicator" data-step-indicator="3">
-                            <span class="wizard-step-number">3</span>
-                            <span class="wizard-step-label">Pricing</span>
-                        </div>
-
-                        <div class="wizard-step-indicator" data-step-indicator="4">
-                            <span class="wizard-step-number">4</span>
-                            <span class="wizard-step-label">Review</span>
-                        </div>
-
-                    </nav>
-
-
-                    <form id="eventForm" novalidate>
-
-                        <input
-                            id="eventId"
-                            type="hidden">
-
-
-                        <!-- STEP 1 - Event Information -->
-                        <div
-                            id="wizardStep1"
-                            class="wizard-step-panel"
-                            data-step="1">
-
-                            <p class="wizard-step-intro">
-                                Enter the basic details describing this event.
-                            </p>
-
-                            <div class="form-group">
-                                <label class="form-label" for="eventName">Event Name</label>
-                                <input
-                                    id="eventName"
-                                    class="form-control"
-                                    type="text"
-                                    maxlength="150"
-                                    placeholder="Enter event name"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="categoryId">Category</label>
-                                <select id="categoryId" class="form-control" required>
-                                    <option value="">Select Category</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="eventDescription">Description</label>
-                                <textarea
-                                    id="eventDescription"
-                                    class="form-control"
-                                    maxlength="1000"
-                                    placeholder="Enter event description"
-                                    required></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="startDateTime">Start Date &amp; Time</label>
-                                <input
-                                    id="startDateTime"
-                                    class="form-control"
-                                    type="datetime-local"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="endDateTime">End Date &amp; Time</label>
-                                <input
-                                    id="endDateTime"
-                                    class="form-control"
-                                    type="datetime-local"
-                                    required>
-                            </div>
-
-                        </div>
-
-
-                        <!-- STEP 2 - Venue & Seating -->
-                        <div
-                            id="wizardStep2"
-                            class="wizard-step-panel"
-                            data-step="2"
-                            hidden>
-
-                            <p class="wizard-step-intro">
-                                Choose the venue, capacity and how seating should be arranged.
-                            </p>
-
-                            <div class="form-group">
-                                <label class="form-label" for="venueId">Venue</label>
-                                <select id="venueId" class="form-control" required>
-                                    <option value="">Select Venue</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="eventCapacity">Capacity</label>
-                                <input
-                                    id="eventCapacity"
-                                    class="form-control"
-                                    type="number"
-                                    min="1"
-                                    placeholder="Enter event capacity"
-                                    required>
-                                <p class="form-footer-text">Must not exceed the selected venue's total capacity.</p>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Seating Layout</label>
-
-                                <div class="layout-selector">
-
-                                    <label class="layout-option" data-layout-value="1">
-                                        <input
-                                            type="radio"
-                                            name="seatingLayoutType"
-                                            value="1"
-                                            checked>
-                                        <svg class="layout-option-icon" viewBox="0 0 48 48" aria-hidden="true">
-                                            <rect x="6" y="8" width="36" height="4" rx="2" fill="currentColor" />
-                                            <rect x="10" y="18" width="28" height="3" rx="1.5" fill="currentColor" opacity="0.85" />
-                                            <rect x="10" y="25" width="28" height="3" rx="1.5" fill="currentColor" opacity="0.7" />
-                                            <rect x="10" y="32" width="28" height="3" rx="1.5" fill="currentColor" opacity="0.55" />
-                                            <rect x="10" y="39" width="28" height="3" rx="1.5" fill="currentColor" opacity="0.4" />
-                                        </svg>
-                                        <span class="layout-option-title">Hall / Straight</span>
-                                        <span class="layout-option-detail">
-                                            Straight rows of seats facing a stage - suited to halls and theatres.
-                                        </span>
-                                    </label>
-
-                                    <label class="layout-option" data-layout-value="2">
-                                        <input
-                                            type="radio"
-                                            name="seatingLayoutType"
-                                            value="2">
-                                        <svg class="layout-option-icon" viewBox="0 0 48 48" aria-hidden="true">
-                                            <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="2.4" opacity="0.85" />
-                                            <circle cx="24" cy="24" r="11" fill="none" stroke="currentColor" stroke-width="2.4" opacity="0.6" />
-                                            <circle cx="24" cy="24" r="4.5" fill="currentColor" />
-                                        </svg>
-                                        <span class="layout-option-title">Ground / Full Round</span>
-                                        <span class="layout-option-detail">
-                                            A full 360&deg; circular arena of concentric rings surrounding a
-                                            central event/stage area.
-                                        </span>
-                                    </label>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- STEP 3 - Pricing -->
-                        <div
-                            id="wizardStep3"
-                            class="wizard-step-panel"
-                            data-step="3"
-                            hidden>
-
-                            <p class="wizard-step-intro">
-                                Set the default ticket price and parking fee for this event.
-                            </p>
-
-                            <div class="form-group">
-                                <label class="form-label" for="ticketPrice">Ticket Price</label>
-                                <input
-                                    id="ticketPrice"
-                                    class="form-control"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    placeholder="Enter ticket price"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="parkingFee">Parking Fee</label>
-                                <input
-                                    id="parkingFee"
-                                    class="form-control"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    placeholder="Enter parking fee"
-                                    required>
-                            </div>
-
-                        </div>
-
-
-                        <!-- STEP 4 - Review -->
-                        <div
-                            id="wizardStep4"
-                            class="wizard-step-panel"
-                            data-step="4"
-                            hidden>
-
-                            <p class="wizard-step-intro">
-                                Review the details below before saving this event.
-                            </p>
-
-                            <div class="wizard-review-grid">
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">Event Name</span>
-                                    <span id="reviewName" class="wizard-review-value">-</span>
-                                </div>
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">Category</span>
-                                    <span id="reviewCategory" class="wizard-review-value">-</span>
-                                </div>
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">Start</span>
-                                    <span id="reviewStart" class="wizard-review-value">-</span>
-                                </div>
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">End</span>
-                                    <span id="reviewEnd" class="wizard-review-value">-</span>
-                                </div>
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">Venue</span>
-                                    <span id="reviewVenue" class="wizard-review-value">-</span>
-                                </div>
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">Capacity</span>
-                                    <span id="reviewCapacity" class="wizard-review-value">-</span>
-                                </div>
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">Seating Layout</span>
-                                    <span id="reviewLayout" class="wizard-review-value">-</span>
-                                </div>
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">Ticket Price</span>
-                                    <span id="reviewTicketPrice" class="wizard-review-value">-</span>
-                                </div>
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">Parking Fee</span>
-                                    <span id="reviewParkingFee" class="wizard-review-value">-</span>
-                                </div>
-
-                                <div class="wizard-review-item">
-                                    <span class="wizard-review-label">Description</span>
-                                    <span id="reviewDescription" class="wizard-review-value">-</span>
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div id="wizardFeedback" class="feedback" hidden></div>
-
-
-                        <div class="wizard-nav">
-
-                            <button
-                                id="wizardBackButton"
-                                class="btn btn-secondary"
-                                type="button"
-                                hidden>
-                                &larr; Back
-                            </button>
-
-                            <span class="wizard-nav-spacer"></span>
-
-                            <button
-                                id="cancelEditButton"
-                                class="btn btn-secondary"
-                                type="button"
-                                hidden>
-                                Cancel Edit
-                            </button>
-
-                            <button
-                                id="wizardNextButton"
-                                class="btn btn-primary"
-                                type="button">
-                                Next &rarr;
-                            </button>
-
-                            <button
-                                id="saveEventButton"
-                                class="btn btn-primary"
-                                type="submit"
-                                hidden>
-                                Save Event
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </article>
-
-
-                <div
-                    class="section-heading"
-                    style="margin-top: 60px;">
-
-                    <span class="section-eyebrow">
-                        EXISTING EVENTS
-                    </span>
-
-                    <h2>
-                        Event list
-                    </h2>
-
-                    <p>
-                        View and manage existing event records.
-                    </p>
-
-                </div>
-
-
-                <div
-                    id="eventList"
-                    class="service-grid">
-
-                    <!-- Loaded using manage-events.js -->
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <footer class="footer">
-
-        <div class="footer-container">
-
-            <div>
-
-                <strong class="footer-brand">
-                    SmartEvent
-                </strong>
-
-                <p>
-                    Event catalogue and venue scheduling management.
-                </p>
-
-            </div>
-
-            <p class="footer-note">
-                Smart Event Experience &
-                Reservation System
-            </p>
+            </main>
 
         </div>
 
-    </footer>
+    </div>
 
 
     <script

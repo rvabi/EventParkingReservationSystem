@@ -1,7 +1,6 @@
 import { api } from "./api.js";
 
 import {
-    renderNavbar,
     showFeedback,
     hideFeedback,
     setButtonLoading
@@ -14,13 +13,14 @@ import {
     layoutModeFromSeatingLayoutType
 } from "./seat-map.js";
 
-import { isAuthenticated, getCustomerRole } from "./auth.js";
+import {
+    requireAdministrator,
+    renderAdminSidebar,
+    setupAdminMobileMenu
+} from "./admin-ui.js";
 
 
-const authGuardPanel = document.getElementById("authGuardPanel");
-const authGuardMessage = document.getElementById("authGuardMessage");
-const authGuardLink = document.getElementById("authGuardLink");
-
+const adminShell = document.getElementById("adminShell");
 const seatAdminBody = document.getElementById("seatAdminBody");
 
 const eventSelect = document.getElementById("eventSelect");
@@ -55,35 +55,18 @@ let seatMap = null;
 
 
 document.addEventListener("DOMContentLoaded", async () => {
-    renderNavbar();
-
-    if (!isAuthenticated()) {
-        showAuthGuard(
-            "Please log in with an administrator account to manage seats.",
-            "login.html"
-        );
+    if (!requireAdministrator()) {
         return;
     }
 
-    if (getCustomerRole() !== "Administrator") {
-        showAuthGuard(
-            "Seat management is only available to administrator accounts.",
-            "login.html"
-        );
-        return;
-    }
+    renderAdminSidebar("seats");
+    setupAdminMobileMenu();
 
+    adminShell.hidden = false;
     seatAdminBody.hidden = false;
 
     await initializePage();
 });
-
-
-function showAuthGuard(message, linkHref) {
-    authGuardMessage.textContent = message;
-    authGuardLink.href = linkHref;
-    authGuardPanel.hidden = false;
-}
 
 
 /* ---------------- Row / Ring terminology ---------------- */

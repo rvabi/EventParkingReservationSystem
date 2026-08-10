@@ -83,7 +83,7 @@ async function handleLogin(event) {
 
         const destination =
             loginData.role === "Administrator"
-                ? "manage-events.html"
+                ? "admin-dashboard.html"
                 : "events.html";
 
         window.location.assign(destination);
