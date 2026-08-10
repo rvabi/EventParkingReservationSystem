@@ -4000,3 +4000,163 @@ a.admin-quick-action.is-primary:hover {
         min-width: 0;
     }
 }
+
+
+/* =========================================================
+   40. Admin Facilities Management
+   ========================================================= */
+
+.facility-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px;
+    margin: 20px 0 6px;
+}
+
+.facility-filter-bar .form-group {
+    flex: 1 1 200px;
+    min-width: 180px;
+    margin-bottom: 0;
+}
+
+.facility-filter-bar .btn {
+    flex: 0 0 auto;
+}
+
+.facility-type-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.facility-type-group + .facility-type-group {
+    margin-top: 24px;
+}
+
+.facility-type-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0;
+    color: var(--primary-dark);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.facility-type-count {
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.facility-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.facility-main {
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.facility-name {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.96rem;
+}
+
+.facility-meta {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.facility-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 160px;
+}
+
+.facility-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.facility-status-open {
+    background: var(--light-blue);
+    color: var(--primary-dark);
+}
+
+.facility-status-closed {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+.facility-status-undermaintenance {
+    background: rgba(201, 149, 51, 0.24);
+    color: #7a5a15;
+}
+
+.facility-accessibility-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    background: rgba(94, 127, 158, 0.16);
+    color: var(--secondary-dark);
+}
+
+.facility-accessibility-badge.is-not-accessible {
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+}
+
+.facility-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+@media (max-width: 760px) {
+    .facility-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .facility-actions {
+        margin-left: 0;
+    }
+
+    .facility-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .facility-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .facility-filter-bar .form-group {
+        min-width: 0;
+    }
+}
