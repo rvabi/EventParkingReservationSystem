@@ -1,5 +1,6 @@
 ﻿using EventParking.Business.DTOs.Parking;
 using EventParking.Business.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventParking.Api.Controllers;
@@ -68,6 +69,7 @@ public class ParkingSlotsController : ControllerBase
 
     // POST: /api/events/{eventId}/parking-slots
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<ParkingSlotResponse>> Create(
         int eventId,
         [FromBody] CreateParkingSlotRequest request)
@@ -114,6 +116,7 @@ public class ParkingSlotsController : ControllerBase
 
     // PUT: /api/events/{eventId}/parking-slots/{parkingSlotId}
     [HttpPut("{parkingSlotId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<ParkingSlotResponse>> Update(
         int eventId,
         int parkingSlotId,
@@ -164,6 +167,7 @@ public class ParkingSlotsController : ControllerBase
 
     // DELETE: /api/events/{eventId}/parking-slots/{parkingSlotId}
     [HttpDelete("{parkingSlotId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete(
         int eventId,
         int parkingSlotId)

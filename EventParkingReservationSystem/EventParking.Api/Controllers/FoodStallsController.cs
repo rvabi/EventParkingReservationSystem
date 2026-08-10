@@ -1,5 +1,6 @@
 ﻿using EventParking.Business.DTOs.FoodCourt;
 using EventParking.Business.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventParking.Api.Controllers;
@@ -68,6 +69,7 @@ public class FoodStallsController : ControllerBase
 
     // POST: /api/events/{eventId}/food-stalls
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<FoodStallResponse>> Create(
         int eventId,
         [FromBody] CreateFoodStallRequest request)
@@ -107,6 +109,7 @@ public class FoodStallsController : ControllerBase
 
     // PUT: /api/events/{eventId}/food-stalls/{foodStallId}
     [HttpPut("{foodStallId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<FoodStallResponse>> Update(
         int eventId,
         int foodStallId,

@@ -9,7 +9,7 @@ namespace EventParking.Api.Controllers;
 
 [ApiController]
 [Route("api/food-orders")]
-//[Authorize]
+[Authorize]
 public class FoodOrdersController : ControllerBase
 {
     private readonly IFoodOrderService _foodOrderService;
@@ -22,28 +22,27 @@ public class FoodOrdersController : ControllerBase
 
     // POST: /api/food-orders
     [HttpPost]
+    [Authorize(Roles = "Customer")]
     public async Task<ActionResult<FoodOrderResponse>> Create(
-    [FromQuery] int customerId,
     [FromBody] CreateFoodOrderRequest request)
     {
-        if (customerId <= 0)
+        var customerId = GetAuthenticatedCustomerId();
+
+        if (!customerId.HasValue)
         {
-            return BadRequest(new
-            {
-                message = "A valid customer ID is required."
-            });
+            return Unauthorized();
         }
 
         try
         {
             var foodOrder =
                 await _foodOrderService.CreateAsync(
-                    customerId,
+                    customerId.Value,
                     request);
 
             return CreatedAtAction(
                 nameof(GetMyOrders),
-                new { customerId },
+                null,
                 foodOrder);
         }
         catch (ArgumentException exception)
@@ -73,21 +72,21 @@ public class FoodOrdersController : ControllerBase
 
     // GET: /api/food-orders/my-orders
     [HttpGet("my-orders")]
+    [Authorize(Roles = "Customer")]
     public async Task<
     ActionResult<IReadOnlyList<FoodOrderResponse>>>
-    GetMyOrders([FromQuery] int customerId)
+    GetMyOrders()
     {
-        if (customerId <= 0)
+        var customerId = GetAuthenticatedCustomerId();
+
+        if (!customerId.HasValue)
         {
-            return BadRequest(new
-            {
-                message = "A valid customer ID is required."
-            });
+            return Unauthorized();
         }
 
         var foodOrders =
             await _foodOrderService.GetMyOrdersAsync(
-                customerId);
+                customerId.Value);
 
         return Ok(foodOrders);
     }
@@ -95,6 +94,7 @@ public class FoodOrdersController : ControllerBase
     // GET: /api/food-orders
     // GET: /api/food-orders?status=Preparing
     [HttpGet]
+    [Authorize(Roles = "Administrator")]
     public async Task<
         ActionResult<IReadOnlyList<FoodOrderResponse>>>
         GetAll(
@@ -108,6 +108,7 @@ public class FoodOrdersController : ControllerBase
 
     // PUT: /api/food-orders/{foodOrderId}/status
     [HttpPut("{foodOrderId:int}/status")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<FoodOrderResponse>>
         UpdateStatus(
             int foodOrderId,

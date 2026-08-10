@@ -1,6 +1,7 @@
 ﻿using EventParking.Business.DTOs.Events;
 using EventParking.Business.Interfaces;
 using EventParking.Models.Entities;
+using EventParking.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
@@ -69,7 +70,9 @@ public class EventsController : ControllerBase
             EndDateTime = request.EndDateTime,
             TicketPrice = request.TicketPrice,
             ParkingFee = request.ParkingFee,
-            Capacity = request.Capacity
+            Capacity = request.Capacity,
+            SeatingLayoutType =
+                request.SeatingLayoutType ?? SeatingLayoutType.StraightRows
         };
 
         var created =
@@ -118,7 +121,9 @@ public class EventsController : ControllerBase
             EndDateTime = request.EndDateTime,
             TicketPrice = request.TicketPrice,
             ParkingFee = request.ParkingFee,
-            Capacity = request.Capacity
+            Capacity = request.Capacity,
+            SeatingLayoutType =
+                request.SeatingLayoutType ?? existingEvent.SeatingLayoutType
         };
 
         var updated =
@@ -191,6 +196,7 @@ public class EventsController : ControllerBase
             TicketPrice = eventEntity.TicketPrice,
             ParkingFee = eventEntity.ParkingFee,
             Capacity = eventEntity.Capacity,
+            SeatingLayoutType = eventEntity.SeatingLayoutType.ToString(),
             CreatedAt = eventEntity.CreatedAt,
             UpdatedAt = eventEntity.UpdatedAt
         };

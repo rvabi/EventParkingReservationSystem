@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventParking.Business.DTOs.Seats;
 using EventParking.Business.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventParking.Api.Controllers;
@@ -33,6 +34,7 @@ public class SeatsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<SeatMapResponseDto>> GenerateSeatMap(
         int eventId,
         [FromBody] GenerateSeatMapRequest request)
@@ -58,6 +60,7 @@ public class SeatsController : ControllerBase
     }
 
     [HttpPut("row-price")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> UpdateRowPrice(
         int eventId,
         [FromQuery] string rowLabel,
@@ -121,6 +124,7 @@ public class SeatsController : ControllerBase
     }
 
     [HttpPut("{seatId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> UpdateSeat(
         int eventId,
         int seatId,
@@ -159,6 +163,7 @@ public class SeatsController : ControllerBase
     }
 
     [HttpDelete("{seatId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> DeleteSeat(
         int eventId,
         int seatId)
