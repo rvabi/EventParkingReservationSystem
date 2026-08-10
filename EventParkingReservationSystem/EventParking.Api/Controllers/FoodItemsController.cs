@@ -1,4 +1,6 @@
-﻿using EventParking.Business.DTOs.FoodCourt;
+﻿using EventParking.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
+using EventParking.Business.DTOs.FoodCourt;
 using EventParking.Business.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -77,7 +79,7 @@ public class FoodItemsController : ControllerBase
     // POST:
     // /api/food-stalls/{foodStallId}/items
     [HttpPost]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     public async Task<ActionResult<FoodItemResponse>> Create(
         int foodStallId,
         [FromBody] CreateFoodItemRequest request)
@@ -125,7 +127,7 @@ public class FoodItemsController : ControllerBase
     // PUT:
     // /api/food-stalls/{foodStallId}/items/{foodItemId}
     [HttpPut("{foodItemId:int}")]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     public async Task<ActionResult<FoodItemResponse>> Update(
         int foodStallId,
         int foodItemId,
