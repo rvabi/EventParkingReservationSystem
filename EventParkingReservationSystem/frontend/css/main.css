@@ -1389,20 +1389,6 @@ button:disabled {
     color: #b33945;
 }
 
-/* ---- Layout preview toggle ---- */
-
-.seat-layout-toggle {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 20px;
-}
-
-.seat-layout-toggle .form-footer-text {
-    width: 100%;
-}
-
 /* ---- Seat map + seat buttons (shared renderer output) ---- */
 
 .seat-map-container {
@@ -1526,33 +1512,6 @@ button:disabled {
     color: var(--text-secondary);
     border-color: var(--border-light);
     text-decoration: line-through;
-}
-
-/* ---- Ground / fan layout ---- */
-
-.seat-ground-fan {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 26px;
-}
-
-.seat-ground-band {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin: 0 auto;
-}
-
-.seat-row-ground {
-    justify-content: center;
-}
-
-.seat-row-seats-ground .seat-btn {
-    width: 30px;
-    height: 30px;
-    font-size: 0.6rem;
 }
 
 /* ---- Legend ---- */
@@ -2642,5 +2601,310 @@ button:disabled {
 
     .home-cta-inner .btn {
         width: 100%;
+    }
+}
+
+
+/* =========================================================
+   30. Admin Event Wizard
+   ========================================================= */
+
+.wizard-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 30px;
+}
+
+.wizard-step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 0;
+    min-width: 150px;
+}
+
+.wizard-step-number {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid var(--border-light);
+    background: var(--white);
+    color: var(--text-secondary);
+    font-weight: 800;
+    font-size: 0.9rem;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.wizard-step-label {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.wizard-step-indicator.is-active .wizard-step-number {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: var(--white);
+}
+
+.wizard-step-indicator.is-active .wizard-step-label {
+    color: var(--primary-dark);
+}
+
+.wizard-step-indicator.is-complete .wizard-step-number {
+    background: var(--secondary-dark);
+    border-color: var(--secondary-dark);
+    color: var(--white);
+}
+
+.wizard-step-panel[hidden] {
+    display: none;
+}
+
+.wizard-step-panel h3 {
+    margin-bottom: 4px;
+    color: var(--primary-dark);
+}
+
+.wizard-step-intro {
+    margin-bottom: 18px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.wizard-nav-spacer {
+    flex: 1 1 auto;
+}
+
+/* ---- Layout selector (Hall/Straight vs Ground/Full Round) ---- */
+
+.layout-selector {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 10px 0 6px;
+}
+
+.layout-option {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    background: var(--background);
+    border: 2px solid var(--border-light);
+    cursor: pointer;
+    transition: border-color var(--transition), background-color var(--transition);
+}
+
+.layout-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.layout-option.is-selected {
+    border-color: var(--accent-blue);
+    background: rgba(74, 127, 167, 0.08);
+}
+
+.layout-option-icon {
+    width: 40px;
+    height: 40px;
+    color: var(--accent-blue);
+}
+
+.layout-option-title {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+.layout-option-detail {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+/* ---- Review step ---- */
+
+.wizard-review-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 24px;
+    margin: 14px 0 20px;
+}
+
+.wizard-review-item {
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.wizard-review-label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.wizard-review-value {
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.94rem;
+    word-break: break-word;
+}
+
+.layout-badge {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(74, 127, 167, 0.14);
+    color: var(--secondary-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   31. Admin Seat Auto-Distribute + Layout-Aware Labels
+   ========================================================= */
+
+.seat-admin-layout-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(74, 127, 167, 0.1);
+    color: var(--secondary-dark);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.row-count-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px;
+    margin-bottom: 6px;
+}
+
+.row-count-controls .form-group {
+    margin-bottom: 0;
+    max-width: 220px;
+}
+
+.row-total-summary.row-total-summary-ok {
+    color: var(--secondary-dark);
+}
+
+
+/* =========================================================
+   32. Full 360-Degree Circular Arena Renderer
+   ========================================================= */
+
+.seat-map-circular {
+    gap: 0;
+}
+
+.seat-arena-holder {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+}
+
+.seat-arena {
+    position: relative;
+    margin: 0 auto;
+    transform-origin: top center;
+}
+
+.seat-arena-stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--primary-dark);
+    color: var(--white);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+
+.seat-btn-circle {
+    width: 26px;
+    height: 26px;
+    font-size: 0.56rem;
+    border-radius: 50%;
+}
+
+.seat-btn-arena {
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+
+/* =========================================================
+   33. Admin + Circular Arena Responsive
+   ========================================================= */
+
+@media (max-width: 760px) {
+    .wizard-steps {
+        gap: 10px;
+    }
+
+    .wizard-step-label {
+        display: none;
+    }
+
+    .layout-selector,
+    .wizard-review-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .row-count-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .row-count-controls .form-group {
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .wizard-nav {
+        flex-wrap: wrap;
+    }
+
+    .wizard-nav .btn {
+        flex: 1 1 auto;
     }
 }

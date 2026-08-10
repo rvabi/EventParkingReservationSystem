@@ -37,106 +37,111 @@
 
                 <div id="globalFeedback" class="feedback" hidden></div>
 
-                <div class="form-group seat-admin-event-picker">
-                    <label class="form-label" for="eventSelect">Event</label>
-                    <select id="eventSelect" class="form-control">
-                        <option value="">Select an event</option>
-                    </select>
+                <div id="authGuardPanel" class="auth-guard-panel" hidden>
+                    <p id="authGuardMessage"></p>
+                    <div class="hero-actions">
+                        <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+                    </div>
                 </div>
 
-                <div id="seatManagementPanel" hidden>
+                <div id="seatAdminBody" hidden>
 
-                    <div class="seat-admin-summary">
-                        <div class="seat-admin-stat">
-                            <span class="seat-admin-stat-label">Event Capacity</span>
-                            <span id="statCapacity" class="seat-admin-stat-value">0</span>
-                        </div>
-                        <div class="seat-admin-stat">
-                            <span class="seat-admin-stat-label">Generated Seats</span>
-                            <span id="statGenerated" class="seat-admin-stat-value">0</span>
-                        </div>
-                        <div class="seat-admin-stat">
-                            <span class="seat-admin-stat-label">Default Ticket Price</span>
-                            <span id="statTicketPrice" class="seat-admin-stat-value">LKR 0.00</span>
-                        </div>
+                    <div class="form-group seat-admin-event-picker">
+                        <label class="form-label" for="eventSelect">Event</label>
+                        <select id="eventSelect" class="form-control">
+                            <option value="">Select an event</option>
+                        </select>
                     </div>
 
-                    <div id="generatePanel" class="seat-admin-panel" hidden>
+                    <div id="seatManagementPanel" hidden>
 
-                        <h3>Generate Seat Map</h3>
+                        <span id="layoutNote" class="seat-admin-layout-note"></span>
 
-                        <p>
-                            This event has no seats yet. Define rows below -
-                            the total seat count must exactly match the event
-                            capacity before this can be submitted.
-                        </p>
-
-                        <div id="rowDefinitions" class="row-definition-list"></div>
-
-                        <div class="hero-actions">
-                            <button id="addRowButton" type="button" class="btn btn-secondary btn-small">
-                                + Add Row
-                            </button>
+                        <div class="seat-admin-summary">
+                            <div class="seat-admin-stat">
+                                <span class="seat-admin-stat-label">Event Capacity</span>
+                                <span id="statCapacity" class="seat-admin-stat-value">0</span>
+                            </div>
+                            <div class="seat-admin-stat">
+                                <span class="seat-admin-stat-label">Generated Seats</span>
+                                <span id="statGenerated" class="seat-admin-stat-value">0</span>
+                            </div>
+                            <div class="seat-admin-stat">
+                                <span class="seat-admin-stat-label">Default Ticket Price</span>
+                                <span id="statTicketPrice" class="seat-admin-stat-value">LKR 0.00</span>
+                            </div>
                         </div>
 
-                        <p id="rowTotalSummary" class="row-total-summary"></p>
+                        <div id="generatePanel" class="seat-admin-panel" hidden>
 
-                        <div id="generateFeedback" class="feedback" hidden></div>
+                            <h3>Generate Seat Map</h3>
 
-                        <div class="hero-actions">
-                            <button id="generateButton" type="button" class="btn btn-primary">
-                                Generate Seat Map
-                            </button>
-                        </div>
+                            <p>
+                                This event has no seats yet. Enter how many rows/rings to
+                                distribute the event capacity across, then fine-tune each
+                                one before generating - the total must exactly match the
+                                event capacity.
+                            </p>
 
-                    </div>
+                            <div class="row-count-controls">
+                                <div class="form-group">
+                                    <label id="rowCountLabel" class="form-label" for="rowCountInput">Number of Rows</label>
+                                    <input id="rowCountInput" type="number" min="1" class="form-control" value="1">
+                                </div>
 
-                    <div id="existingMapPanel" class="seat-admin-panel" hidden>
-
-                        <div class="seat-layout-toggle">
-                            <span class="form-label">Layout Preview</span>
-
-                            <div class="hero-actions">
-                                <button id="squareLayoutButton" type="button" class="btn btn-primary btn-small">
-                                    Square
+                                <button id="autoDistributeButton" type="button" class="btn btn-primary btn-small">
+                                    Auto Distribute Seats
                                 </button>
-                                <button id="groundLayoutButton" type="button" class="btn btn-secondary btn-small">
-                                    Ground
+
+                                <button id="addRowButton" type="button" class="btn btn-secondary btn-small">
+                                    + Add Row
                                 </button>
                             </div>
 
-                            <p class="form-footer-text">
-                                Preview only - the chosen layout is not saved.
-                                See the phase report for layout persistence status.
-                            </p>
+                            <div id="rowDefinitions" class="row-definition-list"></div>
+
+                            <p id="rowTotalSummary" class="row-total-summary"></p>
+
+                            <div id="generateFeedback" class="feedback" hidden></div>
+
+                            <div class="hero-actions">
+                                <button id="generateButton" type="button" class="btn btn-primary" disabled>
+                                    Generate Seat Map
+                                </button>
+                            </div>
+
                         </div>
 
-                        <div id="seatMapContainer" class="seat-map-container"></div>
+                        <div id="existingMapPanel" class="seat-admin-panel" hidden>
 
-                        <div class="seat-legend">
-                            <span class="seat-legend-item">
-                                <span class="seat-legend-swatch seat-status-available"></span>
-                                Available (click to mark Unavailable)
-                            </span>
-                            <span class="seat-legend-item">
-                                <span class="seat-legend-swatch seat-status-held"></span>
-                                Held (locked)
-                            </span>
-                            <span class="seat-legend-item">
-                                <span class="seat-legend-swatch seat-status-booked"></span>
-                                Booked (locked)
-                            </span>
-                            <span class="seat-legend-item">
-                                <span class="seat-legend-swatch seat-status-unavailable"></span>
-                                Unavailable (click to mark Available)
-                            </span>
+                            <div id="seatMapContainer" class="seat-map-container"></div>
+
+                            <div class="seat-legend">
+                                <span class="seat-legend-item">
+                                    <span class="seat-legend-swatch seat-status-available"></span>
+                                    Available (click to mark Unavailable)
+                                </span>
+                                <span class="seat-legend-item">
+                                    <span class="seat-legend-swatch seat-status-held"></span>
+                                    Held (locked)
+                                </span>
+                                <span class="seat-legend-item">
+                                    <span class="seat-legend-swatch seat-status-booked"></span>
+                                    Booked (locked)
+                                </span>
+                                <span class="seat-legend-item">
+                                    <span class="seat-legend-swatch seat-status-unavailable"></span>
+                                    Unavailable (click to mark Available)
+                                </span>
+                            </div>
+
+                            <div id="seatActionFeedback" class="feedback" hidden></div>
+
+                            <h3 id="rowPricingHeading">Row Pricing</h3>
+
+                            <div id="rowPriceEditor" class="row-price-editor"></div>
+
                         </div>
-
-                        <div id="seatActionFeedback" class="feedback" hidden></div>
-
-                        <h3>Row Pricing</h3>
-
-                        <div id="rowPriceEditor" class="row-price-editor"></div>
 
                     </div>
 

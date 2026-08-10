@@ -7,6 +7,37 @@ import {
     setButtonLoading
 } from "./ui.js";
 
+import { isAuthenticated, getCustomerRole } from "./auth.js";
+
+
+/*
+ * SeatingLayoutType is persisted on the backend as an int (StraightRows = 1,
+ * CircularArena = 2) but GET Events returns it as the enum member's string
+ * name ("StraightRows" / "CircularArena") - see EventDto.SeatingLayoutType.
+ * These two maps keep that conversion in one place instead of scattering
+ * magic numbers/strings through the wizard.
+ */
+const SEATING_LAYOUT_TYPE = {
+    STRAIGHT_ROWS: 1,
+    CIRCULAR_ARENA: 2
+};
+
+const SEATING_LAYOUT_NAME_TO_VALUE = {
+    StraightRows: SEATING_LAYOUT_TYPE.STRAIGHT_ROWS,
+    CircularArena: SEATING_LAYOUT_TYPE.CIRCULAR_ARENA
+};
+
+const SEATING_LAYOUT_VALUE_TO_LABEL = {
+    [SEATING_LAYOUT_TYPE.STRAIGHT_ROWS]: "Hall / Straight",
+    [SEATING_LAYOUT_TYPE.CIRCULAR_ARENA]: "Ground / Full Round"
+};
+
+
+const authGuardPanel = document.getElementById("authGuardPanel");
+const authGuardMessage = document.getElementById("authGuardMessage");
+const authGuardLink = document.getElementById("authGuardLink");
+
+const eventWizardCard = document.getElementById("eventWizardCard");
 
 const eventForm =
     document.getElementById("eventForm");
@@ -41,6 +72,9 @@ const ticketPriceInput =
 const parkingFeeInput =
     document.getElementById("parkingFee");
 
+const layoutInputs =
+    Array.from(document.querySelectorAll('input[name="seatingLayoutType"]'));
+
 const eventList =
     document.getElementById("eventList");
 
@@ -52,6 +86,16 @@ const saveEventButton =
 
 const cancelEditButton =
     document.getElementById("cancelEditButton");
+
+const wizardBackButton = document.getElementById("wizardBackButton");
+const wizardNextButton = document.getElementById("wizardNextButton");
+const wizardFeedback = document.getElementById("wizardFeedback");
+
+const stepPanels = Array.from(document.querySelectorAll(".wizard-step-panel"));
+const stepIndicators = Array.from(document.querySelectorAll(".wizard-step-indicator"));
+
+const TOTAL_STEPS = stepPanels.length;
+let currentStep = 1;
 
 
 let events = [];
@@ -65,9 +109,34 @@ document.addEventListener(
 
         renderNavbar();
 
+        if (!isAuthenticated()) {
+            showAuthGuard(
+                "Please log in with an administrator account to manage events.",
+                "login.html"
+            );
+            return;
+        }
+
+        if (getCustomerRole() !== "Administrator") {
+            showAuthGuard(
+                "Event management is only available to administrator accounts.",
+                "login.html"
+            );
+            return;
+        }
+
+        eventWizardCard.hidden = false;
+
         await initializePage();
     }
 );
+
+
+function showAuthGuard(message, linkHref) {
+    authGuardMessage.textContent = message;
+    authGuardLink.href = linkHref;
+    authGuardPanel.hidden = false;
+}
 
 
 async function initializePage() {
@@ -195,6 +264,9 @@ function renderEvents() {
         card.className =
             "service-card";
 
+        const layoutLabel =
+            layoutLabelFromName(event.seatingLayoutType);
+
         card.innerHTML = `
 
             <div class="service-number">
@@ -261,6 +333,8 @@ function renderEvents() {
                 <strong>Parking Fee:</strong>
                 ${formatMoney(event.parkingFee)}
             </p>
+
+            <span class="layout-badge">${escapeHtml(layoutLabel)}</span>
 
 
             <div
@@ -385,6 +459,11 @@ function startEditEvent(eventId) {
     parkingFeeInput.value =
         event.parkingFee;
 
+    setSelectedLayoutValue(
+        SEATING_LAYOUT_NAME_TO_VALUE[event.seatingLayoutType] ||
+        SEATING_LAYOUT_TYPE.STRAIGHT_ROWS
+    );
+
 
     eventFormTitle.textContent =
         "Edit Event";
@@ -396,7 +475,9 @@ function startEditEvent(eventId) {
         false;
 
 
-    eventForm.scrollIntoView({
+    goToStep(1);
+
+    eventWizardCard.scrollIntoView({
         behavior: "smooth",
         block: "start"
     });
@@ -409,6 +490,8 @@ function resetEventForm() {
 
     eventIdInput.value = "";
 
+    setSelectedLayoutValue(SEATING_LAYOUT_TYPE.STRAIGHT_ROWS);
+
     eventFormTitle.textContent =
         "Add New Event";
 
@@ -417,12 +500,193 @@ function resetEventForm() {
 
     cancelEditButton.hidden =
         true;
+
+    goToStep(1);
+    hideWizardFeedback();
+}
+
+
+/* ---------------- Wizard step navigation ---------------- */
+
+function goToStep(stepNumber) {
+
+    currentStep = stepNumber;
+
+    stepPanels.forEach((panel) => {
+        panel.hidden = Number(panel.dataset.step) !== stepNumber;
+    });
+
+    stepIndicators.forEach((indicator) => {
+        const indicatorStep = Number(indicator.dataset.stepIndicator);
+
+        indicator.classList.toggle("is-active", indicatorStep === stepNumber);
+        indicator.classList.toggle("is-complete", indicatorStep < stepNumber);
+    });
+
+    wizardBackButton.hidden = stepNumber === 1;
+    wizardNextButton.hidden = stepNumber === TOTAL_STEPS;
+    saveEventButton.hidden = stepNumber !== TOTAL_STEPS;
+
+    if (stepNumber === TOTAL_STEPS) {
+        populateReviewStep();
+    }
+
+    hideWizardFeedback();
+}
+
+
+function validateStep(stepNumber) {
+
+    const panel = stepPanels.find(
+        (item) => Number(item.dataset.step) === stepNumber
+    );
+
+    if (!panel) {
+        return true;
+    }
+
+    const requiredFields = Array.from(
+        panel.querySelectorAll("input[required], select[required], textarea[required]")
+    );
+
+    for (const field of requiredFields) {
+        if (!field.checkValidity()) {
+            field.reportValidity();
+            return false;
+        }
+    }
+
+    if (stepNumber === 1) {
+        if (
+            startDateTimeInput.value &&
+            endDateTimeInput.value &&
+            new Date(endDateTimeInput.value) <= new Date(startDateTimeInput.value)
+        ) {
+            showWizardFeedback(
+                "End date and time must be after start date and time.",
+                "error"
+            );
+            return false;
+        }
+    }
+
+    if (stepNumber === 2) {
+        const venue = venues.find(
+            (item) => item.id === Number(venueIdInput.value)
+        );
+
+        const capacity = Number(eventCapacityInput.value);
+
+        if (venue && capacity > venue.totalCapacity) {
+            showWizardFeedback(
+                `Capacity cannot exceed the venue's total capacity (${venue.totalCapacity}).`,
+                "error"
+            );
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+wizardNextButton.addEventListener("click", () => {
+    if (!validateStep(currentStep)) {
+        return;
+    }
+
+    if (currentStep < TOTAL_STEPS) {
+        goToStep(currentStep + 1);
+    }
+});
+
+
+wizardBackButton.addEventListener("click", () => {
+    if (currentStep > 1) {
+        goToStep(currentStep - 1);
+    }
+});
+
+
+function getSelectedLayoutValue() {
+    const checked = layoutInputs.find((input) => input.checked);
+    return checked ? Number(checked.value) : SEATING_LAYOUT_TYPE.STRAIGHT_ROWS;
+}
+
+
+function setSelectedLayoutValue(value) {
+    layoutInputs.forEach((input) => {
+        input.checked = Number(input.value) === Number(value);
+    });
+
+    updateLayoutOptionSelectionStyles();
+}
+
+
+function updateLayoutOptionSelectionStyles() {
+    document.querySelectorAll(".layout-option").forEach((label) => {
+        label.classList.toggle(
+            "is-selected",
+            label.querySelector("input").checked
+        );
+    });
+}
+
+
+layoutInputs.forEach((input) => {
+    input.addEventListener("change", updateLayoutOptionSelectionStyles);
+});
+
+updateLayoutOptionSelectionStyles();
+
+
+function layoutLabelFromName(seatingLayoutTypeName) {
+    const value = SEATING_LAYOUT_NAME_TO_VALUE[seatingLayoutTypeName];
+    return SEATING_LAYOUT_VALUE_TO_LABEL[value] || "Hall / Straight";
+}
+
+
+function populateReviewStep() {
+
+    document.getElementById("reviewName").textContent =
+        eventNameInput.value.trim() || "-";
+
+    document.getElementById("reviewCategory").textContent =
+        getCategoryName(Number(categoryIdInput.value));
+
+    document.getElementById("reviewStart").textContent =
+        formatDateTime(startDateTimeInput.value);
+
+    document.getElementById("reviewEnd").textContent =
+        formatDateTime(endDateTimeInput.value);
+
+    document.getElementById("reviewVenue").textContent =
+        getVenueName(Number(venueIdInput.value));
+
+    document.getElementById("reviewCapacity").textContent =
+        eventCapacityInput.value || "-";
+
+    document.getElementById("reviewLayout").textContent =
+        SEATING_LAYOUT_VALUE_TO_LABEL[getSelectedLayoutValue()];
+
+    document.getElementById("reviewTicketPrice").textContent =
+        formatMoney(ticketPriceInput.value);
+
+    document.getElementById("reviewParkingFee").textContent =
+        formatMoney(parkingFeeInput.value);
+
+    document.getElementById("reviewDescription").textContent =
+        eventDescriptionInput.value.trim() || "-";
 }
 
 
 async function saveEvent(event) {
 
     event.preventDefault();
+
+    if (!validateStep(TOTAL_STEPS)) {
+        return;
+    }
 
 
     const eventId =
@@ -456,7 +720,10 @@ async function saveEvent(event) {
             Number(ticketPriceInput.value),
 
         parkingFee:
-            Number(parkingFeeInput.value)
+            Number(parkingFeeInput.value),
+
+        seatingLayoutType:
+            getSelectedLayoutValue()
     };
 
 
@@ -472,7 +739,7 @@ async function saveEvent(event) {
         eventData.parkingFee < 0
     ) {
 
-        showFeedback(
+        showWizardFeedback(
             "Please enter valid event details.",
             "error"
         );
@@ -486,7 +753,7 @@ async function saveEvent(event) {
         new Date(eventData.startDateTime)
     ) {
 
-        showFeedback(
+        showWizardFeedback(
             "End date and time must be after start date and time.",
             "error"
         );
@@ -505,7 +772,7 @@ async function saveEvent(event) {
                 : "Saving..."
         );
 
-        hideFeedback();
+        hideWizardFeedback();
 
 
         if (eventId) {
@@ -540,7 +807,8 @@ async function saveEvent(event) {
 
     } catch (error) {
 
-        showFeedback(
+        showWizardFeedback(
+            error?.data?.message ||
             error.message ||
             "Unable to save event.",
             "error"
@@ -597,6 +865,7 @@ async function deleteEvent(eventId) {
     } catch (error) {
 
         showFeedback(
+            error?.data?.message ||
             error.message ||
             "Unable to delete event.",
             "error"
@@ -672,6 +941,19 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+
+function showWizardFeedback(message, type) {
+    wizardFeedback.textContent = message;
+    wizardFeedback.className = `feedback feedback-${type}`;
+    wizardFeedback.hidden = false;
+}
+
+
+function hideWizardFeedback() {
+    wizardFeedback.hidden = true;
+    wizardFeedback.textContent = "";
 }
 
 
