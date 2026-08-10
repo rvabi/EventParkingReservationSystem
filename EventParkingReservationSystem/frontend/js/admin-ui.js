@@ -28,7 +28,7 @@ const ADMIN_NAV_GROUPS = [
             { id: "parking", label: "Parking", href: "manage-parking.html", implemented: true },
             { id: "food", label: "Food Court", href: "manage-food.html", implemented: true },
             { id: "facilities", label: "Facilities", href: "manage-facilities.html", implemented: true },
-            { id: "bookings", label: "Bookings", href: null, implemented: false },
+            { id: "bookings", label: "Bookings", href: "manage-bookings.html", implemented: true },
             { id: "customers", label: "Customers", href: null, implemented: false }
         ]
     }
