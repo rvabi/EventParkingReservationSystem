@@ -9,7 +9,7 @@ namespace EventParking.Api.Controllers;
 
 [ApiController]
 [Route("api/food-orders")]
-//[Authorize]
+[Authorize]
 public class FoodOrdersController : ControllerBase
 {
     private readonly IFoodOrderService _foodOrderService;
@@ -21,16 +21,19 @@ public class FoodOrdersController : ControllerBase
     }
 
     // POST: /api/food-orders
+    // Customer only
     [HttpPost]
+    [Authorize(Roles = nameof(UserRole.Customer))]
     public async Task<ActionResult<FoodOrderResponse>> Create(
-    [FromQuery] int customerId,
-    [FromBody] CreateFoodOrderRequest request)
+        [FromBody] CreateFoodOrderRequest request)
     {
-        if (customerId <= 0)
+        int? customerId = GetAuthenticatedCustomerId();
+
+        if (!customerId.HasValue)
         {
-            return BadRequest(new
+            return Unauthorized(new
             {
-                message = "A valid customer ID is required."
+                message = "Invalid authentication token."
             });
         }
 
@@ -38,13 +41,13 @@ public class FoodOrdersController : ControllerBase
         {
             var foodOrder =
                 await _foodOrderService.CreateAsync(
-                    customerId,
+                    customerId.Value,
                     request);
 
             return CreatedAtAction(
                 nameof(GetMyOrders),
-                new { customerId },
-                foodOrder);
+                routeValues: null,
+                value: foodOrder);
         }
         catch (ArgumentException exception)
         {
@@ -72,29 +75,35 @@ public class FoodOrdersController : ControllerBase
     }
 
     // GET: /api/food-orders/my-orders
+    // Customer only
     [HttpGet("my-orders")]
+    [Authorize(Roles = nameof(UserRole.Customer))]
     public async Task<
-    ActionResult<IReadOnlyList<FoodOrderResponse>>>
-    GetMyOrders([FromQuery] int customerId)
+        ActionResult<IReadOnlyList<FoodOrderResponse>>>
+        GetMyOrders()
     {
-        if (customerId <= 0)
+        int? customerId = GetAuthenticatedCustomerId();
+
+        if (!customerId.HasValue)
         {
-            return BadRequest(new
+            return Unauthorized(new
             {
-                message = "A valid customer ID is required."
+                message = "Invalid authentication token."
             });
         }
 
         var foodOrders =
             await _foodOrderService.GetMyOrdersAsync(
-                customerId);
+                customerId.Value);
 
         return Ok(foodOrders);
     }
 
     // GET: /api/food-orders
     // GET: /api/food-orders?status=Preparing
+    // Administrator only
     [HttpGet]
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     public async Task<
         ActionResult<IReadOnlyList<FoodOrderResponse>>>
         GetAll(
@@ -107,7 +116,9 @@ public class FoodOrdersController : ControllerBase
     }
 
     // PUT: /api/food-orders/{foodOrderId}/status
+    // Administrator only
     [HttpPut("{foodOrderId:int}/status")]
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     public async Task<ActionResult<FoodOrderResponse>>
         UpdateStatus(
             int foodOrderId,
@@ -150,18 +161,19 @@ public class FoodOrdersController : ControllerBase
 
     private int? GetAuthenticatedCustomerId()
     {
-        var customerIdValue =
+        string? customerIdValue =
             User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
 
-        if (int.TryParse(
+        if (!int.TryParse(
                 customerIdValue,
-                out var customerId) &&
-            customerId > 0)
+                out int customerId))
         {
-            return customerId;
+            return null;
         }
 
-        return null;
+        return customerId > 0
+            ? customerId
+            : null;
     }
 }
