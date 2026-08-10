@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using EventParking.Business.DTOs.FoodCourt;
 using EventParking.Business.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventParking.Api.Controllers;

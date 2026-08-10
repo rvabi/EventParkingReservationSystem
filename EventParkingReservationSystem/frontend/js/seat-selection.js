@@ -7,7 +7,7 @@ import {
     setButtonLoading
 } from "./ui.js";
 
-import { renderSeatMap, SEAT_STATUS } from "./seat-map.js";
+import { renderSeatMap, SEAT_STATUS, layoutModeFromSeatingLayoutType } from "./seat-map.js";
 import { isAuthenticated, getCustomerRole } from "./auth.js";
 
 
@@ -47,12 +47,13 @@ const bookingFeedback = document.getElementById("bookingFeedback");
 const createBookingButton = document.getElementById("createBookingButton");
 
 /*
- * No persisted layout-type field exists on Event/Venue/Seat yet (verified
- * against current entities/DTOs), so the customer view always renders the
- * conventional Square layout as a safe documented default. See the Seat
- * phase report for what a persisted field would need to look like.
+ * Layout is read automatically from the persisted Event.SeatingLayoutType
+ * ("StraightRows" | "CircularArena", see EventDto) once the event loads -
+ * the customer never chooses or sees a layout selector; see
+ * layoutModeFromSeatingLayoutType in seat-map.js for the shared mapping
+ * used by both this page and the admin Manage Seats page.
  */
-const LAYOUT_MODE = "square";
+let layoutMode = "square";
 
 let eventId = null;
 let eventItem = null;
@@ -120,6 +121,8 @@ async function loadEventAndSeats() {
 
         eventItem = await api.get(`/api/Events/${eventId}`);
 
+        layoutMode = layoutModeFromSeatingLayoutType(eventItem.seatingLayoutType);
+
         [eventVenue, eventCategory] = await Promise.all([
             api.get(`/api/Venues/${eventItem.venueId}`),
             api.get(`/api/Categories/${eventItem.eventCategoryId}`)
@@ -160,7 +163,7 @@ async function loadSeatMap() {
         if (!seatMap.seats || seatMap.seats.length === 0) {
             renderSeatMap(seatMapContainer, {
                 seats: [],
-                layout: LAYOUT_MODE,
+                layout: layoutMode,
                 mode: "customer"
             });
 
@@ -193,7 +196,7 @@ async function loadSeatMap() {
 function renderSeats() {
     renderSeatMap(seatMapContainer, {
         seats: seatMap.seats,
-        layout: LAYOUT_MODE,
+        layout: layoutMode,
         mode: "customer",
         selectedSeatIds,
         onSeatClick: seatsAreLocked ? null : handleSeatClick

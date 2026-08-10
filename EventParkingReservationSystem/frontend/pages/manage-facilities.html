@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Facility Management | SmartEvent</title>
+
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <div id="authGuardPanel" class="auth-guard-panel" hidden>
+        <p id="authGuardMessage"></p>
+        <div class="hero-actions">
+            <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+        </div>
+    </div>
+
+    <div id="adminShell" class="admin-shell" hidden>
+
+        <div id="adminSidebarSlot"></div>
+
+        <div class="admin-main">
+
+            <header class="admin-topbar">
+                <button id="adminMenuToggle" class="admin-menu-toggle" type="button" aria-label="Open menu">
+                    <span aria-hidden="true">&#9776;</span>
+                </button>
+                <span class="admin-topbar-brand">SmartEvent Admin</span>
+            </header>
+
+            <main class="admin-content">
+
+                <section class="services-section">
+
+                    <div class="section-container">
+
+                        <div class="section-heading">
+                            <span class="section-eyebrow">
+                                FACILITY MANAGEMENT
+                            </span>
+
+                            <h2>
+                                Facility Management
+                            </h2>
+
+                            <p>
+                                Configure venue and event facilities from one administration workspace.
+                            </p>
+                        </div>
+
+                        <div id="globalFeedback" class="feedback" hidden></div>
+
+                        <div id="facilityAdminBody" hidden>
+
+                            <div class="form-group seat-admin-event-picker">
+                                <label class="form-label" for="venueSelect">Venue</label>
+                                <select id="venueSelect" class="form-control">
+                                    <option value="">Select a venue</option>
+                                </select>
+                            </div>
+
+                            <p id="noVenueSelectedHint" class="form-footer-text">
+                                Choose a venue to manage its facilities.
+                            </p>
+
+                            <p id="facilitiesLoadingState" class="form-footer-text" hidden>
+                                Loading facilities...
+                            </p>
+
+                            <div id="facilityManagementPanel" hidden>
+
+                                <div class="parking-status-summary">
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Total Facilities</span>
+                                        <span id="statTotalFacilities" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Open</span>
+                                        <span id="statOpenFacilities" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Closed</span>
+                                        <span id="statClosedFacilities" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Under Maintenance</span>
+                                        <span id="statMaintenanceFacilities" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Accessible</span>
+                                        <span id="statAccessibleFacilities" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                </div>
+
+                                <article class="service-card">
+
+                                    <div class="service-icon">
+                                        F
+                                    </div>
+
+                                    <h3 id="facilityFormTitle">
+                                        Add Facility
+                                    </h3>
+
+                                    <form id="facilityForm">
+
+                                        <input id="facilityId" type="hidden">
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="facilityVenueId">Venue</label>
+                                            <select id="facilityVenueId" class="form-control" required>
+                                                <option value="">Select venue</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="facilityName">Facility Name</label>
+                                            <input
+                                                id="facilityName"
+                                                class="form-control"
+                                                type="text"
+                                                maxlength="150"
+                                                placeholder="e.g. Main Entrance Washroom"
+                                                required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="facilityType">Type</label>
+                                            <select id="facilityType" class="form-control" required>
+                                                <option value="1">Washroom</option>
+                                                <option value="2">First Aid</option>
+                                                <option value="3">Prayer Room</option>
+                                                <option value="4">ATM</option>
+                                                <option value="5">Information Desk</option>
+                                                <option value="6">Exit</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="facilityStatus">Status</label>
+                                            <select id="facilityStatus" class="form-control" required>
+                                                <option value="1">Open</option>
+                                                <option value="2">Closed</option>
+                                                <option value="3">Under Maintenance</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="facilityZone">Zone (optional)</label>
+                                            <input
+                                                id="facilityZone"
+                                                class="form-control"
+                                                type="text"
+                                                maxlength="100"
+                                                placeholder="e.g. North Wing">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="facilityFloor">Floor (optional)</label>
+                                            <input
+                                                id="facilityFloor"
+                                                class="form-control"
+                                                type="text"
+                                                maxlength="100"
+                                                placeholder="e.g. Ground Floor">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="facilityIsAccessible">Accessibility</label>
+                                            <select id="facilityIsAccessible" class="form-control">
+                                                <option value="true">Accessible</option>
+                                                <option value="false">Not Accessible</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="facilityDescription">Description (optional)</label>
+                                            <textarea
+                                                id="facilityDescription"
+                                                class="form-control"
+                                                maxlength="500"
+                                                placeholder="Enter facility description"></textarea>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="facilityDirections">Directions (optional)</label>
+                                            <textarea
+                                                id="facilityDirections"
+                                                class="form-control"
+                                                maxlength="500"
+                                                placeholder="Enter directions to this facility"></textarea>
+                                        </div>
+
+                                        <div id="facilityFormFeedback" class="feedback" hidden></div>
+
+                                        <div class="hero-actions">
+                                            <button id="saveFacilityButton" class="btn btn-primary" type="submit">
+                                                Save Facility
+                                            </button>
+                                            <button id="cancelFacilityEditButton" class="btn btn-secondary" type="button" hidden>
+                                                Cancel Edit
+                                            </button>
+                                        </div>
+
+                                    </form>
+
+                                </article>
+
+                                <h3 style="margin-top: 34px;">Facilities</h3>
+
+                                <div class="facility-filter-bar">
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="facilitySearchInput">Search</label>
+                                        <input
+                                            id="facilitySearchInput"
+                                            class="form-control"
+                                            type="text"
+                                            placeholder="Search by name, zone, floor or description">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="facilityStatusFilter">Status</label>
+                                        <select id="facilityStatusFilter" class="form-control">
+                                            <option value="">All statuses</option>
+                                            <option value="Open">Open</option>
+                                            <option value="Closed">Closed</option>
+                                            <option value="UnderMaintenance">Under Maintenance</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="facilityTypeFilter">Type</label>
+                                        <select id="facilityTypeFilter" class="form-control">
+                                            <option value="">All types</option>
+                                            <option value="Washroom">Washroom</option>
+                                            <option value="FirstAid">First Aid</option>
+                                            <option value="PrayerRoom">Prayer Room</option>
+                                            <option value="Atm">ATM</option>
+                                            <option value="InformationDesk">Information Desk</option>
+                                            <option value="Exit">Exit</option>
+                                        </select>
+                                    </div>
+
+                                    <button id="clearFacilityFiltersButton" type="button" class="btn btn-secondary btn-small">
+                                        Clear Filters
+                                    </button>
+
+                                </div>
+
+                                <div id="facilityList"></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <script type="module" src="../js/manage-facilities.js"></script>
+
+</body>
+
+</html>

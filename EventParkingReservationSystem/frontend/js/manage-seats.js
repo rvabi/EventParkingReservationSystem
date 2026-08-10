@@ -1,7 +1,6 @@
 import { api } from "./api.js";
 
 import {
-    renderNavbar,
     showFeedback,
     hideFeedback,
     setButtonLoading
@@ -10,18 +9,32 @@ import {
 import {
     renderSeatMap,
     SEAT_STATUS,
-    groupSeatsByRow
+    groupSeatsByRow,
+    layoutModeFromSeatingLayoutType
 } from "./seat-map.js";
 
+import {
+    requireAdministrator,
+    renderAdminSidebar,
+    setupAdminMobileMenu
+} from "./admin-ui.js";
+
+
+const adminShell = document.getElementById("adminShell");
+const seatAdminBody = document.getElementById("seatAdminBody");
 
 const eventSelect = document.getElementById("eventSelect");
 const seatManagementPanel = document.getElementById("seatManagementPanel");
+const layoutNote = document.getElementById("layoutNote");
 
 const statCapacity = document.getElementById("statCapacity");
 const statGenerated = document.getElementById("statGenerated");
 const statTicketPrice = document.getElementById("statTicketPrice");
 
 const generatePanel = document.getElementById("generatePanel");
+const rowCountLabel = document.getElementById("rowCountLabel");
+const rowCountInput = document.getElementById("rowCountInput");
+const autoDistributeButton = document.getElementById("autoDistributeButton");
 const rowDefinitions = document.getElementById("rowDefinitions");
 const addRowButton = document.getElementById("addRowButton");
 const rowTotalSummary = document.getElementById("rowTotalSummary");
@@ -29,30 +42,63 @@ const generateFeedback = document.getElementById("generateFeedback");
 const generateButton = document.getElementById("generateButton");
 
 const existingMapPanel = document.getElementById("existingMapPanel");
-const squareLayoutButton = document.getElementById("squareLayoutButton");
-const groundLayoutButton = document.getElementById("groundLayoutButton");
 const seatMapContainer = document.getElementById("seatMapContainer");
 const seatActionFeedback = document.getElementById("seatActionFeedback");
+const rowPricingHeading = document.getElementById("rowPricingHeading");
 const rowPriceEditor = document.getElementById("rowPriceEditor");
 
 
 let events = [];
 let currentEventId = null;
+let currentEvent = null;
 let seatMap = null;
-
-/*
- * Layout preview is intentionally not persisted anywhere - there is no
- * LayoutType/SeatingLayout field on Event/Venue/Seat in the current
- * backend. This resets to "square" every page load / event switch. See
- * the phase report for what a persisted field would require.
- */
-let previewLayout = "square";
 
 
 document.addEventListener("DOMContentLoaded", async () => {
-    renderNavbar();
+    if (!requireAdministrator()) {
+        return;
+    }
+
+    renderAdminSidebar("seats");
+    setupAdminMobileMenu();
+
+    adminShell.hidden = false;
+    seatAdminBody.hidden = false;
+
     await initializePage();
 });
+
+
+/* ---------------- Row / Ring terminology ---------------- */
+
+function isCircularArena() {
+    return Boolean(currentEvent) && currentEvent.seatingLayoutType === "CircularArena";
+}
+
+
+function rowUnitLabel() {
+    return isCircularArena() ? "Ring" : "Row";
+}
+
+
+function currentLayoutMode() {
+    return layoutModeFromSeatingLayoutType(
+        currentEvent ? currentEvent.seatingLayoutType : "StraightRows"
+    );
+}
+
+
+function updateLayoutAwareLabels() {
+    const unit = rowUnitLabel();
+
+    rowCountLabel.textContent = `Number of ${unit}s`;
+    addRowButton.textContent = `+ Add ${unit}`;
+    rowPricingHeading.textContent = `${unit} Pricing`;
+
+    layoutNote.textContent = isCircularArena()
+        ? "Layout: Ground / Full Round (360° circular arena)"
+        : "Layout: Hall / Straight (rows facing a stage)";
+}
 
 
 async function initializePage() {
@@ -76,6 +122,7 @@ async function initializePage() {
         if (requestedId && events.some((eventItem) => eventItem.id === requestedId)) {
             eventSelect.value = String(requestedId);
             currentEventId = requestedId;
+            currentEvent = events.find((eventItem) => eventItem.id === requestedId);
             await loadSeatMapForEvent();
         }
     } catch (error) {
@@ -93,12 +140,13 @@ eventSelect.addEventListener("change", async () => {
     if (!value) {
         seatManagementPanel.hidden = true;
         currentEventId = null;
+        currentEvent = null;
         seatMap = null;
         return;
     }
 
     currentEventId = Number(value);
-    previewLayout = "square";
+    currentEvent = events.find((eventItem) => eventItem.id === currentEventId);
     await loadSeatMapForEvent();
 });
 
@@ -111,6 +159,7 @@ async function loadSeatMapForEvent() {
         seatMap = await api.get(`/api/events/${currentEventId}/seats`);
 
         seatManagementPanel.hidden = false;
+        updateLayoutAwareLabels();
 
         statCapacity.textContent = seatMap.capacity;
         statGenerated.textContent = seatMap.totalSeats;
@@ -123,7 +172,6 @@ async function loadSeatMapForEvent() {
         } else {
             generatePanel.hidden = true;
             existingMapPanel.hidden = false;
-            setActiveLayoutButton();
             renderAdminSeatMap();
             renderRowPriceEditor();
         }
@@ -145,24 +193,23 @@ async function loadSeatMapForEvent() {
 
 function resetRowDefinitions() {
     rowDefinitions.innerHTML = "";
-    addRowDefinitionRow();
-    addRowDefinitionRow();
+    rowCountInput.value = "1";
     updateRowTotalSummary();
     hideGenerateFeedback();
 }
 
 
-function addRowDefinitionRow() {
+function addRowDefinitionRow(initialSeatCount = 1) {
     const row = document.createElement("div");
     row.className = "row-definition-item";
 
     row.innerHTML = `
         <div class="form-group">
             <label class="form-label">Seat Count</label>
-            <input type="number" min="1" class="form-control row-seat-count" value="1">
+            <input type="number" min="1" class="form-control row-seat-count" value="${initialSeatCount}">
         </div>
         <div class="form-group">
-            <label class="form-label">Row Price (optional)</label>
+            <label class="form-label">${rowUnitLabel()} Price (optional)</label>
             <input type="number" min="0" step="0.01" class="form-control row-price" placeholder="Default ticket price">
         </div>
         <button type="button" class="btn btn-secondary btn-small remove-row-button">Remove</button>
@@ -191,19 +238,72 @@ function updateRowTotalSummary() {
     const total = counts.reduce((sum, n) => sum + n, 0);
     const capacity = seatMap ? seatMap.capacity : 0;
     const diff = capacity - total;
+    const matches = diff === 0 && counts.length > 0;
 
     rowTotalSummary.textContent =
-        diff === 0
-            ? `${total} / ${capacity} seats - matches event capacity.`
+        matches
+            ? `Total Seats: ${total} / ${capacity} ✓`
             : diff > 0
-                ? `${total} / ${capacity} seats - ${diff} seat(s) remaining.`
-                : `${total} / ${capacity} seats - ${Math.abs(diff)} seat(s) over capacity.`;
+                ? `Total Seats: ${total} / ${capacity} — ${diff} seat(s) remaining.`
+                : `Total Seats: ${total} / ${capacity} — ${Math.abs(diff)} seat(s) over capacity.`;
 
-    rowTotalSummary.classList.toggle("row-total-summary-error", diff !== 0);
+    rowTotalSummary.classList.toggle("row-total-summary-error", !matches);
+    rowTotalSummary.classList.toggle("row-total-summary-ok", matches);
+
+    generateButton.disabled = !matches;
 }
 
 
-addRowButton.addEventListener("click", addRowDefinitionRow);
+/*
+ * Evenly distributes `capacity` seats across `rowCount` rows/rings, giving
+ * the first (capacity % rowCount) rows one extra seat so the total always
+ * equals capacity exactly. Example: capacity=103, rowCount=5 -> 21,21,21,20,20.
+ */
+function distributeSeatsAcrossRows(capacity, rowCount) {
+    if (rowCount <= 0 || capacity <= 0) {
+        return [];
+    }
+
+    const base = Math.floor(capacity / rowCount);
+    const remainder = capacity % rowCount;
+
+    return Array.from(
+        { length: rowCount },
+        (_, index) => base + (index < remainder ? 1 : 0)
+    );
+}
+
+
+autoDistributeButton.addEventListener("click", () => {
+    const rowCount = Number(rowCountInput.value) || 0;
+
+    if (rowCount < 1) {
+        showGenerateFeedback(
+            `Enter at least 1 ${rowUnitLabel().toLowerCase()}.`,
+            "error"
+        );
+        return;
+    }
+
+    if (!seatMap || seatMap.capacity < rowCount) {
+        showGenerateFeedback(
+            `Event capacity (${seatMap ? seatMap.capacity : 0}) is too small for ${rowCount} ${rowUnitLabel().toLowerCase()}(s).`,
+            "error"
+        );
+        return;
+    }
+
+    const counts = distributeSeatsAcrossRows(seatMap.capacity, rowCount);
+
+    rowDefinitions.innerHTML = "";
+    counts.forEach((count) => addRowDefinitionRow(count));
+
+    hideGenerateFeedback();
+    updateRowTotalSummary();
+});
+
+
+addRowButton.addEventListener("click", () => addRowDefinitionRow(1));
 
 
 generateButton.addEventListener("click", async () => {
@@ -220,7 +320,10 @@ generateButton.addEventListener("click", async () => {
     });
 
     if (!rows.length || rows.some((row) => row.seatCount < 1)) {
-        showGenerateFeedback("Every row needs at least 1 seat.", "error");
+        showGenerateFeedback(
+            `Every ${rowUnitLabel().toLowerCase()} needs at least 1 seat.`,
+            "error"
+        );
         return;
     }
 
@@ -266,37 +369,15 @@ function hideGenerateFeedback() {
 }
 
 
-/* ---------------- Layout Preview + Seat Status ---------------- */
+/* ---------------- Seat map + seat status (layout is read-only here) ---------------- */
 
 function renderAdminSeatMap() {
     renderSeatMap(seatMapContainer, {
         seats: seatMap.seats,
-        layout: previewLayout,
+        layout: currentLayoutMode(),
         mode: "admin",
         onSeatClick: handleAdminSeatClick
     });
-}
-
-
-squareLayoutButton.addEventListener("click", () => {
-    previewLayout = "square";
-    setActiveLayoutButton();
-    renderAdminSeatMap();
-});
-
-
-groundLayoutButton.addEventListener("click", () => {
-    previewLayout = "ground";
-    setActiveLayoutButton();
-    renderAdminSeatMap();
-});
-
-
-function setActiveLayoutButton() {
-    squareLayoutButton.classList.toggle("btn-primary", previewLayout === "square");
-    squareLayoutButton.classList.toggle("btn-secondary", previewLayout !== "square");
-    groundLayoutButton.classList.toggle("btn-primary", previewLayout === "ground");
-    groundLayoutButton.classList.toggle("btn-secondary", previewLayout !== "ground");
 }
 
 
@@ -359,10 +440,11 @@ function hideSeatActionFeedback() {
 }
 
 
-/* ---------------- Row Price Editor ---------------- */
+/* ---------------- Row / Ring Price Editor ---------------- */
 
 function renderRowPriceEditor() {
     const rows = groupSeatsByRow(seatMap.seats);
+    const unit = rowUnitLabel();
 
     rowPriceEditor.innerHTML = "";
 
@@ -383,7 +465,7 @@ function renderRowPriceEditor() {
 
         rowEl.innerHTML = `
             <div class="row-price-item-header">
-                <strong>Row ${escapeHtml(row.rowLabel)}</strong>
+                <strong>${unit} ${escapeHtml(row.rowLabel)}</strong>
                 ${hasOverride ? '<span class="row-price-override-badge">Override active</span>' : ""}
             </div>
             <div class="row-price-item-detail">
@@ -405,7 +487,7 @@ function renderRowPriceEditor() {
                     Reset to Default
                 </button>
             </div>
-            ${isProtected ? '<p class="form-footer-text">This row has Held or Booked seats and cannot be repriced.</p>' : ""}
+            ${isProtected ? `<p class="form-footer-text">This ${unit.toLowerCase()} has Held or Booked seats and cannot be repriced.</p>` : ""}
             <div class="feedback row-price-feedback" hidden></div>
         `;
 

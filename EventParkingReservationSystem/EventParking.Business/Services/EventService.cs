@@ -212,6 +212,9 @@ public class EventService : IEventService
         existingEvent.Capacity =
             eventEntity.Capacity;
 
+        existingEvent.SeatingLayoutType =
+            eventEntity.SeatingLayoutType;
+
         existingEvent.UpdatedAt = DateTime.UtcNow;
 
         _eventRepository.Update(existingEvent);
