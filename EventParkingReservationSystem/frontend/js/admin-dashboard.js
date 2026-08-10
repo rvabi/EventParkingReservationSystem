@@ -219,6 +219,9 @@ function renderEventBoard(events, venues, categories, bookings) {
                     <a href="./manage-parking.html?id=${eventItem.id}" class="btn btn-secondary btn-small">
                         Manage Parking
                     </a>
+                    <a href="./manage-food.html?id=${eventItem.id}" class="btn btn-secondary btn-small">
+                        Manage Food
+                    </a>
                 </div>
 
             </article>

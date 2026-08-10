@@ -359,6 +359,12 @@ function renderEvents() {
                     Manage Parking
                 </a>
 
+                <a
+                    href="./manage-food.html?id=${event.id}"
+                    class="btn btn-secondary">
+                    Manage Food
+                </a>
+
                 <button
                     class="btn btn-secondary delete-event-button"
                     type="button"
