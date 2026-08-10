@@ -233,12 +233,9 @@ public class EventService : IEventService
         eventId,
         null);
 
-        var hasActiveBooking =
-            eventBookings.Any(booking =>
-                booking.Status == BookingStatus.Pending ||
-                booking.Status == BookingStatus.Confirmed);
+        var hasBookings = eventBookings.Count > 0;
 
-        if (hasActiveBooking)
+        if (hasBookings)
         {
             return false;
         }
