@@ -11,15 +11,18 @@ public class FoodOrderService : IFoodOrderService
     private readonly IFoodOrderRepository _foodOrderRepository;
     private readonly IFoodItemRepository _foodItemRepository;
     private readonly IFoodStallRepository _foodStallRepository;
+    private readonly INotificationService _notificationService;
 
     public FoodOrderService(
         IFoodOrderRepository foodOrderRepository,
         IFoodItemRepository foodItemRepository,
-        IFoodStallRepository foodStallRepository)
+        IFoodStallRepository foodStallRepository,
+        INotificationService notificationService)
     {
         _foodOrderRepository = foodOrderRepository;
         _foodItemRepository = foodItemRepository;
         _foodStallRepository = foodStallRepository;
+        _notificationService = notificationService;
     }
 
     public async Task<FoodOrderResponse> CreateAsync(
@@ -263,6 +266,13 @@ public class FoodOrderService : IFoodOrderService
         _foodOrderRepository.Update(foodOrder);
 
         await _foodOrderRepository.SaveChangesAsync();
+
+        if (newStatus == FoodOrderStatus.ReadyForPickup)
+        {
+            await _notificationService.NotifyFoodReadyAsync(
+                foodOrder.CustomerId,
+                foodOrder.OrderNumber);
+        }
 
         return MapToResponse(foodOrder);
     }

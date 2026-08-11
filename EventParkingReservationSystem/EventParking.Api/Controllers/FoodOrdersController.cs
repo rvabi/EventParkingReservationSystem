@@ -21,16 +21,20 @@ public class FoodOrdersController : ControllerBase
     }
 
     // POST: /api/food-orders
+    // Customer only
     [HttpPost]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = nameof(UserRole.Customer))]
     public async Task<ActionResult<FoodOrderResponse>> Create(
-    [FromBody] CreateFoodOrderRequest request)
+        [FromBody] CreateFoodOrderRequest request)
     {
-        var customerId = GetAuthenticatedCustomerId();
+        int? customerId = GetAuthenticatedCustomerId();
 
         if (!customerId.HasValue)
         {
-            return Unauthorized();
+            return Unauthorized(new
+            {
+                message = "Invalid authentication token."
+            });
         }
 
         try
@@ -42,8 +46,8 @@ public class FoodOrdersController : ControllerBase
 
             return CreatedAtAction(
                 nameof(GetMyOrders),
-                null,
-                foodOrder);
+                routeValues: null,
+                value: foodOrder);
         }
         catch (ArgumentException exception)
         {
@@ -71,17 +75,21 @@ public class FoodOrdersController : ControllerBase
     }
 
     // GET: /api/food-orders/my-orders
+    // Customer only
     [HttpGet("my-orders")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = nameof(UserRole.Customer))]
     public async Task<
-    ActionResult<IReadOnlyList<FoodOrderResponse>>>
-    GetMyOrders()
+        ActionResult<IReadOnlyList<FoodOrderResponse>>>
+        GetMyOrders()
     {
-        var customerId = GetAuthenticatedCustomerId();
+        int? customerId = GetAuthenticatedCustomerId();
 
         if (!customerId.HasValue)
         {
-            return Unauthorized();
+            return Unauthorized(new
+            {
+                message = "Invalid authentication token."
+            });
         }
 
         var foodOrders =
@@ -93,8 +101,9 @@ public class FoodOrdersController : ControllerBase
 
     // GET: /api/food-orders
     // GET: /api/food-orders?status=Preparing
+    // Administrator only
     [HttpGet]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     public async Task<
         ActionResult<IReadOnlyList<FoodOrderResponse>>>
         GetAll(
@@ -107,8 +116,9 @@ public class FoodOrdersController : ControllerBase
     }
 
     // PUT: /api/food-orders/{foodOrderId}/status
+    // Administrator only
     [HttpPut("{foodOrderId:int}/status")]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     public async Task<ActionResult<FoodOrderResponse>>
         UpdateStatus(
             int foodOrderId,
@@ -151,18 +161,19 @@ public class FoodOrdersController : ControllerBase
 
     private int? GetAuthenticatedCustomerId()
     {
-        var customerIdValue =
+        string? customerIdValue =
             User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
 
-        if (int.TryParse(
+        if (!int.TryParse(
                 customerIdValue,
-                out var customerId) &&
-            customerId > 0)
+                out int customerId))
         {
-            return customerId;
+            return null;
         }
 
-        return null;
+        return customerId > 0
+            ? customerId
+            : null;
     }
 }
