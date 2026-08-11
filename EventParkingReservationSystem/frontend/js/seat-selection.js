@@ -353,7 +353,7 @@ function updateSummary() {
 
         return `
             <div class="selected-seat-row">
-                <span>${escapeHtml(seat.seatNumber)}</span>
+                <span>${escapeHtml(seatDisplayLabel(seat))}</span>
                 <span>${formatMoney(seat.price)}</span>
                 <button
                     type="button"
@@ -502,7 +502,7 @@ function renderEventOverview() {
 
         return `
             <div class="selected-seat-row">
-                <span>${escapeHtml(seat.seatNumber)}</span>
+                <span>${escapeHtml(seatDisplayLabel(seat))}</span>
                 <span>${formatMoney(seat.price)}</span>
             </div>
         `;
@@ -692,6 +692,21 @@ function formatTime(value) {
         [],
         { hour: "2-digit", minute: "2-digit" }
     );
+}
+
+
+/*
+ * CircularArena selected seats show their ring so the customer can tell
+ * "Ring A - A1" apart from "Ring B - B1" at a glance; StraightRows keeps
+ * the plain seat number exactly as before (rows are already visually
+ * obvious there, and this correction is scoped to CircularArena only).
+ */
+function seatDisplayLabel(seat) {
+    if (layoutMode !== "circular") {
+        return seat.seatNumber;
+    }
+
+    return `Ring ${seat.rowLabel || "-"} — ${seat.seatNumber}`;
 }
 
 

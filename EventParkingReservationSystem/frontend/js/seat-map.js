@@ -88,7 +88,7 @@ export function groupSeatsByRow(seats) {
     return rows;
 }
 
-function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick, shape, unitLabel, hideLabel }) {
+function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick, shape, unitLabel, hideLabel, labelOverride }) {
     const button = document.createElement("button");
     button.type = "button";
 
@@ -120,26 +120,47 @@ function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick, shape, uni
     button.disabled = !interactive;
 
     /*
-     * Customer CircularArena seats render as plain dots (no number text) -
-     * with hundreds of seats packed around concentric rings, per-seat
-     * labels overlap and become unclickable. The seat number is still
-     * available via aria-label/title for accessibility and hover, and the
-     * dedicated Ring/Seat dropdown chooser (seat-selection.js) is the
-     * precise way to pick a specific seat number in this layout.
+     * Customer CircularArena seats hide the label only in dense rings (see
+     * renderCircularLayout's per-ring density check) - hundreds of seats
+     * packed tightly around a ring would otherwise overlap into
+     * unreadable/unclickable text. Where a label is shown, labelOverride
+     * carries the compact "1 2 3 4" index (seat.columnNumber) instead of
+     * the full seatNumber, since the ring label above already supplies the
+     * "Ring A" context - see the CIRCULAR ARENA - SEAT IDENTITY section in
+     * the correction brief this implements. The full seat number always
+     * remains available via aria-label/title/dropdown regardless.
      */
-    button.textContent = hideLabel ? "" : (seat.seatNumber || "");
+    button.textContent = hideLabel ? "" : (labelOverride ?? seat.seatNumber ?? "");
+
+    // Richer Ring/Seat tooltip+aria-label is customer-CircularArena-only; Admin's arena and StraightRows (both modes) keep the exact prior format.
+    const isCustomerCircle = shape === "circle" && mode === "customer";
 
     const priceText =
         typeof seat.price === "number"
             ? `, LKR ${seat.price.toFixed(2)}`
             : "";
 
-    button.setAttribute(
-        "aria-label",
-        `Seat ${seat.seatNumber}, ${unitLabel || "Row"} ${seat.rowLabel || "-"}, ${statusName}${priceText}`
-    );
+    if (isCustomerCircle) {
+        // Ring B, Seat B3, Available, LKR 1500.00
+        button.setAttribute(
+            "aria-label",
+            `${unitLabel || "Ring"} ${seat.rowLabel || "-"}, Seat ${seat.seatNumber}, ${statusName}${priceText}`
+        );
 
-    button.title = `${seat.seatNumber} - ${statusName}${priceText}`;
+        button.title =
+            `${unitLabel || "Ring"} ${seat.rowLabel || "-"}\n` +
+            `Seat ${seat.seatNumber}\n` +
+            (typeof seat.price === "number" ? `LKR ${seat.price.toFixed(2)}\n` : "") +
+            statusName;
+    } else {
+        // Preserve the existing tooltip/aria-label exactly for Admin's arena and StraightRows - unrelated to this correction.
+        button.setAttribute(
+            "aria-label",
+            `Seat ${seat.seatNumber}, ${unitLabel || "Row"} ${seat.rowLabel || "-"}, ${statusName}${priceText}`
+        );
+
+        button.title = `${seat.seatNumber} - ${statusName}${priceText}`;
+    }
 
     if (interactive && typeof onSeatClick === "function") {
         button.addEventListener("click", () => onSeatClick(seat, button));
@@ -219,6 +240,41 @@ function renderCircularLayout(container, wrapper, rows, options) {
     stage.textContent = "EVENT / STAGE";
     arena.appendChild(stage);
 
+    /*
+     * Ring labels ("Ring A", "Ring B", ...) using the real rowLabel data,
+     * one per ring, stacked outward from the stage along the same top
+     * spoke (-90deg) - matching the required
+     *   RING C
+     *   RING B
+     *   RING A
+     *   EVENT / STAGE
+     * layout. Each label sits at the radius midpoint BETWEEN this ring and
+     * the previous one (stage or ring below), a band that never contains a
+     * seat dot at any seat count, so labels never collide with seats
+     * regardless of density.
+     *
+     * Customer-only: the Admin CircularArena view already prints the full
+     * seat number (including its row letter) on every seat, so admins
+     * don't have the identity problem this solves, and this correction is
+     * explicitly scoped to customer rendering - the admin arena must stay
+     * pixel-for-pixel as it was.
+     */
+    if (options.mode === "customer") {
+        rows.forEach((row, ringIndex) => {
+            const innerRadius = ringIndex === 0 ? STAGE_RADIUS : STAGE_RADIUS + RING_GAP * ringIndex;
+            const ringRadius = STAGE_RADIUS + RING_GAP * (ringIndex + 1);
+            const labelRadius = (innerRadius + ringRadius) / 2;
+
+            const ringLabel = document.createElement("span");
+            ringLabel.className = "seat-ring-label";
+            ringLabel.textContent = `Ring ${row.rowLabel || "-"}`;
+            ringLabel.style.left = "50%";
+            ringLabel.style.top = `calc(50% - ${labelRadius.toFixed(2)}px)`;
+
+            arena.appendChild(ringLabel);
+        });
+    }
+
     rows.forEach((row, ringIndex) => {
         const radius = STAGE_RADIUS + RING_GAP * (ringIndex + 1);
         const seatCount = row.seats.length;
@@ -228,6 +284,16 @@ function renderCircularLayout(container, wrapper, rows, options) {
         }
 
         const angleStep = 360 / seatCount;
+
+        /*
+         * Density-aware compact labels: at this ring's radius, seats
+         * spaced further apart than roughly one dot-width have room to
+         * show a short number without the text overlapping neighbouring
+         * dots; tightly packed rings fall back to plain dots (identity
+         * still available via hover/focus/tooltip/dropdown).
+         */
+        const arcSpacing = (angleStep * Math.PI / 180) * radius;
+        const showCompactLabel = options.mode === "customer" && arcSpacing >= 30;
 
         row.seats.forEach((seat, seatIndex) => {
             const angleDeg = angleStep * seatIndex - 90;
@@ -240,7 +306,11 @@ function renderCircularLayout(container, wrapper, rows, options) {
                 ...options,
                 shape: "circle",
                 unitLabel: "Ring",
-                hideLabel: options.mode === "customer"
+                hideLabel: options.mode === "customer" && !showCompactLabel,
+                labelOverride:
+                    options.mode === "customer"
+                        ? String(seat.columnNumber ?? seatIndex + 1)
+                        : undefined
             });
 
             button.classList.add("seat-btn-arena");

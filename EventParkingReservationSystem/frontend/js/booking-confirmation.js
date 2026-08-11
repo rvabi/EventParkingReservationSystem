@@ -38,7 +38,8 @@ const receiptFeedback = document.getElementById("receiptFeedback");
 const foodStallSelect = document.getElementById("foodStallSelect");
 const foodItemsList = document.getElementById("foodItemsList");
 const pickupTimeGroup = document.getElementById("pickupTimeGroup");
-const pickupTimeInput = document.getElementById("pickupTime");
+const pickupDateInput = document.getElementById("pickupDate");
+const pickupTimeOfDayInput = document.getElementById("pickupTimeOfDay");
 const foodOrderFeedback = document.getElementById("foodOrderFeedback");
 const placeFoodOrderButton = document.getElementById("placeFoodOrderButton");
 const myFoodOrders = document.getElementById("myFoodOrders");
@@ -273,6 +274,8 @@ async function handleFoodStallChange() {
     foodItemsList.innerHTML = "";
     pickupTimeGroup.hidden = true;
     placeFoodOrderButton.hidden = true;
+    pickupDateInput.value = "";
+    pickupTimeOfDayInput.value = "";
 
     if (!foodStallId) {
         return;
@@ -314,9 +317,18 @@ async function handleFoodStallChange() {
 
     pickupTimeGroup.hidden = false;
 
+    /*
+     * The Date input's min/max is a same-day-events-friendly native guard
+     * (matches the event's own date range); the authoritative check - the
+     * combined pickup date+time against the exact event start/end instant
+     * mirroring FoodOrderService's "Pickup time must be within the event
+     * service period" rule - happens in handlePlaceFoodOrder() before
+     * submit, since a date-only min/max can't express a time-of-day
+     * boundary on the event's start/end day.
+     */
     if (eventItem) {
-        pickupTimeInput.min = toDateTimeLocal(eventItem.startDateTime);
-        pickupTimeInput.max = toDateTimeLocal(eventItem.endDateTime);
+        pickupDateInput.min = toDateOnly(eventItem.startDateTime);
+        pickupDateInput.max = toDateOnly(eventItem.endDateTime);
     }
 
     placeFoodOrderButton.hidden = false;
@@ -346,9 +358,30 @@ async function handlePlaceFoodOrder() {
         return;
     }
 
-    if (!pickupTimeInput.value) {
-        showFoodOrderFeedback("Choose a pickup time.", "error");
+    if (!pickupDateInput.value) {
+        showFoodOrderFeedback("Select a pickup date.", "error");
         return;
+    }
+
+    if (!pickupTimeOfDayInput.value) {
+        showFoodOrderFeedback("Select a pickup time.", "error");
+        return;
+    }
+
+    const pickupTime = combineDateTime(pickupDateInput.value, pickupTimeOfDayInput.value);
+
+    if (eventItem) {
+        const pickupInstant = new Date(pickupTime).getTime();
+        const eventStart = new Date(eventItem.startDateTime).getTime();
+        const eventEnd = new Date(eventItem.endDateTime).getTime();
+
+        if (pickupInstant < eventStart || pickupInstant > eventEnd) {
+            showFoodOrderFeedback(
+                "Pickup date and time must be within the event schedule.",
+                "error"
+            );
+            return;
+        }
     }
 
     try {
@@ -358,7 +391,7 @@ async function handlePlaceFoodOrder() {
         await api.post("/api/food-orders", {
             bookingId,
             foodStallId,
-            pickupTime: pickupTimeInput.value,
+            pickupTime,
             items
         });
 
@@ -368,6 +401,8 @@ async function handlePlaceFoodOrder() {
         foodItemsList.innerHTML = "";
         pickupTimeGroup.hidden = true;
         placeFoodOrderButton.hidden = true;
+        pickupDateInput.value = "";
+        pickupTimeOfDayInput.value = "";
 
         await loadMyFoodOrders();
     } catch (error) {
@@ -453,12 +488,27 @@ function hideReceiptFeedback() {
 }
 
 
-function toDateTimeLocal(value) {
+function toDateOnly(value) {
     if (!value) {
         return "";
     }
 
-    return String(value).slice(0, 16);
+    return String(value).slice(0, 10);
+}
+
+
+/*
+ * Same combine convention as manage-events.js's split Start/End Date/Time
+ * inputs - produces the "YYYY-MM-DDTHH:mm" string the backend's PickupTime
+ * DateTime binding already accepted from the old datetime-local input, so
+ * the request contract is unchanged.
+ */
+function combineDateTime(dateValue, timeValue) {
+    if (!dateValue || !timeValue) {
+        return "";
+    }
+
+    return `${dateValue}T${timeValue}`;
 }
 
 
