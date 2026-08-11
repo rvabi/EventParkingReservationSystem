@@ -61,6 +61,35 @@
 
                             <div id="seatMapContainer" class="seat-map-container"></div>
 
+                            <div id="seatChooser" class="seat-chooser" hidden>
+
+                                <h4 class="seat-chooser-title">Choose your seats</h4>
+
+                                <div class="seat-chooser-row">
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="chooserRingSelect">Ring</label>
+                                        <select id="chooserRingSelect" class="form-control"></select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="chooserSeatSelect">Seat</label>
+                                        <select id="chooserSeatSelect" class="form-control"></select>
+                                    </div>
+
+                                    <div class="form-group seat-chooser-price-group">
+                                        <span class="form-label">Price</span>
+                                        <span id="chooserSeatPrice" class="seat-chooser-price">LKR 0.00</span>
+                                    </div>
+
+                                    <button id="chooserAddSeatButton" type="button" class="btn btn-primary btn-small" disabled>
+                                        + Add Seat
+                                    </button>
+
+                                </div>
+
+                            </div>
+
                             <div class="seat-legend">
                                 <span class="seat-legend-item">
                                     <span class="seat-legend-swatch seat-status-available"></span>

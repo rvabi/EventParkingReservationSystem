@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Venue Management | SmartEvent</title>
+
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <div id="authGuardPanel" class="auth-guard-panel" hidden>
+        <p id="authGuardMessage"></p>
+        <div class="hero-actions">
+            <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+        </div>
+    </div>
+
+    <div id="adminShell" class="admin-shell" hidden>
+
+        <div id="adminSidebarSlot"></div>
+
+        <div class="admin-main">
+
+            <header class="admin-topbar">
+                <button id="adminMenuToggle" class="admin-menu-toggle" type="button" aria-label="Open menu">
+                    <span aria-hidden="true">&#9776;</span>
+                </button>
+                <span class="admin-topbar-brand">SmartEvent Admin</span>
+            </header>
+
+            <main class="admin-content">
+
+                <section class="services-section">
+
+                    <div class="section-container">
+
+                        <div class="section-heading">
+                            <span class="section-eyebrow">
+                                VENUE MANAGEMENT
+                            </span>
+
+                            <h2>
+                                Venue Management
+                            </h2>
+
+                            <p>
+                                Venues are created and maintained here, then selected when
+                                configuring Events.
+                            </p>
+                        </div>
+
+                        <div id="globalFeedback" class="feedback" hidden></div>
+
+                        <p id="venuesLoadingState" class="form-footer-text">
+                            Loading venues...
+                        </p>
+
+                        <div id="venuesLoadError" class="feedback feedback-error" hidden>
+                            <span id="venuesLoadErrorText">Unable to load venues.</span>
+                            <button id="retryLoadVenuesButton" type="button" class="btn btn-secondary btn-small" style="margin-left: 12px;">
+                                Retry
+                            </button>
+                        </div>
+
+                        <div id="venueAdminBody" hidden>
+
+                            <article class="service-card">
+
+                                <div class="service-icon">
+                                    V
+                                </div>
+
+                                <h3 id="venueFormTitle">
+                                    Add Venue
+                                </h3>
+
+                                <form id="venueForm">
+
+                                    <input id="venueId" type="hidden">
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="venueName">Venue Name</label>
+                                        <input
+                                            id="venueName"
+                                            class="form-control"
+                                            type="text"
+                                            maxlength="150"
+                                            placeholder="e.g. Jaffna Cultural Hall"
+                                            required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="venueAddress">Address</label>
+                                        <textarea
+                                            id="venueAddress"
+                                            class="form-control"
+                                            maxlength="500"
+                                            placeholder="Enter the venue's full address"
+                                            required></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="venueCapacity">Total Capacity</label>
+                                        <input
+                                            id="venueCapacity"
+                                            class="form-control"
+                                            type="number"
+                                            min="1"
+                                            placeholder="Enter total capacity"
+                                            required>
+                                    </div>
+
+                                    <div id="venueFormFeedback" class="feedback" hidden></div>
+
+                                    <div class="hero-actions">
+                                        <button id="saveVenueButton" class="btn btn-primary" type="submit">
+                                            Save Venue
+                                        </button>
+                                        <button id="cancelVenueEditButton" class="btn btn-secondary" type="button" hidden>
+                                            Cancel Edit
+                                        </button>
+                                    </div>
+
+                                </form>
+
+                            </article>
+
+                            <div class="form-group venue-search-group">
+                                <label class="form-label" for="venueSearchInput">Search</label>
+                                <input
+                                    id="venueSearchInput"
+                                    class="form-control"
+                                    type="text"
+                                    placeholder="Search by name or address">
+                            </div>
+
+                            <div id="venueList" class="venue-list"></div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <script type="module" src="../js/manage-venues.js"></script>
+
+</body>
+
+</html>

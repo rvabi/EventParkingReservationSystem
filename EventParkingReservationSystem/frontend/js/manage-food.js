@@ -9,7 +9,9 @@ import {
 import {
     requireAdministrator,
     renderAdminSidebar,
-    setupAdminMobileMenu
+    setupAdminMobileMenu,
+    getSetupParams,
+    renderSetupContextBar
 } from "./admin-ui.js";
 
 
@@ -64,6 +66,11 @@ const STATUS_DISPLAY_LABEL = {
 
 const adminShell = document.getElementById("adminShell");
 const foodAdminBody = document.getElementById("foodAdminBody");
+const setupContextBar = document.getElementById("setupContextBar");
+const eventPickerGroup = document.getElementById("eventPickerGroup");
+const setupNav = document.getElementById("setupNav");
+const setupBackButton = document.getElementById("setupBackButton");
+const setupContinueButton = document.getElementById("setupContinueButton");
 
 const statTotalStalls = document.getElementById("statTotalStalls");
 const statActiveStalls = document.getElementById("statActiveStalls");
@@ -136,6 +143,8 @@ let orders = [];
 let orderSearchTerm = "";
 let orderStatusFilterValue = "";
 
+const setupParams = getSetupParams();
+
 
 document.addEventListener("DOMContentLoaded", async () => {
     if (!requireAdministrator()) {
@@ -168,12 +177,18 @@ async function initializePage() {
         });
 
         const requestedId =
+            setupParams.eventId ||
             Number(new URLSearchParams(window.location.search).get("id"));
 
         if (requestedId && events.some((eventItem) => eventItem.id === requestedId)) {
             eventSelect.value = String(requestedId);
             currentEventId = requestedId;
             currentEvent = events.find((eventItem) => eventItem.id === requestedId);
+
+            if (setupParams.isSetup) {
+                await activateSetupMode();
+            }
+
             await loadStalls();
             await loadItemsForStalls();
         }
@@ -187,6 +202,51 @@ async function initializePage() {
     await loadOrdersQueue();
     renderSummary();
 }
+
+
+/*
+ * Continuous Event Setup Flow (Corrections 8-13): only active via
+ * manage-food.html?id={eventId}&setup=1. Standalone use (Admin Sidebar ->
+ * Food Court) never sets setup=1, so the normal Event selector still
+ * works exactly as before in that case. Facilities are Venue-based, not
+ * Event-based (verified against VenueFacility - no EventId relationship
+ * exists), so "Save & Continue" carries the event's real venueId forward
+ * as ?venueId=, plus ?eventId= only so Facilities can still show this
+ * event's name in its own context bar - never as an invented backend
+ * relationship.
+ */
+async function activateSetupMode() {
+    eventPickerGroup.hidden = true;
+    setupNav.hidden = false;
+
+    let venueName = null;
+
+    try {
+        const venue = await api.get(`/api/Venues/${currentEvent.venueId}`);
+        venueName = venue.name;
+    } catch {
+        venueName = null;
+    }
+
+    renderSetupContextBar(setupContextBar, {
+        eventItem: currentEvent,
+        venueName,
+        stepNumber: 7,
+        stepLabel: "Food Court"
+    });
+}
+
+
+setupBackButton.addEventListener("click", () => {
+    window.location.assign(`manage-parking.html?id=${currentEventId}&setup=1`);
+});
+
+
+setupContinueButton.addEventListener("click", () => {
+    window.location.assign(
+        `manage-facilities.html?venueId=${currentEvent.venueId}&setup=1&eventId=${currentEventId}`
+    );
+});
 
 
 /* ---------------- Tabs ---------------- */

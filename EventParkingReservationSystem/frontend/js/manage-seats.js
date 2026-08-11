@@ -16,12 +16,19 @@ import {
 import {
     requireAdministrator,
     renderAdminSidebar,
-    setupAdminMobileMenu
+    setupAdminMobileMenu,
+    getSetupParams,
+    renderSetupContextBar
 } from "./admin-ui.js";
 
 
 const adminShell = document.getElementById("adminShell");
 const seatAdminBody = document.getElementById("seatAdminBody");
+const setupContextBar = document.getElementById("setupContextBar");
+const eventPickerGroup = document.getElementById("eventPickerGroup");
+const setupNav = document.getElementById("setupNav");
+const setupBackButton = document.getElementById("setupBackButton");
+const setupContinueButton = document.getElementById("setupContinueButton");
 
 const eventSelect = document.getElementById("eventSelect");
 const seatManagementPanel = document.getElementById("seatManagementPanel");
@@ -52,6 +59,8 @@ let events = [];
 let currentEventId = null;
 let currentEvent = null;
 let seatMap = null;
+
+const setupParams = getSetupParams();
 
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -117,12 +126,18 @@ async function initializePage() {
         });
 
         const requestedId =
+            setupParams.eventId ||
             Number(new URLSearchParams(window.location.search).get("id"));
 
         if (requestedId && events.some((eventItem) => eventItem.id === requestedId)) {
             eventSelect.value = String(requestedId);
             currentEventId = requestedId;
             currentEvent = events.find((eventItem) => eventItem.id === requestedId);
+
+            if (setupParams.isSetup) {
+                await activateSetupMode();
+            }
+
             await loadSeatMapForEvent();
         }
     } catch (error) {
@@ -132,6 +147,45 @@ async function initializePage() {
         );
     }
 }
+
+
+/*
+ * Continuous Event Setup Flow (Corrections 8-13): only active when this
+ * page was reached via manage-seats.html?id={eventId}&setup=1 (e.g. from
+ * the Admin Dashboard/Manage Events "just created this event" redirect).
+ * Standalone use of this page (Admin Sidebar -> Seats) never sets setup=1,
+ * so the normal Event selector is untouched in that case.
+ */
+async function activateSetupMode() {
+    eventPickerGroup.hidden = true;
+    setupNav.hidden = false;
+
+    let venueName = null;
+
+    try {
+        const venue = await api.get(`/api/Venues/${currentEvent.venueId}`);
+        venueName = venue.name;
+    } catch {
+        venueName = null;
+    }
+
+    renderSetupContextBar(setupContextBar, {
+        eventItem: currentEvent,
+        venueName,
+        stepNumber: 5,
+        stepLabel: "Seating"
+    });
+}
+
+
+setupBackButton.addEventListener("click", () => {
+    window.location.assign(`manage-events.html?edit=${currentEventId}`);
+});
+
+
+setupContinueButton.addEventListener("click", () => {
+    window.location.assign(`manage-parking.html?id=${currentEventId}&setup=1`);
+});
 
 
 eventSelect.addEventListener("change", async () => {

@@ -9,7 +9,9 @@ import {
 import {
     requireAdministrator,
     renderAdminSidebar,
-    setupAdminMobileMenu
+    setupAdminMobileMenu,
+    getSetupParams,
+    renderSetupContextBar
 } from "./admin-ui.js";
 
 
@@ -40,6 +42,11 @@ const UNASSIGNED_ZONE_LABEL = "Unassigned Zone";
 
 const adminShell = document.getElementById("adminShell");
 const parkingAdminBody = document.getElementById("parkingAdminBody");
+const setupContextBar = document.getElementById("setupContextBar");
+const eventPickerGroup = document.getElementById("eventPickerGroup");
+const setupNav = document.getElementById("setupNav");
+const setupBackButton = document.getElementById("setupBackButton");
+const setupContinueButton = document.getElementById("setupContinueButton");
 
 const eventSelect = document.getElementById("eventSelect");
 const noEventSelectedHint = document.getElementById("noEventSelectedHint");
@@ -80,6 +87,8 @@ let slots = [];
 let searchTerm = "";
 let statusFilter = "";
 
+const setupParams = getSetupParams();
+
 
 document.addEventListener("DOMContentLoaded", async () => {
     if (!requireAdministrator()) {
@@ -112,6 +121,7 @@ async function initializePage() {
         });
 
         const requestedId =
+            setupParams.eventId ||
             Number(new URLSearchParams(window.location.search).get("id"));
 
         if (requestedId && events.some((eventItem) => eventItem.id === requestedId)) {
@@ -119,6 +129,11 @@ async function initializePage() {
             currentEventId = requestedId;
             currentEvent = events.find((eventItem) => eventItem.id === requestedId);
             noEventSelectedHint.hidden = true;
+
+            if (setupParams.isSetup) {
+                await activateSetupMode();
+            }
+
             await loadSlotsForEvent();
         }
     } catch (error) {
@@ -128,6 +143,44 @@ async function initializePage() {
         );
     }
 }
+
+
+/*
+ * Continuous Event Setup Flow (Corrections 8-13): only active via
+ * manage-parking.html?id={eventId}&setup=1. Standalone use (Admin
+ * Sidebar -> Parking) never sets setup=1, so the normal Event selector
+ * still works exactly as before in that case.
+ */
+async function activateSetupMode() {
+    eventPickerGroup.hidden = true;
+    setupNav.hidden = false;
+
+    let venueName = null;
+
+    try {
+        const venue = await api.get(`/api/Venues/${currentEvent.venueId}`);
+        venueName = venue.name;
+    } catch {
+        venueName = null;
+    }
+
+    renderSetupContextBar(setupContextBar, {
+        eventItem: currentEvent,
+        venueName,
+        stepNumber: 6,
+        stepLabel: "Parking"
+    });
+}
+
+
+setupBackButton.addEventListener("click", () => {
+    window.location.assign(`manage-seats.html?id=${currentEventId}&setup=1`);
+});
+
+
+setupContinueButton.addEventListener("click", () => {
+    window.location.assign(`manage-food.html?id=${currentEventId}&setup=1`);
+});
 
 
 eventSelect.addEventListener("change", async () => {

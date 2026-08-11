@@ -19,6 +19,7 @@ const ADMIN_NAV_GROUPS = [
         items: [
             { id: "dashboard", label: "Dashboard", href: "admin-dashboard.html", implemented: true },
             { id: "events", label: "Events", href: "manage-events.html", implemented: true },
+            { id: "venues", label: "Venues", href: "manage-venues.html", implemented: true },
             { id: "seats", label: "Seats", href: "manage-seats.html", implemented: true }
         ]
     },
@@ -188,4 +189,58 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+
+/*
+ * Continuous Event Setup Flow (manage-events -> Seats -> Parking ->
+ * Food Court -> Facilities). setup=1 plus an id/venueId query param marks
+ * a page as being visited as part of guided post-creation setup rather
+ * than standalone admin browsing - standalone use of any of these pages
+ * (e.g. sidebar -> Parking) never sets setup=1, so their normal Event/
+ * Venue selector still works exactly as before.
+ */
+export function getSetupParams() {
+    const params = new URLSearchParams(window.location.search);
+
+    return {
+        isSetup: params.get("setup") === "1",
+        eventId: Number(params.get("id")) || null,
+        venueId: Number(params.get("venueId")) || null,
+        setupEventId: Number(params.get("eventId")) || null
+    };
+}
+
+
+const SEATING_LAYOUT_LABEL = {
+    StraightRows: "Hall / Straight",
+    CircularArena: "Ground / Full Round"
+};
+
+/*
+ * Fills #setupContextBar (expected in every setup-capable Admin page) with
+ * a compact "SETTING UP EVENT" strip using only real, already-loaded data.
+ * venueName/eventItem may be null while still loading - the bar simply
+ * shows what is available rather than blocking on it.
+ */
+export function renderSetupContextBar(container, { eventItem, venueName, stepNumber, stepLabel, totalSteps = 8 }) {
+    if (!container) {
+        return;
+    }
+
+    const metaParts = [
+        venueName || null,
+        eventItem ? (SEATING_LAYOUT_LABEL[eventItem.seatingLayoutType] || null) : null
+    ].filter(Boolean);
+
+    container.innerHTML = `
+        <div class="setup-context-info">
+            <span class="setup-context-eyebrow">Setting Up Event</span>
+            <strong class="setup-context-name">${escapeHtml(eventItem ? eventItem.name : "Loading event...")}</strong>
+            ${metaParts.length ? `<span class="setup-context-meta">${escapeHtml(metaParts.join(" · "))}</span>` : ""}
+        </div>
+        <span class="setup-context-step">Step ${stepNumber} of ${totalSteps} — ${escapeHtml(stepLabel)}</span>
+    `;
+
+    container.hidden = false;
 }

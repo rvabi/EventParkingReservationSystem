@@ -7,7 +7,7 @@ import {
     setButtonLoading
 } from "./ui.js";
 
-import { renderSeatMap, SEAT_STATUS, layoutModeFromSeatingLayoutType } from "./seat-map.js";
+import { renderSeatMap, SEAT_STATUS, layoutModeFromSeatingLayoutType, groupSeatsByRow } from "./seat-map.js";
 import { isAuthenticated, getCustomerRole } from "./auth.js";
 
 
@@ -28,6 +28,12 @@ const continueButtonRow = document.getElementById("continueButtonRow");
 const continueButton = document.getElementById("continueButton");
 const validationFeedback = document.getElementById("validationFeedback");
 const seatsAvailableStrip = document.getElementById("seatsAvailableStrip");
+
+const seatChooser = document.getElementById("seatChooser");
+const chooserRingSelect = document.getElementById("chooserRingSelect");
+const chooserSeatSelect = document.getElementById("chooserSeatSelect");
+const chooserSeatPrice = document.getElementById("chooserSeatPrice");
+const chooserAddSeatButton = document.getElementById("chooserAddSeatButton");
 
 const eventOverviewPanel = document.getElementById("eventOverviewPanel");
 const overviewEventName = document.getElementById("overviewEventName");
@@ -179,6 +185,7 @@ async function loadSeatMap() {
         hideFeedback();
         renderSeats();
         updateSummary();
+        populateRingOptions();
     } catch (error) {
         if (error?.status === 404) {
             showFeedback("Event not found.", "error");
@@ -220,7 +227,105 @@ function handleSeatClick(seat) {
     hideValidationFeedback();
     renderSeats();
     updateSummary();
+
+    if (layoutMode === "circular") {
+        populateSeatOptions();
+    }
 }
+
+
+/*
+ * Ring/Seat chooser (CircularArena only). This reuses the exact same
+ * selectedSeatIds/selectedSeats state and handleSeatClick() toggle as
+ * clicking a dot directly - it is a second way to drive the same
+ * selection, never a second parallel selection state. Only Available
+ * seats not already selected are offered, so "Add Seat" always adds
+ * (never needs to toggle off) and the seat disappears from the dropdown
+ * the moment it is selected, exactly as required.
+ */
+function populateRingOptions() {
+    if (layoutMode !== "circular" || !seatMap?.seats?.length) {
+        seatChooser.hidden = true;
+        return;
+    }
+
+    const rows = groupSeatsByRow(seatMap.seats);
+
+    if (!rows.length) {
+        seatChooser.hidden = true;
+        return;
+    }
+
+    seatChooser.hidden = false;
+
+    const previousRing = chooserRingSelect.value;
+
+    chooserRingSelect.innerHTML = rows.map((row) =>
+        `<option value="${escapeHtml(row.rowLabel)}">Ring ${escapeHtml(row.rowLabel)}</option>`
+    ).join("");
+
+    if (previousRing && rows.some((row) => row.rowLabel === previousRing)) {
+        chooserRingSelect.value = previousRing;
+    }
+
+    populateSeatOptions();
+}
+
+
+function populateSeatOptions() {
+    if (seatChooser.hidden) {
+        return;
+    }
+
+    const ring = chooserRingSelect.value;
+
+    const availableSeats = seatMap.seats
+        .filter((seat) =>
+            seat.rowLabel === ring &&
+            seat.status === SEAT_STATUS.AVAILABLE &&
+            !selectedSeatIds.has(seat.id))
+        .sort((a, b) => (a.columnNumber || 0) - (b.columnNumber || 0));
+
+    if (!availableSeats.length) {
+        chooserSeatSelect.innerHTML = `<option value="">No available seats in this ring</option>`;
+        chooserSeatSelect.disabled = true;
+        chooserAddSeatButton.disabled = true;
+        chooserSeatPrice.textContent = formatMoney(0);
+        return;
+    }
+
+    chooserSeatSelect.disabled = false;
+    chooserAddSeatButton.disabled = false;
+
+    chooserSeatSelect.innerHTML = availableSeats.map((seat) =>
+        `<option value="${seat.id}">${escapeHtml(seat.seatNumber)}</option>`
+    ).join("");
+
+    updateChooserPrice();
+}
+
+
+function updateChooserPrice() {
+    const seatId = Number(chooserSeatSelect.value);
+    const seat = seatMap.seats.find((item) => item.id === seatId);
+
+    chooserSeatPrice.textContent = formatMoney(seat ? seat.price : 0);
+}
+
+
+chooserRingSelect.addEventListener("change", populateSeatOptions);
+chooserSeatSelect.addEventListener("change", updateChooserPrice);
+
+chooserAddSeatButton.addEventListener("click", () => {
+    const seatId = Number(chooserSeatSelect.value);
+    const seat = seatMap.seats.find((item) => item.id === seatId);
+
+    if (!seat) {
+        return;
+    }
+
+    handleSeatClick(seat);
+});
 
 
 function updateSummary() {
@@ -250,9 +355,26 @@ function updateSummary() {
             <div class="selected-seat-row">
                 <span>${escapeHtml(seat.seatNumber)}</span>
                 <span>${formatMoney(seat.price)}</span>
+                <button
+                    type="button"
+                    class="selected-seat-remove"
+                    data-seat-id="${seat.id}"
+                    aria-label="Remove seat ${escapeHtml(seat.seatNumber)}">
+                    &times;
+                </button>
             </div>
         `;
     }).join("");
+
+    selectedSeatsList.querySelectorAll(".selected-seat-remove").forEach((button) => {
+        button.addEventListener("click", () => {
+            const seat = selectedSeats.get(Number(button.dataset.seatId));
+
+            if (seat) {
+                handleSeatClick(seat);
+            }
+        });
+    });
 
     selectedSeatsTotal.textContent = formatMoney(total);
 
