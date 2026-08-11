@@ -113,9 +113,18 @@
 
                         <div id="foodItemsList" class="food-items-list"></div>
 
-                        <div class="form-group" id="pickupTimeGroup" hidden>
-                            <label class="form-label" for="pickupTime">Pickup Time</label>
-                            <input id="pickupTime" class="form-control" type="datetime-local">
+                        <div class="datetime-input-row" id="pickupTimeGroup" hidden>
+
+                            <div class="form-group">
+                                <label class="form-label" for="pickupDate">Pickup Date</label>
+                                <input id="pickupDate" class="form-control" type="date">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="pickupTimeOfDay">Pickup Time</label>
+                                <input id="pickupTimeOfDay" class="form-control" type="time">
+                            </div>
+
                         </div>
 
                         <div id="foodOrderFeedback" class="feedback" hidden></div>

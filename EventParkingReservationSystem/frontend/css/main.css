@@ -2297,7 +2297,13 @@ button:disabled {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    /*
+     * The 4/5 frame is narrower than the 3/2 source image, so cover()
+     * crops horizontally. Centered cropping used to slice through the
+     * "EVENT TICKET" text/icon near the image's left edge; shifting the
+     * focal point left keeps the full ticket in frame instead.
+     */
+    object-position: 10% center;
 }
 
 .home-hero-caption {
@@ -2938,6 +2944,21 @@ button:disabled {
     letter-spacing: 2px;
     text-align: center;
     transform: translate(-50%, -50%);
+}
+
+.seat-ring-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: rgba(36, 49, 61, 0.85);
+    color: var(--white);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 2;
 }
 
 .seat-btn-circle {
@@ -3721,6 +3742,32 @@ a.admin-quick-action.is-primary:hover {
     margin-top: 12px;
 }
 
+.parking-bulk-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.parking-bulk-row .form-group {
+    flex: 1 1 180px;
+    min-width: 150px;
+}
+
+.parking-bulk-preview {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.parking-bulk-preview p {
+    margin: 0 0 12px;
+    color: var(--primary-dark);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
 @media (max-width: 760px) {
     .parking-status-summary {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3733,6 +3780,18 @@ a.admin-quick-action.is-primary:hover {
 
     .parking-filter-bar .form-group {
         min-width: 0;
+    }
+
+    .parking-bulk-row {
+        flex-direction: column;
+    }
+
+    .parking-bulk-preview .hero-actions {
+        flex-direction: column;
+    }
+
+    .parking-bulk-preview .btn {
+        width: 100%;
     }
 }
 

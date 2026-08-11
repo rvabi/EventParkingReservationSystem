@@ -61,6 +61,22 @@ const statUnavailableSlots = document.getElementById("statUnavailableSlots");
 const statOccupiedSlots = document.getElementById("statOccupiedSlots");
 const statDefaultFee = document.getElementById("statDefaultFee");
 
+const bulkParkingForm = document.getElementById("bulkParkingForm");
+const bulkZoneInput = document.getElementById("bulkZone");
+const bulkCapacityInput = document.getElementById("bulkCapacity");
+const bulkDefaultFeeInput = document.getElementById("bulkDefaultFee");
+const bulkParkingFeedback = document.getElementById("bulkParkingFeedback");
+const previewBulkButton = document.getElementById("previewBulkButton");
+
+const bulkPreviewPanel = document.getElementById("bulkPreviewPanel");
+const bulkPreviewZone = document.getElementById("bulkPreviewZone");
+const bulkPreviewCount = document.getElementById("bulkPreviewCount");
+const bulkPreviewRange = document.getElementById("bulkPreviewRange");
+const bulkPreviewFee = document.getElementById("bulkPreviewFee");
+const confirmBulkButton = document.getElementById("confirmBulkButton");
+const cancelBulkButton = document.getElementById("cancelBulkButton");
+const bulkProgressFeedback = document.getElementById("bulkProgressFeedback");
+
 const parkingSlotForm = document.getElementById("parkingSlotForm");
 const parkingSlotIdInput = document.getElementById("parkingSlotId");
 const slotNumberInput = document.getElementById("slotNumber");
@@ -86,6 +102,16 @@ let slots = [];
 
 let searchTerm = "";
 let statusFilter = "";
+
+let pendingBulkPlan = null;
+
+/*
+ * Frontend-only safety cap on a single bulk generation run - the backend
+ * has no bulk endpoint or documented limit, this purely exists so an admin
+ * mistake (e.g. typing 5000) can't fire thousands of sequential POST
+ * requests. Matches the max="500" on #bulkCapacity.
+ */
+const BULK_CAPACITY_SAFETY_MAX = 500;
 
 const setupParams = getSetupParams();
 
@@ -199,9 +225,20 @@ eventSelect.addEventListener("change", async () => {
     currentEvent = events.find((eventItem) => eventItem.id === currentEventId);
     noEventSelectedHint.hidden = true;
     resetSlotForm();
+    resetBulkForm();
     resetFilters();
     await loadSlotsForEvent();
 });
+
+
+function resetBulkForm() {
+    bulkParkingForm.reset();
+    pendingBulkPlan = null;
+    bulkPreviewPanel.hidden = true;
+    confirmBulkButton.hidden = false;
+    hideBulkFeedback();
+    hideBulkProgressFeedback();
+}
 
 
 async function loadSlotsForEvent() {
@@ -420,6 +457,204 @@ async function deleteSlot(slotId) {
             "error"
         );
     }
+}
+
+
+/* ---------------- Bulk Generate Parking Slots ---------------- */
+
+/*
+ * Slot numbers are generated as {ZONE}{01, 02, ...} directly from the Zone
+ * value typed in (uppercased, non-alphanumeric characters stripped) - the
+ * real project seed data uses a free-text Zone ("Zone A") separate from a
+ * differently-prefixed SlotNumber ("P01"), so there is no single existing
+ * convention to derive a prefix from; using the admin's own Zone value
+ * keeps this deterministic and, per the correction brief's own worked
+ * example (Zone "B" -> B01..B20), matches the intended behavior when a
+ * short zone code is used. The generated list is always shown in the
+ * preview step before any request is sent, so the admin sees exactly what
+ * will be created.
+ */
+function buildBulkSlotNumbers(zone, capacity) {
+    const prefix = zone.toUpperCase().replace(/[^A-Z0-9]/g, "") || "ZONE";
+    const padLength = Math.max(2, String(capacity).length);
+
+    const numbers = [];
+
+    for (let i = 1; i <= capacity; i++) {
+        numbers.push(`${prefix}${String(i).padStart(padLength, "0")}`);
+    }
+
+    return numbers;
+}
+
+
+bulkParkingForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    hideBulkFeedback();
+    bulkPreviewPanel.hidden = true;
+    pendingBulkPlan = null;
+
+    const zone = bulkZoneInput.value.trim();
+    const capacity = Number(bulkCapacityInput.value);
+    const feeRaw = bulkDefaultFeeInput.value;
+    const defaultFee = feeRaw === "" ? null : Number(feeRaw);
+
+    if (!zone) {
+        showBulkFeedback("Zone is required.", "error");
+        return;
+    }
+
+    if (!Number.isInteger(capacity) || capacity < 1) {
+        showBulkFeedback("Slot capacity must be a whole number of at least 1.", "error");
+        return;
+    }
+
+    if (capacity > BULK_CAPACITY_SAFETY_MAX) {
+        showBulkFeedback(
+            `Slot capacity cannot exceed ${BULK_CAPACITY_SAFETY_MAX} in a single bulk generation run.`,
+            "error"
+        );
+        return;
+    }
+
+    if (defaultFee !== null && (Number.isNaN(defaultFee) || defaultFee < 0)) {
+        showBulkFeedback("Default fee must be a non-negative number.", "error");
+        return;
+    }
+
+    const slotNumbers = buildBulkSlotNumbers(zone, capacity);
+
+    const existingNumbers = new Set(slots.map((slot) => slot.slotNumber));
+    const duplicates = slotNumbers.filter((number) => existingNumbers.has(number));
+
+    if (duplicates.length) {
+        showBulkFeedback(
+            `Zone ${zone} already contains one or more of these slot numbers ` +
+            `(${duplicates.slice(0, 5).join(", ")}${duplicates.length > 5 ? ", ..." : ""}). ` +
+            "Choose another zone or adjust the slot capacity.",
+            "error"
+        );
+        return;
+    }
+
+    pendingBulkPlan = { zone, capacity, defaultFee, slotNumbers };
+
+    confirmBulkButton.hidden = false;
+    confirmBulkButton.textContent = "Generate Slots";
+
+    bulkPreviewZone.textContent = zone;
+    bulkPreviewCount.textContent = capacity;
+    bulkPreviewRange.textContent =
+        capacity === 1
+            ? slotNumbers[0]
+            : `${slotNumbers[0]} – ${slotNumbers[capacity - 1]}`;
+    bulkPreviewFee.textContent =
+        defaultFee === null ? "Event default" : formatMoney(defaultFee);
+
+    bulkPreviewPanel.hidden = false;
+    bulkPreviewPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+
+
+cancelBulkButton.addEventListener("click", () => {
+    pendingBulkPlan = null;
+    bulkPreviewPanel.hidden = true;
+    confirmBulkButton.hidden = false;
+    hideBulkFeedback();
+    hideBulkProgressFeedback();
+});
+
+
+confirmBulkButton.addEventListener("click", async () => {
+    if (!pendingBulkPlan) {
+        return;
+    }
+
+    const { zone, defaultFee, slotNumbers } = pendingBulkPlan;
+    const total = slotNumbers.length;
+    let createdCount = 0;
+
+    confirmBulkButton.disabled = true;
+    cancelBulkButton.disabled = true;
+    hideBulkProgressFeedback();
+
+    for (const slotNumber of slotNumbers) {
+        confirmBulkButton.textContent = `Generating ${createdCount + 1} of ${total}...`;
+
+        try {
+            await api.post(`/api/events/${currentEventId}/parking-slots`, {
+                slotNumber,
+                zone,
+                feeOverride: defaultFee,
+                status: PARKING_SLOT_STATUS.AVAILABLE
+            });
+
+            createdCount++;
+        } catch (error) {
+            /*
+             * The plan is invalidated (not just re-enabled) - some of its
+             * slot numbers now exist for real, so blindly re-running the
+             * same plan would immediately duplicate-fail on those. The
+             * panel stays open to show the stop message; Confirm is
+             * hidden so there is nothing stale left to click, and Cancel
+             * dismisses it. A fresh Preview run re-checks against the
+             * just-refreshed real slot list.
+             */
+            pendingBulkPlan = null;
+            confirmBulkButton.hidden = true;
+            cancelBulkButton.disabled = false;
+
+            await loadSlotsForEvent();
+
+            showBulkProgressFeedback(
+                `${createdCount} of ${total} parking slots were created. Creation stopped because ` +
+                `${slotNumber} could not be created: ` +
+                (error?.data?.message || error.message || "Unknown error."),
+                "error"
+            );
+
+            return;
+        }
+    }
+
+    pendingBulkPlan = null;
+    bulkPreviewPanel.hidden = true;
+    confirmBulkButton.disabled = false;
+    cancelBulkButton.disabled = false;
+    confirmBulkButton.textContent = "Generate Slots";
+
+    bulkParkingForm.reset();
+
+    await loadSlotsForEvent();
+
+    showFeedback(`${total} parking slots created successfully.`, "success");
+});
+
+
+function showBulkFeedback(message, type) {
+    bulkParkingFeedback.textContent = message;
+    bulkParkingFeedback.className = `feedback feedback-${type}`;
+    bulkParkingFeedback.hidden = false;
+}
+
+
+function hideBulkFeedback() {
+    bulkParkingFeedback.hidden = true;
+    bulkParkingFeedback.textContent = "";
+}
+
+
+function showBulkProgressFeedback(message, type) {
+    bulkProgressFeedback.textContent = message;
+    bulkProgressFeedback.className = `feedback feedback-${type}`;
+    bulkProgressFeedback.hidden = false;
+}
+
+
+function hideBulkProgressFeedback() {
+    bulkProgressFeedback.hidden = true;
+    bulkProgressFeedback.textContent = "";
 }
 
 

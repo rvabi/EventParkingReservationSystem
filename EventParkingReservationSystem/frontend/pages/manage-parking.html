@@ -110,6 +110,96 @@
                                 <article class="service-card">
 
                                     <div class="service-icon">
+                                        B
+                                    </div>
+
+                                    <h3>
+                                        Bulk Generate Parking Slots
+                                    </h3>
+
+                                    <p class="form-footer-text">
+                                        Quickly create a run of parking slots for a zone instead of adding them one by one.
+                                        Slot numbers are generated as <strong>{ZONE}01, {ZONE}02, ...</strong> from the Zone
+                                        value you enter below.
+                                    </p>
+
+                                    <form id="bulkParkingForm">
+
+                                        <div class="parking-bulk-row">
+
+                                            <div class="form-group">
+                                                <label class="form-label" for="bulkZone">Zone</label>
+                                                <input
+                                                    id="bulkZone"
+                                                    class="form-control"
+                                                    type="text"
+                                                    maxlength="50"
+                                                    placeholder="e.g. B"
+                                                    required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label" for="bulkCapacity">Slot Capacity</label>
+                                                <input
+                                                    id="bulkCapacity"
+                                                    class="form-control"
+                                                    type="number"
+                                                    min="1"
+                                                    max="500"
+                                                    placeholder="e.g. 20"
+                                                    required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label" for="bulkDefaultFee">Default Fee (optional)</label>
+                                                <input
+                                                    id="bulkDefaultFee"
+                                                    class="form-control"
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.01"
+                                                    placeholder="Defaults to the event's parking fee">
+                                            </div>
+
+                                        </div>
+
+                                        <div id="bulkParkingFeedback" class="feedback" hidden></div>
+
+                                        <div class="hero-actions">
+                                            <button id="previewBulkButton" class="btn btn-primary" type="submit">
+                                                Generate Slots
+                                            </button>
+                                        </div>
+
+                                    </form>
+
+                                    <div id="bulkPreviewPanel" class="parking-bulk-preview" hidden>
+
+                                        <p>
+                                            Zone <strong id="bulkPreviewZone"></strong><br>
+                                            <span id="bulkPreviewCount"></span> slots
+                                            (<span id="bulkPreviewRange"></span>)<br>
+                                            Default Fee: <span id="bulkPreviewFee"></span>
+                                        </p>
+
+                                        <div class="hero-actions">
+                                            <button id="confirmBulkButton" type="button" class="btn btn-primary">
+                                                Generate Slots
+                                            </button>
+                                            <button id="cancelBulkButton" type="button" class="btn btn-secondary">
+                                                Cancel
+                                            </button>
+                                        </div>
+
+                                        <div id="bulkProgressFeedback" class="feedback" hidden></div>
+
+                                    </div>
+
+                                </article>
+
+                                <article class="service-card">
+
+                                    <div class="service-icon">
                                         P
                                     </div>
 
