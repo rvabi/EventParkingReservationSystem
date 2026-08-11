@@ -9,7 +9,9 @@ import {
 import {
     requireAdministrator,
     renderAdminSidebar,
-    setupAdminMobileMenu
+    setupAdminMobileMenu,
+    getSetupParams,
+    renderSetupContextBar
 } from "./admin-ui.js";
 
 
@@ -55,6 +57,11 @@ const FACILITY_STATUS_LABEL = {
 
 const adminShell = document.getElementById("adminShell");
 const facilityAdminBody = document.getElementById("facilityAdminBody");
+const setupContextBar = document.getElementById("setupContextBar");
+const venuePickerGroup = document.getElementById("venuePickerGroup");
+const setupNav = document.getElementById("setupNav");
+const setupBackButton = document.getElementById("setupBackButton");
+const setupContinueButton = document.getElementById("setupContinueButton");
 
 const venueSelect = document.getElementById("venueSelect");
 const noVenueSelectedHint = document.getElementById("noVenueSelectedHint");
@@ -100,6 +107,8 @@ let searchTerm = "";
 let statusFilterValue = "";
 let typeFilterValue = "";
 
+const setupParams = getSetupParams();
+
 
 document.addEventListener("DOMContentLoaded", async () => {
     if (!requireAdministrator()) {
@@ -133,13 +142,17 @@ async function initializePage() {
             });
         });
 
-        const requestedVenueId =
-            Number(new URLSearchParams(window.location.search).get("venueId"));
+        const requestedVenueId = setupParams.venueId;
 
         if (requestedVenueId && venues.some((venue) => venue.id === requestedVenueId)) {
             venueSelect.value = String(requestedVenueId);
             currentVenueId = requestedVenueId;
             resetFacilityForm();
+
+            if (setupParams.isSetup) {
+                await activateSetupMode();
+            }
+
             await loadFacilitiesForVenue();
         }
     } catch (error) {
@@ -149,6 +162,55 @@ async function initializePage() {
         );
     }
 }
+
+
+/*
+ * Continuous Event Setup Flow (Corrections 8-13): only active via
+ * manage-facilities.html?venueId={venueId}&setup=1&eventId={eventId}.
+ * Standalone use (Admin Sidebar -> Facilities) never sets setup=1, so the
+ * normal Venue selector still works exactly as before. eventId here is
+ * only used to look up and display the originating event's name/layout
+ * in the context bar - Facilities remain purely Venue-scoped in every
+ * real API call; no Event-Facility relationship is invented.
+ */
+async function activateSetupMode() {
+    venuePickerGroup.hidden = true;
+    setupNav.hidden = false;
+
+    const venue = venues.find((item) => item.id === currentVenueId);
+
+    let eventItem = null;
+
+    if (setupParams.setupEventId) {
+        try {
+            eventItem = await api.get(`/api/Events/${setupParams.setupEventId}`);
+        } catch {
+            eventItem = null;
+        }
+    }
+
+    renderSetupContextBar(setupContextBar, {
+        eventItem,
+        venueName: venue ? venue.name : null,
+        stepNumber: 8,
+        stepLabel: "Facilities"
+    });
+}
+
+
+setupBackButton.addEventListener("click", () => {
+    if (setupParams.setupEventId) {
+        window.location.assign(`manage-food.html?id=${setupParams.setupEventId}&setup=1`);
+        return;
+    }
+
+    window.location.assign("admin-dashboard.html");
+});
+
+
+setupContinueButton.addEventListener("click", () => {
+    window.location.assign("admin-dashboard.html");
+});
 
 
 venueSelect.addEventListener("change", async () => {

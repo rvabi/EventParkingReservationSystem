@@ -55,9 +55,11 @@
 
                         <div id="globalFeedback" class="feedback" hidden></div>
 
+                        <div id="setupContextBar" class="setup-context-bar" hidden></div>
+
                         <div id="parkingAdminBody" hidden>
 
-                            <div class="form-group seat-admin-event-picker">
+                            <div id="eventPickerGroup" class="form-group seat-admin-event-picker">
                                 <label class="form-label" for="eventSelect">Event</label>
                                 <select id="eventSelect" class="form-control">
                                     <option value="">Select an event</option>
@@ -212,6 +214,12 @@
 
                                 <div id="parkingSlotList" class="parking-slot-list"></div>
 
+                            </div>
+
+                            <div id="setupNav" class="wizard-nav" hidden>
+                                <button id="setupBackButton" type="button" class="btn btn-secondary">&larr; Back to Seats</button>
+                                <span class="wizard-nav-spacer"></span>
+                                <button id="setupContinueButton" type="button" class="btn btn-primary">Save &amp; Continue &rarr; Food Court</button>
                             </div>
 
                         </div>

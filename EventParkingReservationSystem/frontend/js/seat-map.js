@@ -88,7 +88,7 @@ export function groupSeatsByRow(seats) {
     return rows;
 }
 
-function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick, shape, unitLabel }) {
+function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick, shape, unitLabel, hideLabel }) {
     const button = document.createElement("button");
     button.type = "button";
 
@@ -98,6 +98,10 @@ function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick, shape, uni
 
     if (shape === "circle") {
         button.classList.add("seat-btn-circle");
+    }
+
+    if (hideLabel) {
+        button.classList.add("seat-btn-dot");
     }
 
     button.dataset.seatId = String(seat.id);
@@ -115,7 +119,15 @@ function createSeatButton(seat, { mode, selectedSeatIds, onSeatClick, shape, uni
 
     button.disabled = !interactive;
 
-    button.textContent = seat.seatNumber || "";
+    /*
+     * Customer CircularArena seats render as plain dots (no number text) -
+     * with hundreds of seats packed around concentric rings, per-seat
+     * labels overlap and become unclickable. The seat number is still
+     * available via aria-label/title for accessibility and hover, and the
+     * dedicated Ring/Seat dropdown chooser (seat-selection.js) is the
+     * precise way to pick a specific seat number in this layout.
+     */
+    button.textContent = hideLabel ? "" : (seat.seatNumber || "");
 
     const priceText =
         typeof seat.price === "number"
@@ -227,7 +239,8 @@ function renderCircularLayout(container, wrapper, rows, options) {
             const button = createSeatButton(seat, {
                 ...options,
                 shape: "circle",
-                unitLabel: "Ring"
+                unitLabel: "Ring",
+                hideLabel: options.mode === "customer"
             });
 
             button.classList.add("seat-btn-arena");

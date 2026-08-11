@@ -84,5 +84,13 @@ export function getCustomerRole() {
 
     const payload = decodeTokenPayload(token);
 
-    return payload?.[ROLE_CLAIM_TYPE] || null;
+    /*
+     * JwtTokenService issues the role claim under the long
+     * ClaimTypes.Role URI (confirmed by decoding a real generated token -
+     * System.IdentityModel.Tokens.Jwt writes explicit Claim objects
+     * verbatim, it does not shorten them). The short "role" fallback below
+     * is defensive only, in case that ever changes; it is not currently
+     * exercised by any real token this API issues.
+     */
+    return payload?.[ROLE_CLAIM_TYPE] || payload?.role || null;
 }

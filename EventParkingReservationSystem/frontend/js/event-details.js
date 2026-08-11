@@ -6,6 +6,8 @@ import {
     hideFeedback
 } from "./ui.js";
 
+import { buildEventPosterHtml } from "./event-poster.js";
+
 
 const eventDetails =
     document.getElementById("eventDetails");
@@ -54,24 +56,15 @@ async function loadEventDetails() {
             );
 
 
-        const [venue, category] =
-            await Promise.all([
-
-                api.get(
-                    `/api/Venues/${eventItem.venueId}`
-                ),
-
-                api.get(
-                    `/api/Categories/${eventItem.eventCategoryId}`
-                )
-
-            ]);
+        const venue =
+            await api.get(
+                `/api/Venues/${eventItem.venueId}`
+            );
 
 
         renderEventDetails(
             eventItem,
-            venue,
-            category
+            venue
         );
 
     } catch (error) {
@@ -87,115 +80,76 @@ async function loadEventDetails() {
 }
 
 
+/*
+ * Category is intentionally not fetched or displayed here - see
+ * Correction 5 (temporary frontend-only Category removal). The backend
+ * EventCategory relationship and /api/Categories/{id} endpoint are
+ * untouched; this page simply no longer calls them.
+ */
 function renderEventDetails(
     eventItem,
-    venue,
-    category
+    venue
 ) {
 
     eventDetails.innerHTML = `
-        <article class="service-card event-detail-card">
+        <article class="event-details-card">
 
-            <div class="service-number">
-                #${eventItem.id}
+            <div class="event-details-hero">
+                ${buildEventPosterHtml(eventItem, venue.name, "is-hero")}
             </div>
 
-            <div class="service-icon">
-                ${escapeHtml(categoryInitial(category.name))}
-            </div>
+            <div class="event-details-body">
 
-            <h3>
-                ${escapeHtml(eventItem.name)}
-            </h3>
+                <h2 class="event-details-title">
+                    ${escapeHtml(eventItem.name)}
+                </h2>
 
-            <p>
-                ${escapeHtml(
-                    eventItem.description ||
-                    "No description available."
-                )}
-            </p>
+                <div class="event-details-grid">
 
-            <p>
-                <strong>Venue:</strong>
-                ${escapeHtml(venue.name)}
-            </p>
+                    <div class="event-details-item">
+                        <span class="event-details-label">Venue</span>
+                        <span class="event-details-value">${escapeHtml(venue.name)}</span>
+                    </div>
 
-            <p>
-                <strong>Address:</strong>
-                ${escapeHtml(
-                    venue.address || "-"
-                )}
-            </p>
+                    <div class="event-details-item">
+                        <span class="event-details-label">Date</span>
+                        <span class="event-details-value">${formatDate(eventItem.startDateTime)}</span>
+                    </div>
 
-            <p>
-                <strong>Category:</strong>
-                ${escapeHtml(category.name)}
-            </p>
+                    <div class="event-details-item">
+                        <span class="event-details-label">Start Time &ndash; End Time</span>
+                        <span class="event-details-value">
+                            ${formatTime(eventItem.startDateTime)} &ndash; ${formatTime(eventItem.endDateTime)}
+                        </span>
+                    </div>
 
-            <p>
-                <strong>Date:</strong>
-                ${formatDate(
-                    eventItem.startDateTime
-                )}
-            </p>
+                    <div class="event-details-item">
+                        <span class="event-details-label">Ticket Price</span>
+                        <span class="event-details-value">LKR ${formatMoney(eventItem.ticketPrice)}</span>
+                    </div>
 
-            <p>
-                <strong>Time:</strong>
-                ${formatTime(
-                    eventItem.startDateTime
-                )}
-                -
-                ${formatTime(
-                    eventItem.endDateTime
-                )}
-            </p>
+                </div>
 
-            <p>
-                <strong>Ticket Price:</strong>
-                Rs.
-                ${formatMoney(
-                    eventItem.ticketPrice
-                )}
-            </p>
+                <p class="event-details-description">
+                    ${escapeHtml(
+                        eventItem.description ||
+                        "No description available."
+                    )}
+                </p>
 
-            <p>
-                <strong>Parking Fee:</strong>
-                Rs.
-                ${formatMoney(
-                    eventItem.parkingFee
-                )}
-            </p>
+                <div class="hero-actions">
+                    <a
+                        href="./seat-selection.html?id=${eventItem.id}"
+                        id="selectSeatsButton"
+                        class="btn btn-primary">
+                        Select Seats
+                    </a>
+                </div>
 
-            <p>
-                <strong>Event Capacity:</strong>
-                ${eventItem.capacity}
-            </p>
-
-            <p>
-                <strong>Venue Capacity:</strong>
-                ${venue.totalCapacity}
-            </p>
-
-            <div class="hero-actions">
-                <a
-                    href="./seat-selection.html?id=${eventItem.id}"
-                    id="selectSeatsButton"
-                    class="btn btn-primary">
-                    Select Seats
-                </a>
             </div>
 
         </article>
     `;
-}
-
-
-function categoryInitial(categoryName) {
-    const trimmed = String(categoryName ?? "").trim();
-
-    return trimmed
-        ? trimmed.charAt(0).toUpperCase()
-        : "E";
 }
 
 

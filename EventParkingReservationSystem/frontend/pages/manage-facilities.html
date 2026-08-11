@@ -54,9 +54,11 @@
 
                         <div id="globalFeedback" class="feedback" hidden></div>
 
+                        <div id="setupContextBar" class="setup-context-bar" hidden></div>
+
                         <div id="facilityAdminBody" hidden>
 
-                            <div class="form-group seat-admin-event-picker">
+                            <div id="venuePickerGroup" class="form-group seat-admin-event-picker">
                                 <label class="form-label" for="venueSelect">Venue</label>
                                 <select id="venueSelect" class="form-control">
                                     <option value="">Select a venue</option>
@@ -254,6 +256,12 @@
 
                                 <div id="facilityList"></div>
 
+                            </div>
+
+                            <div id="setupNav" class="wizard-nav" hidden>
+                                <button id="setupBackButton" type="button" class="btn btn-secondary">&larr; Back to Food Court</button>
+                                <span class="wizard-nav-spacer"></span>
+                                <button id="setupContinueButton" type="button" class="btn btn-primary">Finish Event Setup</button>
                             </div>
 
                         </div>

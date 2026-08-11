@@ -56,14 +56,23 @@ const eventDescriptionInput =
 const venueIdInput =
     document.getElementById("venueId");
 
-const categoryIdInput =
-    document.getElementById("categoryId");
+const noVenuesGuard =
+    document.getElementById("noVenuesGuard");
 
-const startDateTimeInput =
-    document.getElementById("startDateTime");
+const startDateInput =
+    document.getElementById("startDate");
 
-const endDateTimeInput =
-    document.getElementById("endDateTime");
+const startTimeInput =
+    document.getElementById("startTime");
+
+const endDateInput =
+    document.getElementById("endDate");
+
+const endTimeInput =
+    document.getElementById("endTime");
+
+const dateValidationFeedback =
+    document.getElementById("dateValidationFeedback");
 
 const eventCapacityInput =
     document.getElementById("eventCapacity");
@@ -104,6 +113,15 @@ let events = [];
 let venues = [];
 let categories = [];
 
+/*
+ * Category is a temporary frontend-only removal (Correction 5) - the
+ * backend still requires a valid EventCategoryId on create/update. This
+ * tracks the category actually sent with the form: auto-set to the first
+ * real category for a brand-new event, or preserved from the existing
+ * event when editing (never silently reassigned).
+ */
+let currentEventCategoryId = null;
+
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -134,6 +152,11 @@ async function initializePage() {
             loadVenues(),
             loadCategories()
         ]);
+
+        currentEventCategoryId =
+            categories.length > 0
+                ? categories[0].id
+                : null;
 
         await loadEvents();
 
@@ -186,33 +209,28 @@ async function loadVenues() {
 
         venueIdInput.appendChild(option);
     });
+
+    /*
+     * Venue creation lives only in Venue Management (manage-venues.html) -
+     * this wizard never creates a Venue inline. If there are genuinely
+     * zero real venues, the selector is disabled and a real empty-state
+     * guard is shown instead of letting the Admin proceed with a missing/
+     * fake VenueId.
+     */
+    venueIdInput.disabled = venues.length === 0;
+    noVenuesGuard.hidden = venues.length > 0;
 }
 
 
+/*
+ * Category selection is hidden from the Admin (Correction 5) but the
+ * backend still requires a valid EventCategoryId, so the real category
+ * list is still loaded internally - just never rendered as a picker.
+ */
 async function loadCategories() {
 
     categories =
         await api.get("/api/Categories");
-
-    categoryIdInput.innerHTML = `
-        <option value="">
-            Select Category
-        </option>
-    `;
-
-    categories.forEach((category) => {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            category.id;
-
-        option.textContent =
-            category.name;
-
-        categoryIdInput.appendChild(option);
-    });
 }
 
 
@@ -291,16 +309,6 @@ function renderEvents() {
                 <strong>Venue:</strong>
                 ${escapeHtml(
                     getVenueName(event.venueId)
-                )}
-            </p>
-
-            <p>
-                <strong>Category:</strong>
-                ${escapeHtml(
-                    getCategoryName(
-                        event.eventCategoryId ??
-                        event.categoryId
-                    )
                 )}
             </p>
 
@@ -447,19 +455,21 @@ function startEditEvent(eventId) {
     venueIdInput.value =
         event.venueId;
 
-    categoryIdInput.value =
+    currentEventCategoryId =
         event.eventCategoryId ??
         event.categoryId;
 
-    startDateTimeInput.value =
-        toDateTimeLocal(
-            event.startDateTime
-        );
+    splitDateTimeInto(
+        event.startDateTime,
+        startDateInput,
+        startTimeInput
+    );
 
-    endDateTimeInput.value =
-        toDateTimeLocal(
-            event.endDateTime
-        );
+    splitDateTimeInto(
+        event.endDateTime,
+        endDateInput,
+        endTimeInput
+    );
 
     eventCapacityInput.value =
         event.capacity;
@@ -501,6 +511,16 @@ function resetEventForm() {
 
     eventIdInput.value = "";
 
+    /*
+     * Correction 5: no category picker is shown to the Admin, but the
+     * backend still requires a valid EventCategoryId on create - default
+     * to the first real category. Never a hardcoded/magic ID.
+     */
+    currentEventCategoryId =
+        categories.length > 0
+            ? categories[0].id
+            : null;
+
     setSelectedLayoutValue(SEATING_LAYOUT_TYPE.STRAIGHT_ROWS);
 
     eventFormTitle.textContent =
@@ -514,6 +534,7 @@ function resetEventForm() {
 
     goToStep(1);
     hideWizardFeedback();
+    hideDateValidationFeedback();
 }
 
 
@@ -568,13 +589,18 @@ function validateStep(stepNumber) {
     }
 
     if (stepNumber === 1) {
+        hideDateValidationFeedback();
+
+        const startValue = combineDateTime(startDateInput.value, startTimeInput.value);
+        const endValue = combineDateTime(endDateInput.value, endTimeInput.value);
+
         if (
-            startDateTimeInput.value &&
-            endDateTimeInput.value &&
-            new Date(endDateTimeInput.value) <= new Date(startDateTimeInput.value)
+            startValue &&
+            endValue &&
+            new Date(endValue) <= new Date(startValue)
         ) {
-            showWizardFeedback(
-                "End date and time must be after start date and time.",
+            showDateValidationFeedback(
+                "End date and time must be after the start date and time.",
                 "error"
             );
             return false;
@@ -582,6 +608,14 @@ function validateStep(stepNumber) {
     }
 
     if (stepNumber === 2) {
+        if (venues.length === 0) {
+            showWizardFeedback(
+                "No venues are available. Create a venue before creating an event.",
+                "error"
+            );
+            return false;
+        }
+
         const venue = venues.find(
             (item) => item.id === Number(venueIdInput.value)
         );
@@ -662,14 +696,11 @@ function populateReviewStep() {
     document.getElementById("reviewName").textContent =
         eventNameInput.value.trim() || "-";
 
-    document.getElementById("reviewCategory").textContent =
-        getCategoryName(Number(categoryIdInput.value));
-
     document.getElementById("reviewStart").textContent =
-        formatDateTime(startDateTimeInput.value);
+        formatReviewDateTime(combineDateTime(startDateInput.value, startTimeInput.value));
 
     document.getElementById("reviewEnd").textContent =
-        formatDateTime(endDateTimeInput.value);
+        formatReviewDateTime(combineDateTime(endDateInput.value, endTimeInput.value));
 
     document.getElementById("reviewVenue").textContent =
         getVenueName(Number(venueIdInput.value));
@@ -703,6 +734,22 @@ async function saveEvent(event) {
     const eventId =
         eventIdInput.value;
 
+    /*
+     * Correction 5: no category picker is shown. currentEventCategoryId
+     * was set to the first real category on resetEventForm() (create) or
+     * preserved from the existing event on startEditEvent() (edit) - it
+     * is never silently reassigned during an edit. If there are genuinely
+     * zero categories configured, block Create rather than send an
+     * invalid/magic ID the backend will reject anyway.
+     */
+    if (!eventId && !currentEventCategoryId) {
+        showWizardFeedback(
+            "No event category is configured. Please configure a category before creating an event.",
+            "error"
+        );
+        return;
+    }
+
 
     const eventData = {
 
@@ -716,13 +763,13 @@ async function saveEvent(event) {
             Number(venueIdInput.value),
 
         eventCategoryId:
-            Number(categoryIdInput.value),
+            Number(currentEventCategoryId),
 
         startDateTime:
-            startDateTimeInput.value,
+            combineDateTime(startDateInput.value, startTimeInput.value),
 
         endDateTime:
-            endDateTimeInput.value,
+            combineDateTime(endDateInput.value, endTimeInput.value),
 
         capacity:
             Number(eventCapacityInput.value),
@@ -764,8 +811,8 @@ async function saveEvent(event) {
         new Date(eventData.startDateTime)
     ) {
 
-        showWizardFeedback(
-            "End date and time must be after start date and time.",
+        showDateValidationFeedback(
+            "End date and time must be after the start date and time.",
             "error"
         );
 
@@ -798,6 +845,10 @@ async function saveEvent(event) {
                 "success"
             );
 
+            resetEventForm();
+
+            await loadEvents();
+
         } else {
 
             await api.post(
@@ -805,16 +856,40 @@ async function saveEvent(event) {
                 eventData
             );
 
+            /*
+             * Correction 8/9 (continuous setup flow): POST /api/Events
+             * only ever returns { message } - it does not return the
+             * created event or its ID (confirmed by reading
+             * EventsController.Create). Rather than changing the backend,
+             * the real, just-created event is resolved here purely from
+             * already-available data: re-fetch the real event list and
+             * match on Name + VenueId + StartDateTime, which is unique
+             * for a record created a moment ago. If that ever fails to
+             * resolve (should not happen), this falls back to the
+             * previous non-continuous behavior instead of breaking.
+             */
+            const refreshedEvents =
+                await api.get("/api/Events");
+
+            const createdEvent =
+                findJustCreatedEvent(refreshedEvents, eventData);
+
+            if (createdEvent) {
+                window.location.assign(
+                    `manage-seats.html?id=${createdEvent.id}&setup=1`
+                );
+                return;
+            }
+
             showFeedback(
                 "Event created successfully.",
                 "success"
             );
+
+            resetEventForm();
+
+            await loadEvents();
         }
-
-
-        resetEventForm();
-
-        await loadEvents();
 
     } catch (error) {
 
@@ -832,6 +907,23 @@ async function saveEvent(event) {
             false
         );
     }
+}
+
+
+function findJustCreatedEvent(eventsList, eventData) {
+    const matches = eventsList.filter((item) =>
+        item.name === eventData.name &&
+        item.venueId === eventData.venueId &&
+        new Date(item.startDateTime).getTime() === new Date(eventData.startDateTime).getTime()
+    );
+
+    if (!matches.length) {
+        return null;
+    }
+
+    return matches.reduce((latest, item) =>
+        item.id > latest.id ? item : latest
+    );
 }
 
 
@@ -899,28 +991,33 @@ function getVenueName(venueId) {
 }
 
 
-function getCategoryName(categoryId) {
-
-    const category =
-        categories.find(
-            (item) =>
-                item.id === categoryId
-        );
-
-    return category
-        ? category.name
-        : `Category #${categoryId}`;
-}
-
-
-function toDateTimeLocal(value) {
-
-    if (!value) {
+/*
+ * Combines separate date ("YYYY-MM-DD") + time ("HH:mm") inputs into the
+ * same "YYYY-MM-DDTHH:mm" shape a single <input type="datetime-local">
+ * used to produce, so the request body sent to the backend
+ * (CreateEventRequest/UpdateEventRequest.StartDateTime/EndDateTime) is
+ * byte-identical to before - only the input UI changed (Correction 6).
+ */
+function combineDateTime(dateValue, timeValue) {
+    if (!dateValue || !timeValue) {
         return "";
     }
 
-    return String(value)
-        .slice(0, 16);
+    return `${dateValue}T${timeValue}`;
+}
+
+
+function splitDateTimeInto(isoValue, dateInput, timeInput) {
+    if (!isoValue) {
+        dateInput.value = "";
+        timeInput.value = "";
+        return;
+    }
+
+    const raw = String(isoValue);
+
+    dateInput.value = raw.slice(0, 10);
+    timeInput.value = raw.slice(11, 16);
 }
 
 
@@ -934,6 +1031,35 @@ function formatDateTime(value) {
         new Date(value);
 
     return date.toLocaleString();
+}
+
+
+/*
+ * Review step format requested in Correction 6, e.g. "12 Dec 2026 · 7:00 PM".
+ */
+function formatReviewDateTime(value) {
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    const day = date.getDate();
+
+    const month = date
+        .toLocaleDateString(undefined, { month: "short" })
+        .toUpperCase();
+
+    const time = date.toLocaleTimeString(
+        [],
+        { hour: "2-digit", minute: "2-digit" }
+    );
+
+    return `${day} ${month} ${date.getFullYear()} · ${time}`;
 }
 
 
@@ -965,6 +1091,19 @@ function showWizardFeedback(message, type) {
 function hideWizardFeedback() {
     wizardFeedback.hidden = true;
     wizardFeedback.textContent = "";
+}
+
+
+function showDateValidationFeedback(message, type) {
+    dateValidationFeedback.textContent = message;
+    dateValidationFeedback.className = `feedback feedback-${type}`;
+    dateValidationFeedback.hidden = false;
+}
+
+
+function hideDateValidationFeedback() {
+    dateValidationFeedback.hidden = true;
+    dateValidationFeedback.textContent = "";
 }
 
 

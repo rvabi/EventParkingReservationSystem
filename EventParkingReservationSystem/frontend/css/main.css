@@ -1646,13 +1646,95 @@ button:disabled {
 
 .selected-seat-row {
     display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 8px;
     padding: 6px 12px;
     border-radius: var(--radius-sm);
     background: var(--background);
     font-size: 0.88rem;
     font-weight: 700;
     color: var(--primary-dark);
+}
+
+.selected-seat-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+    border: none;
+    border-radius: 50%;
+    background: rgba(10, 25, 49, 0.08);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color var(--transition), color var(--transition);
+}
+
+.selected-seat-remove:hover {
+    background: rgba(179, 61, 61, 0.16);
+    color: #8a2f2f;
+}
+
+/* ---- Ring/Seat chooser (CircularArena customer selection) ---- */
+
+.seat-chooser {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.seat-chooser-title {
+    margin-bottom: 12px;
+    color: var(--primary-dark);
+    font-size: 0.95rem;
+}
+
+.seat-chooser-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 12px;
+}
+
+.seat-chooser-row .form-group {
+    flex: 1 1 130px;
+    min-width: 110px;
+    margin-bottom: 0;
+}
+
+.seat-chooser-price-group {
+    flex: 0 0 auto;
+    min-width: 90px;
+}
+
+.seat-chooser-price {
+    display: block;
+    padding: 10px 0;
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.94rem;
+}
+
+.seat-chooser-row .btn {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 480px) {
+    .seat-chooser-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .seat-chooser-row .form-group,
+    .seat-chooser-row .btn {
+        flex: 1 1 auto;
+    }
 }
 
 .selected-seats-empty {
@@ -2863,6 +2945,26 @@ button:disabled {
     height: 26px;
     font-size: 0.56rem;
     border-radius: 50%;
+}
+
+/*
+ * Customer CircularArena seats: plain dots, no number text (hundreds of
+ * overlapping labels around dense rings become unreadable/unclickable).
+ * Status color still comes from the shared seat-status-* classes; the
+ * precise seat number is picked via the Ring/Seat dropdown chooser instead
+ * of by reading text on the dot itself.
+ */
+.seat-btn-dot {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border-width: 1px;
+}
+
+.seat-btn-dot.seat-selected {
+    width: 18px;
+    height: 18px;
+    box-shadow: 0 0 0 3px rgba(74, 127, 167, 0.28);
 }
 
 .seat-btn-arena {
@@ -4566,5 +4668,418 @@ a.admin-quick-action.is-primary:hover {
 
     .customer-detail-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   43. Dynamic Event Poster (Customer Events + Event Details)
+   ========================================================= */
+
+.event-poster {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--primary-dark);
+    color: var(--white);
+}
+
+.event-poster-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-poster-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(10, 25, 49, 0.12) 0%,
+        rgba(10, 25, 49, 0.55) 55%,
+        rgba(10, 25, 49, 0.93) 100%
+    );
+}
+
+.event-poster-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    padding: 18px 20px;
+}
+
+.event-poster-name {
+    color: var(--white);
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0.2px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.event-poster-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 8px;
+}
+
+.event-poster-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.event-poster-meta-icon {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+}
+
+.event-poster-venue {
+    display: block;
+    margin-top: 8px;
+    color: var(--muted-gold, #C9A96E);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+}
+
+.event-poster.is-card {
+    aspect-ratio: 4 / 3;
+}
+
+.event-poster.is-hero {
+    aspect-ratio: 21 / 9;
+    min-height: 220px;
+}
+
+@media (max-width: 480px) {
+    .event-poster.is-hero {
+        aspect-ratio: 4 / 3;
+    }
+
+    .event-poster-name {
+        font-size: 1.02rem;
+    }
+}
+
+
+/* =========================================================
+   44. Customer Event Cards (poster-forward redesign)
+   ========================================================= */
+
+.event-card {
+    padding: 0;
+    min-height: 0;
+}
+
+.event-card::before {
+    display: none;
+}
+
+.event-card-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 20px 20px;
+}
+
+.event-card-title {
+    color: var(--primary-dark);
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.event-card-meta {
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+}
+
+.event-card-detail-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 2px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.event-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 14px;
+}
+
+.event-card-price {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.98rem;
+}
+
+
+/* =========================================================
+   45. Event Details Redesign (poster hero)
+   ========================================================= */
+
+.event-details-card {
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-sm);
+}
+
+.event-details-hero .event-poster {
+    border-radius: 0;
+}
+
+.event-details-body {
+    padding: 28px;
+}
+
+.event-details-title {
+    margin-bottom: 18px;
+    color: var(--primary-dark);
+    font-size: 1.6rem;
+}
+
+.event-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+    margin-bottom: 22px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.event-details-label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.event-details-value {
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.98rem;
+}
+
+.event-details-description {
+    margin-bottom: 24px;
+    color: var(--text-secondary);
+    font-size: 0.94rem;
+    line-height: 1.7;
+}
+
+@media (max-width: 600px) {
+    .event-details-body {
+        padding: 20px;
+    }
+
+    .event-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   46. Admin Event Wizard: split Date/Time inputs
+   ========================================================= */
+
+.datetime-input-row {
+    display: flex;
+    gap: 14px;
+}
+
+.datetime-input-row .form-group {
+    flex: 1 1 0;
+}
+
+@media (max-width: 480px) {
+    .datetime-input-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
+
+/* =========================================================
+   47. Continuous Event Setup Flow (context bar)
+   ========================================================= */
+
+.setup-context-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--admin-slate, #334E68);
+    color: var(--admin-powder, #DCE8F2);
+}
+
+.setup-context-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.setup-context-eyebrow {
+    color: var(--admin-gold, #C9A96E);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.setup-context-name {
+    color: var(--admin-white, #FFFFFF);
+    font-size: 0.98rem;
+    font-weight: 800;
+}
+
+.setup-context-meta {
+    color: rgba(220, 232, 242, 0.85);
+    font-size: 0.78rem;
+}
+
+.setup-context-step {
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--admin-white, #FFFFFF);
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .setup-context-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+/* =========================================================
+   48. Admin Venue Management
+   ========================================================= */
+
+.venue-search-group {
+    max-width: 360px;
+    margin-top: 20px;
+    margin-bottom: 6px;
+}
+
+.venue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.venue-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border-light);
+}
+
+.venue-main {
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.venue-name {
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.96rem;
+}
+
+.venue-address {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.venue-capacity-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(94, 127, 158, 0.16);
+    color: var(--secondary-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.venue-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+/* ---- Zero-venue guidance inside the Event Wizard (Correction: Venue Mgmt) ---- */
+
+.venue-empty-guard {
+    margin-top: 10px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: rgba(201, 149, 51, 0.12);
+    border: 1px solid rgba(201, 149, 51, 0.35);
+    color: #7a5a15;
+    font-size: 0.86rem;
+}
+
+.venue-empty-guard .btn {
+    margin-top: 10px;
+}
+
+@media (max-width: 760px) {
+    .venue-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .venue-actions {
+        margin-left: 0;
+    }
+
+    .venue-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .venue-search-group {
+        max-width: none;
     }
 }

@@ -7,6 +7,8 @@ import {
     setButtonLoading
 } from "./ui.js";
 
+import { buildEventPosterHtml } from "./event-poster.js";
+
 
 const eventList =
     document.getElementById("eventList");
@@ -20,9 +22,6 @@ const eventDateInput =
 const venueSelect =
     document.getElementById("venueId");
 
-const categorySelect =
-    document.getElementById("categoryId");
-
 const searchButton =
     document.getElementById("searchEventsButton");
 
@@ -31,7 +30,6 @@ const clearButton =
 
 
 let venues = [];
-let categories = [];
 
 
 document.addEventListener(
@@ -48,10 +46,7 @@ async function initializeEventsPage() {
     try {
         hideFeedback();
 
-        await Promise.all([
-            loadVenues(),
-            loadCategories()
-        ]);
+        await loadVenues();
 
         await loadEvents();
     } catch (error) {
@@ -86,34 +81,11 @@ async function loadVenues() {
 }
 
 
-async function loadCategories() {
-    categories =
-        await api.get("/api/Categories");
-
-    categorySelect.innerHTML = `
-        <option value="">
-            All Categories
-        </option>
-    `;
-
-    categories.forEach((category) => {
-        const option =
-            document.createElement("option");
-
-        option.value = category.id;
-        option.textContent = category.name;
-
-        categorySelect.appendChild(option);
-    });
-}
-
-
 function hasActiveFilters() {
     return Boolean(
         eventNameInput.value.trim() ||
         eventDateInput.value ||
-        venueSelect.value ||
-        categorySelect.value
+        venueSelect.value
     );
 }
 
@@ -173,13 +145,9 @@ function matchesSearchText(eventItem, searchText) {
     const venueName =
         getVenueName(eventItem.venueId).toLowerCase();
 
-    const categoryName =
-        getCategoryName(eventItem.eventCategoryId).toLowerCase();
-
     return (
         eventItem.name.toLowerCase().includes(searchText) ||
-        venueName.includes(searchText) ||
-        categoryName.includes(searchText)
+        venueName.includes(searchText)
     );
 }
 
@@ -194,15 +162,14 @@ function buildEventQuery() {
     const venueId =
         venueSelect.value;
 
-    const categoryId =
-        categorySelect.value;
-
     /*
-     * The "name" search box also matches venue and category
-     * names, which the backend Events search does not support,
-     * so text matching happens client-side in matchesSearchText.
-     * Date/venue/category stay server-side since the backend
-     * already combines them with AND semantics.
+     * The "name" search box also matches venue names, which the backend
+     * Events search does not support, so text matching happens
+     * client-side in matchesSearchText. Date/venue stay server-side since
+     * the backend already combines them with AND semantics. Category
+     * filtering is intentionally not exposed here - see Correction 5
+     * (temporary frontend-only Category removal); the backend
+     * ?categoryId= param still works if this filter is reintroduced later.
      */
 
     if (date) {
@@ -216,13 +183,6 @@ function buildEventQuery() {
         parameters.append(
             "venueId",
             venueId
-        );
-    }
-
-    if (categoryId) {
-        parameters.append(
-            "categoryId",
-            categoryId
         );
     }
 
@@ -261,11 +221,6 @@ function renderEvents(events) {
                 eventItem.venueId
             );
 
-        const categoryName =
-            getCategoryName(
-                eventItem.eventCategoryId
-            );
-
         const card =
             document.createElement("article");
 
@@ -273,64 +228,39 @@ function renderEvents(events) {
             "service-card event-card";
 
         card.innerHTML = `
-            <div class="service-number">
-                #${eventItem.id}
+            ${buildEventPosterHtml(eventItem, venueName, "is-card")}
+
+            <div class="event-card-body">
+
+                <h3 class="event-card-title">
+                    ${escapeHtml(eventItem.name)}
+                </h3>
+
+                <p class="event-card-meta">
+                    ${escapeHtml(venueName)}
+                </p>
+
+                <div class="event-card-detail-row">
+                    <span>${formatDate(eventItem.startDateTime)}</span>
+                    <span>
+                        ${formatTime(eventItem.startDateTime)}
+                        -
+                        ${formatTime(eventItem.endDateTime)}
+                    </span>
+                </div>
+
+                <div class="event-card-footer">
+                    <span class="event-card-price">
+                        LKR ${formatMoney(eventItem.ticketPrice)}
+                    </span>
+                    <a
+                        href="./event-details.html?id=${eventItem.id}"
+                        class="btn btn-primary btn-small">
+                        View Details
+                    </a>
+                </div>
+
             </div>
-
-            <div class="service-icon">
-                ${escapeHtml(categoryInitial(categoryName))}
-            </div>
-
-            <h3>
-                ${escapeHtml(eventItem.name)}
-            </h3>
-
-            <p>
-                ${escapeHtml(
-                    eventItem.description ||
-                    "No description available."
-                )}
-            </p>
-
-            <p>
-                <strong>Venue:</strong>
-                ${escapeHtml(venueName)}
-            </p>
-
-            <p>
-                <strong>Category:</strong>
-                ${escapeHtml(categoryName)}
-            </p>
-
-            <p>
-                <strong>Date:</strong>
-                ${formatDate(
-                    eventItem.startDateTime
-                )}
-            </p>
-
-            <p>
-                <strong>Time:</strong>
-                ${formatTime(
-                    eventItem.startDateTime
-                )}
-                -
-                ${formatTime(
-                    eventItem.endDateTime
-                )}
-            </p>
-
-            <span class="service-link">
-                Ticket: Rs.
-                ${formatMoney(
-                    eventItem.ticketPrice
-                )}
-            </span>
-            <a
-            href="./event-details.html?id=${eventItem.id}"
-            class="btn btn-primary">
-            View Details
-            </a>
         `;
 
         card.addEventListener("click", (event) => {
@@ -347,15 +277,6 @@ function renderEvents(events) {
 }
 
 
-function categoryInitial(categoryName) {
-    const trimmed = categoryName.trim();
-
-    return trimmed
-        ? trimmed.charAt(0).toUpperCase()
-        : "E";
-}
-
-
 function getVenueName(venueId) {
     const venue =
         venues.find(
@@ -366,19 +287,6 @@ function getVenueName(venueId) {
     return venue
         ? venue.name
         : `Venue ${venueId}`;
-}
-
-
-function getCategoryName(categoryId) {
-    const category =
-        categories.find(
-            (item) =>
-                item.id === categoryId
-        );
-
-    return category
-        ? category.name
-        : `Category ${categoryId}`;
 }
 
 
@@ -453,7 +361,6 @@ clearButton.addEventListener(
         eventNameInput.value = "";
         eventDateInput.value = "";
         venueSelect.value = "";
-        categorySelect.value = "";
 
         await loadEvents();
     }
