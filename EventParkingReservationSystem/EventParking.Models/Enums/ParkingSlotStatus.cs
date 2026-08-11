@@ -11,5 +11,6 @@ public enum ParkingSlotStatus
     Available = 1,
     Held = 2,
     Reserved = 3,
-    Unavailable = 4
+    Unavailable = 4,
+    Occupied = 5
 }

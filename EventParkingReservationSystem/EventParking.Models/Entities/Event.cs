@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using EventParking.Models.Common;
+using EventParking.Models.Enums;
 
 namespace EventParking.Models.Entities;
 
@@ -31,6 +32,9 @@ public class Event : BaseEntity
     public decimal ParkingFee { get; set; }
 
     public int Capacity { get; set; }
+
+    public SeatingLayoutType SeatingLayoutType { get; set; }
+        = SeatingLayoutType.StraightRows;
     public ICollection<Seat> Seats { get; set; }
     = new List<Seat>();
 

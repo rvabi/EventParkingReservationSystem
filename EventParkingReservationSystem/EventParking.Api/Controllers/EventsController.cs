@@ -1,7 +1,9 @@
 ﻿using EventParking.Business.DTOs.Events;
 using EventParking.Business.Interfaces;
 using EventParking.Models.Entities;
+using EventParking.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EventParking.Api.Controllers;
 
@@ -54,6 +56,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(
         [FromBody] CreateEventRequest request)
     {
@@ -67,7 +70,9 @@ public class EventsController : ControllerBase
             EndDateTime = request.EndDateTime,
             TicketPrice = request.TicketPrice,
             ParkingFee = request.ParkingFee,
-            Capacity = request.Capacity
+            Capacity = request.Capacity,
+            SeatingLayoutType =
+                request.SeatingLayoutType ?? SeatingLayoutType.StraightRows
         };
 
         var created =
@@ -89,6 +94,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpPut("{eventId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Update(
         int eventId,
         [FromBody] UpdateEventRequest request)
@@ -115,7 +121,9 @@ public class EventsController : ControllerBase
             EndDateTime = request.EndDateTime,
             TicketPrice = request.TicketPrice,
             ParkingFee = request.ParkingFee,
-            Capacity = request.Capacity
+            Capacity = request.Capacity,
+            SeatingLayoutType =
+                request.SeatingLayoutType ?? existingEvent.SeatingLayoutType
         };
 
         var updated =
@@ -143,6 +151,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpDelete("{eventId:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete(int eventId)
     {
         var existingEvent =
@@ -187,6 +196,7 @@ public class EventsController : ControllerBase
             TicketPrice = eventEntity.TicketPrice,
             ParkingFee = eventEntity.ParkingFee,
             Capacity = eventEntity.Capacity,
+            SeatingLayoutType = eventEntity.SeatingLayoutType.ToString(),
             CreatedAt = eventEntity.CreatedAt,
             UpdatedAt = eventEntity.UpdatedAt
         };

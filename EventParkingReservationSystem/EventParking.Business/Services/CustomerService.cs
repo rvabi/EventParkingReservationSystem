@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventParking.Business.DTOs.Customers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,6 +35,18 @@ public class CustomerService : ICustomerService
     public async Task<IReadOnlyList<Customer>> GetAllAsync()
     {
         return await _customerRepository.GetAllAsync();
+    }
+
+    public async Task<IReadOnlyList<Customer>> SearchAsync(
+    string searchTerm)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return await _customerRepository.GetAllAsync();
+        }
+
+        return await _customerRepository.SearchAsync(
+            searchTerm.Trim());
     }
 
     public async Task<bool> UpdateProfileAsync(Customer customer)
@@ -89,29 +102,119 @@ public class CustomerService : ICustomerService
     }
 
     public async Task<bool> ChangeStatusAsync(
-        int customerId,
-        CustomerStatus status)
+    int customerId,
+    CustomerStatus status)
     {
-        if (customerId <= 0)
+        if (status == CustomerStatus.Deactivated)
         {
-            return false;
+            var result =
+                await DeactivateAsync(customerId);
+
+            return result.Success;
         }
 
+        if (status == CustomerStatus.Active)
+        {
+            var result =
+                await ReactivateAsync(customerId);
+
+            return result.Success;
+        }
+
+        return false;
+    }
+
+    public async Task<CustomerStatusChangeResult> DeactivateAsync(
+    int customerId)
+    {
         var customer =
             await _customerRepository.GetByIdAsync(customerId);
 
         if (customer is null)
         {
-            return false;
+            return new CustomerStatusChangeResult
+            {
+                Success = false,
+                ErrorCode = "CUSTOMER_NOT_FOUND",
+                Message = "Customer not found."
+            };
         }
 
-        customer.Status = status;
+        if (customer.Status == CustomerStatus.Deactivated)
+        {
+            return new CustomerStatusChangeResult
+            {
+                Success = true,
+                Message = "Customer account is already deactivated."
+            };
+        }
+
+        bool hasActiveFutureBooking =
+            await _customerRepository.HasActiveFutureBookingAsync(
+                customerId,
+                DateTime.UtcNow);
+
+        if (hasActiveFutureBooking)
+        {
+            return new CustomerStatusChangeResult
+            {
+                Success = false,
+                ErrorCode = "ACTIVE_FUTURE_BOOKING",
+                Message =
+                    "Customer cannot be deactivated because an active future booking exists."
+            };
+        }
+
+        customer.Status = CustomerStatus.Deactivated;
         customer.UpdatedAt = DateTime.UtcNow;
 
         _customerRepository.Update(customer);
 
         await _customerRepository.SaveChangesAsync();
 
-        return true;
+        return new CustomerStatusChangeResult
+        {
+            Success = true,
+            Message = "Customer account deactivated successfully."
+        };
+    }
+
+    public async Task<CustomerStatusChangeResult> ReactivateAsync(
+    int customerId)
+    {
+        var customer =
+            await _customerRepository.GetByIdAsync(customerId);
+
+        if (customer is null)
+        {
+            return new CustomerStatusChangeResult
+            {
+                Success = false,
+                ErrorCode = "CUSTOMER_NOT_FOUND",
+                Message = "Customer not found."
+            };
+        }
+
+        if (customer.Status == CustomerStatus.Active)
+        {
+            return new CustomerStatusChangeResult
+            {
+                Success = true,
+                Message = "Customer account is already active."
+            };
+        }
+
+        customer.Status = CustomerStatus.Active;
+        customer.UpdatedAt = DateTime.UtcNow;
+
+        _customerRepository.Update(customer);
+
+        await _customerRepository.SaveChangesAsync();
+
+        return new CustomerStatusChangeResult
+        {
+            Success = true,
+            Message = "Customer account reactivated successfully."
+        };
     }
 }

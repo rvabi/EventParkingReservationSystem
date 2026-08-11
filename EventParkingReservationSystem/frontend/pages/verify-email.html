@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email | SmartEvent</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <header id="navbar"></header>
+
+    <main class="auth-page">
+        <div class="auth-card login-form-card">
+
+            <div id="verifyLoading" class="auth-status-block">
+                <div class="auth-status-icon is-loading" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="9" stroke-opacity="0.25" />
+                        <path d="M21 12a9 9 0 0 0-9-9" />
+                    </svg>
+                </div>
+                <div class="form-heading">
+                    <span class="eyebrow">Email verification</span>
+                    <h2>Verifying your email...</h2>
+                    <p>Please wait while we confirm your verification link.</p>
+                </div>
+            </div>
+
+            <div id="verifyResult" class="auth-status-block" hidden>
+                <div id="verifyResultIcon" class="auth-status-icon" aria-hidden="true"></div>
+                <div class="form-heading">
+                    <span id="verifyEyebrow" class="eyebrow">Email verification</span>
+                    <h2 id="verifyHeading">Verification result</h2>
+                    <p id="verifyMessage"></p>
+                </div>
+                <div id="verifySuccessActions" class="hero-actions" hidden>
+                    <a href="login.html" class="btn btn-primary">Continue to Login</a>
+                </div>
+            </div>
+
+            <div id="resendSection" class="resend-section" hidden>
+                <div class="form-heading">
+                    <h3>Resend verification email</h3>
+                    <p>Enter your account email and we'll generate a new verification link.</p>
+                </div>
+
+                <div id="resendFeedback" class="feedback" hidden></div>
+
+                <form id="resendForm" novalidate>
+                    <div class="form-group">
+                        <label class="form-label" for="resendEmail">Email</label>
+                        <input id="resendEmail" class="form-control" type="email" placeholder="you@example.com" maxlength="255" required>
+                        <span id="resendEmailFeedback" class="field-feedback" hidden></span>
+                    </div>
+
+                    <div class="hero-actions">
+                        <button id="resendButton" class="btn btn-secondary" type="submit">Resend Verification Email</button>
+                    </div>
+                </form>
+
+                <div id="resendDevHint" class="dev-only-hint" hidden></div>
+            </div>
+
+        </div>
+    </main>
+
+    <script type="module" src="../js/verify-email.js"></script>
+
+</body>
+
+</html>

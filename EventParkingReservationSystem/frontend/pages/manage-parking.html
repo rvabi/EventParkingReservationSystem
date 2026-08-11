@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Parking | SmartEvent</title>
+
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <div id="authGuardPanel" class="auth-guard-panel" hidden>
+        <p id="authGuardMessage"></p>
+        <div class="hero-actions">
+            <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+        </div>
+    </div>
+
+    <div id="adminShell" class="admin-shell" hidden>
+
+        <div id="adminSidebarSlot"></div>
+
+        <div class="admin-main">
+
+            <header class="admin-topbar">
+                <button id="adminMenuToggle" class="admin-menu-toggle" type="button" aria-label="Open menu">
+                    <span aria-hidden="true">&#9776;</span>
+                </button>
+                <span class="admin-topbar-brand">SmartEvent Admin</span>
+            </header>
+
+            <main class="admin-content">
+
+                <section class="services-section">
+
+                    <div class="section-container">
+
+                        <div class="section-heading">
+                            <span class="section-eyebrow">
+                                PARKING MANAGEMENT
+                            </span>
+
+                            <h2>
+                                Manage parking slots.
+                            </h2>
+
+                            <p>
+                                Add, edit and review parking slots for a selected event.
+                                Held or reserved slots are locked and cannot be edited here.
+                            </p>
+                        </div>
+
+                        <div id="globalFeedback" class="feedback" hidden></div>
+
+                        <div id="setupContextBar" class="setup-context-bar" hidden></div>
+
+                        <div id="parkingAdminBody" hidden>
+
+                            <div id="eventPickerGroup" class="form-group seat-admin-event-picker">
+                                <label class="form-label" for="eventSelect">Event</label>
+                                <select id="eventSelect" class="form-control">
+                                    <option value="">Select an event</option>
+                                </select>
+                            </div>
+
+                            <p id="noEventSelectedHint" class="form-footer-text">
+                                Choose an event to manage its parking.
+                            </p>
+
+                            <p id="parkingLoadingState" class="form-footer-text" hidden>
+                                Loading parking slots...
+                            </p>
+
+                            <div id="parkingManagementPanel" hidden>
+
+                                <div class="parking-status-summary">
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Total Slots</span>
+                                        <span id="statTotalSlots" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Available</span>
+                                        <span id="statAvailableSlots" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Held</span>
+                                        <span id="statHeldSlots" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Reserved</span>
+                                        <span id="statReservedSlots" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Unavailable</span>
+                                        <span id="statUnavailableSlots" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Occupied</span>
+                                        <span id="statOccupiedSlots" class="seat-admin-stat-value">0</span>
+                                    </div>
+                                    <div class="seat-admin-stat">
+                                        <span class="seat-admin-stat-label">Default Parking Fee</span>
+                                        <span id="statDefaultFee" class="seat-admin-stat-value">LKR 0.00</span>
+                                    </div>
+                                </div>
+
+                                <article class="service-card">
+
+                                    <div class="service-icon">
+                                        B
+                                    </div>
+
+                                    <h3>
+                                        Bulk Generate Parking Slots
+                                    </h3>
+
+                                    <p class="form-footer-text">
+                                        Quickly create a run of parking slots for a zone instead of adding them one by one.
+                                        Slot numbers are generated as <strong>{ZONE}01, {ZONE}02, ...</strong> from the Zone
+                                        value you enter below.
+                                    </p>
+
+                                    <form id="bulkParkingForm">
+
+                                        <div class="parking-bulk-row">
+
+                                            <div class="form-group">
+                                                <label class="form-label" for="bulkZone">Zone</label>
+                                                <input
+                                                    id="bulkZone"
+                                                    class="form-control"
+                                                    type="text"
+                                                    maxlength="50"
+                                                    placeholder="e.g. B"
+                                                    required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label" for="bulkCapacity">Slot Capacity</label>
+                                                <input
+                                                    id="bulkCapacity"
+                                                    class="form-control"
+                                                    type="number"
+                                                    min="1"
+                                                    max="500"
+                                                    placeholder="e.g. 20"
+                                                    required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label" for="bulkDefaultFee">Default Fee (optional)</label>
+                                                <input
+                                                    id="bulkDefaultFee"
+                                                    class="form-control"
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.01"
+                                                    placeholder="Defaults to the event's parking fee">
+                                            </div>
+
+                                        </div>
+
+                                        <div id="bulkParkingFeedback" class="feedback" hidden></div>
+
+                                        <div class="hero-actions">
+                                            <button id="previewBulkButton" class="btn btn-primary" type="submit">
+                                                Generate Slots
+                                            </button>
+                                        </div>
+
+                                    </form>
+
+                                    <div id="bulkPreviewPanel" class="parking-bulk-preview" hidden>
+
+                                        <p>
+                                            Zone <strong id="bulkPreviewZone"></strong><br>
+                                            <span id="bulkPreviewCount"></span> slots
+                                            (<span id="bulkPreviewRange"></span>)<br>
+                                            Default Fee: <span id="bulkPreviewFee"></span>
+                                        </p>
+
+                                        <div class="hero-actions">
+                                            <button id="confirmBulkButton" type="button" class="btn btn-primary">
+                                                Generate Slots
+                                            </button>
+                                            <button id="cancelBulkButton" type="button" class="btn btn-secondary">
+                                                Cancel
+                                            </button>
+                                        </div>
+
+                                        <div id="bulkProgressFeedback" class="feedback" hidden></div>
+
+                                    </div>
+
+                                </article>
+
+                                <article class="service-card">
+
+                                    <div class="service-icon">
+                                        P
+                                    </div>
+
+                                    <h3 id="slotFormTitle">
+                                        Add Parking Slot
+                                    </h3>
+
+                                    <form id="parkingSlotForm">
+
+                                        <input id="parkingSlotId" type="hidden">
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="slotNumber">Slot Number</label>
+                                            <input
+                                                id="slotNumber"
+                                                class="form-control"
+                                                type="text"
+                                                maxlength="30"
+                                                placeholder="e.g. A-01"
+                                                required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="slotZone">Zone (optional)</label>
+                                            <input
+                                                id="slotZone"
+                                                class="form-control"
+                                                type="text"
+                                                maxlength="50"
+                                                placeholder="e.g. North Zone">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="slotFeeOverride">Fee Override (optional)</label>
+                                            <input
+                                                id="slotFeeOverride"
+                                                class="form-control"
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                placeholder="Defaults to the event's parking fee">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="slotStatus">Status</label>
+                                            <select id="slotStatus" class="form-control">
+                                                <option value="1">Available</option>
+                                                <option value="4">Unavailable</option>
+                                                <option value="5">Occupied</option>
+                                            </select>
+                                            <p class="form-footer-text">
+                                                Held and Reserved are managed automatically by the booking system
+                                                and cannot be set here.
+                                            </p>
+                                        </div>
+
+                                        <div id="slotFormFeedback" class="feedback" hidden></div>
+
+                                        <div class="hero-actions">
+                                            <button id="saveSlotButton" class="btn btn-primary" type="submit">
+                                                Save Slot
+                                            </button>
+                                            <button id="cancelSlotEditButton" class="btn btn-secondary" type="button" hidden>
+                                                Cancel Edit
+                                            </button>
+                                        </div>
+
+                                    </form>
+
+                                </article>
+
+                                <h3 style="margin-top: 34px;">Parking Slots</h3>
+
+                                <div class="parking-filter-bar">
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="parkingSearchInput">Search</label>
+                                        <input
+                                            id="parkingSearchInput"
+                                            class="form-control"
+                                            type="text"
+                                            placeholder="Search by slot number or zone">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="parkingStatusFilter">Status</label>
+                                        <select id="parkingStatusFilter" class="form-control">
+                                            <option value="">All statuses</option>
+                                            <option value="Available">Available</option>
+                                            <option value="Held">Held</option>
+                                            <option value="Reserved">Reserved</option>
+                                            <option value="Unavailable">Unavailable</option>
+                                            <option value="Occupied">Occupied</option>
+                                        </select>
+                                    </div>
+
+                                    <button id="clearParkingFiltersButton" type="button" class="btn btn-secondary btn-small">
+                                        Clear Filters
+                                    </button>
+
+                                </div>
+
+                                <div id="parkingSlotList" class="parking-slot-list"></div>
+
+                            </div>
+
+                            <div id="setupNav" class="wizard-nav" hidden>
+                                <button id="setupBackButton" type="button" class="btn btn-secondary">&larr; Back to Seats</button>
+                                <span class="wizard-nav-spacer"></span>
+                                <button id="setupContinueButton" type="button" class="btn btn-primary">Save &amp; Continue &rarr; Food Court</button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <script type="module" src="../js/manage-parking.js"></script>
+
+</body>
+
+</html>

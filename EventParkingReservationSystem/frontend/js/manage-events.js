@@ -1,0 +1,1124 @@
+import { api } from "./api.js";
+
+import {
+    showFeedback,
+    hideFeedback,
+    setButtonLoading
+} from "./ui.js";
+
+import {
+    requireAdministrator,
+    renderAdminSidebar,
+    setupAdminMobileMenu
+} from "./admin-ui.js";
+
+
+/*
+ * SeatingLayoutType is persisted on the backend as an int (StraightRows = 1,
+ * CircularArena = 2) but GET Events returns it as the enum member's string
+ * name ("StraightRows" / "CircularArena") - see EventDto.SeatingLayoutType.
+ * These two maps keep that conversion in one place instead of scattering
+ * magic numbers/strings through the wizard.
+ */
+const SEATING_LAYOUT_TYPE = {
+    STRAIGHT_ROWS: 1,
+    CIRCULAR_ARENA: 2
+};
+
+const SEATING_LAYOUT_NAME_TO_VALUE = {
+    StraightRows: SEATING_LAYOUT_TYPE.STRAIGHT_ROWS,
+    CircularArena: SEATING_LAYOUT_TYPE.CIRCULAR_ARENA
+};
+
+const SEATING_LAYOUT_VALUE_TO_LABEL = {
+    [SEATING_LAYOUT_TYPE.STRAIGHT_ROWS]: "Hall / Straight",
+    [SEATING_LAYOUT_TYPE.CIRCULAR_ARENA]: "Ground / Full Round"
+};
+
+
+const adminShell = document.getElementById("adminShell");
+const adminEventsBody = document.getElementById("adminEventsBody");
+
+const eventWizardCard = document.getElementById("eventWizardCard");
+
+const eventForm =
+    document.getElementById("eventForm");
+
+const eventIdInput =
+    document.getElementById("eventId");
+
+const eventNameInput =
+    document.getElementById("eventName");
+
+const eventDescriptionInput =
+    document.getElementById("eventDescription");
+
+const venueIdInput =
+    document.getElementById("venueId");
+
+const noVenuesGuard =
+    document.getElementById("noVenuesGuard");
+
+const startDateInput =
+    document.getElementById("startDate");
+
+const startTimeInput =
+    document.getElementById("startTime");
+
+const endDateInput =
+    document.getElementById("endDate");
+
+const endTimeInput =
+    document.getElementById("endTime");
+
+const dateValidationFeedback =
+    document.getElementById("dateValidationFeedback");
+
+const eventCapacityInput =
+    document.getElementById("eventCapacity");
+
+const ticketPriceInput =
+    document.getElementById("ticketPrice");
+
+const parkingFeeInput =
+    document.getElementById("parkingFee");
+
+const layoutInputs =
+    Array.from(document.querySelectorAll('input[name="seatingLayoutType"]'));
+
+const eventList =
+    document.getElementById("eventList");
+
+const eventFormTitle =
+    document.getElementById("eventFormTitle");
+
+const saveEventButton =
+    document.getElementById("saveEventButton");
+
+const cancelEditButton =
+    document.getElementById("cancelEditButton");
+
+const wizardBackButton = document.getElementById("wizardBackButton");
+const wizardNextButton = document.getElementById("wizardNextButton");
+const wizardFeedback = document.getElementById("wizardFeedback");
+
+const stepPanels = Array.from(document.querySelectorAll(".wizard-step-panel"));
+const stepIndicators = Array.from(document.querySelectorAll(".wizard-step-indicator"));
+
+const TOTAL_STEPS = stepPanels.length;
+let currentStep = 1;
+
+
+let events = [];
+let venues = [];
+let categories = [];
+
+/*
+ * Category is a temporary frontend-only removal (Correction 5) - the
+ * backend still requires a valid EventCategoryId on create/update. This
+ * tracks the category actually sent with the form: auto-set to the first
+ * real category for a brand-new event, or preserved from the existing
+ * event when editing (never silently reassigned).
+ */
+let currentEventCategoryId = null;
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        if (!requireAdministrator()) {
+            return;
+        }
+
+        renderAdminSidebar("events");
+        setupAdminMobileMenu();
+
+        adminShell.hidden = false;
+        adminEventsBody.hidden = false;
+
+        await initializePage();
+    }
+);
+
+
+async function initializePage() {
+
+    try {
+
+        hideFeedback();
+
+        await Promise.all([
+            loadVenues(),
+            loadCategories()
+        ]);
+
+        currentEventCategoryId =
+            categories.length > 0
+                ? categories[0].id
+                : null;
+
+        await loadEvents();
+
+        /*
+         * Supports the Admin Dashboard's "Manage Event" links
+         * (manage-events.html?edit={eventId}), mirroring the ?id= contract
+         * manage-seats.html already supports. Reuses the existing
+         * startEditEvent() click-to-edit mechanism unchanged - this just
+         * triggers it once from the URL instead of a button click.
+         */
+        const requestedEditId =
+            Number(new URLSearchParams(window.location.search).get("edit"));
+
+        if (requestedEditId && events.some((item) => item.id === requestedEditId)) {
+            startEditEvent(requestedEditId);
+        }
+
+    } catch (error) {
+
+        showFeedback(
+            error.message ||
+            "Unable to initialize event management.",
+            "error"
+        );
+    }
+}
+
+
+async function loadVenues() {
+
+    venues =
+        await api.get("/api/Venues");
+
+    venueIdInput.innerHTML = `
+        <option value="">
+            Select Venue
+        </option>
+    `;
+
+    venues.forEach((venue) => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            venue.id;
+
+        option.textContent =
+            `${venue.name} (Capacity: ${venue.totalCapacity})`;
+
+        venueIdInput.appendChild(option);
+    });
+
+    /*
+     * Venue creation lives only in Venue Management (manage-venues.html) -
+     * this wizard never creates a Venue inline. If there are genuinely
+     * zero real venues, the selector is disabled and a real empty-state
+     * guard is shown instead of letting the Admin proceed with a missing/
+     * fake VenueId.
+     */
+    venueIdInput.disabled = venues.length === 0;
+    noVenuesGuard.hidden = venues.length > 0;
+}
+
+
+/*
+ * Category selection is hidden from the Admin (Correction 5) but the
+ * backend still requires a valid EventCategoryId, so the real category
+ * list is still loaded internally - just never rendered as a picker.
+ */
+async function loadCategories() {
+
+    categories =
+        await api.get("/api/Categories");
+}
+
+
+async function loadEvents() {
+
+    try {
+
+        events =
+            await api.get("/api/Events");
+
+        renderEvents();
+
+    } catch (error) {
+
+        eventList.innerHTML = "";
+
+        showFeedback(
+            error.message ||
+            "Unable to load events.",
+            "error"
+        );
+    }
+}
+
+
+function renderEvents() {
+
+    eventList.innerHTML = "";
+
+    if (!events || events.length === 0) {
+
+        showFeedback(
+            "No events are available.",
+            "info"
+        );
+
+        return;
+    }
+
+    hideFeedback();
+
+
+    events.forEach((event) => {
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "service-card";
+
+        const layoutLabel =
+            layoutLabelFromName(event.seatingLayoutType);
+
+        card.innerHTML = `
+
+            <div class="service-number">
+                #${event.id}
+            </div>
+
+            <div class="service-icon">
+                E
+            </div>
+
+            <h3>
+                ${escapeHtml(event.name)}
+            </h3>
+
+            <p>
+                ${escapeHtml(
+                    event.description ||
+                    "No description available."
+                )}
+            </p>
+
+            <p>
+                <strong>Venue:</strong>
+                ${escapeHtml(
+                    getVenueName(event.venueId)
+                )}
+            </p>
+
+            <p>
+                <strong>Start:</strong>
+                ${formatDateTime(
+                    event.startDateTime
+                )}
+            </p>
+
+            <p>
+                <strong>End:</strong>
+                ${formatDateTime(
+                    event.endDateTime
+                )}
+            </p>
+
+            <p>
+                <strong>Capacity:</strong>
+                ${event.capacity}
+            </p>
+
+            <p>
+                <strong>Ticket Price:</strong>
+                ${formatMoney(event.ticketPrice)}
+            </p>
+
+            <p>
+                <strong>Parking Fee:</strong>
+                ${formatMoney(event.parkingFee)}
+            </p>
+
+            <span class="layout-badge">${escapeHtml(layoutLabel)}</span>
+
+
+            <div
+                class="hero-actions"
+                style="margin-top: auto;">
+
+                <button
+                    class="btn btn-primary edit-event-button"
+                    type="button"
+                    data-id="${event.id}">
+                    Edit
+                </button>
+
+                <a
+                    href="./manage-seats.html?id=${event.id}"
+                    class="btn btn-secondary">
+                    Manage Seats
+                </a>
+
+                <a
+                    href="./manage-parking.html?id=${event.id}"
+                    class="btn btn-secondary">
+                    Manage Parking
+                </a>
+
+                <a
+                    href="./manage-food.html?id=${event.id}"
+                    class="btn btn-secondary">
+                    Manage Food
+                </a>
+
+                <button
+                    class="btn btn-secondary delete-event-button"
+                    type="button"
+                    data-id="${event.id}">
+                    Delete
+                </button>
+
+            </div>
+        `;
+
+        eventList.appendChild(card);
+    });
+
+
+    attachEventActionEvents();
+}
+
+
+function attachEventActionEvents() {
+
+    document
+        .querySelectorAll(
+            ".edit-event-button"
+        )
+        .forEach((button) => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    startEditEvent(
+                        Number(button.dataset.id)
+                    );
+                }
+            );
+        });
+
+
+    document
+        .querySelectorAll(
+            ".delete-event-button"
+        )
+        .forEach((button) => {
+
+            button.addEventListener(
+                "click",
+                async () => {
+
+                    await deleteEvent(
+                        Number(button.dataset.id)
+                    );
+                }
+            );
+        });
+}
+
+
+function startEditEvent(eventId) {
+
+    const event =
+        events.find(
+            (item) =>
+                item.id === eventId
+        );
+
+    if (!event) {
+        return;
+    }
+
+
+    eventIdInput.value =
+        event.id;
+
+    eventNameInput.value =
+        event.name;
+
+    eventDescriptionInput.value =
+        event.description || "";
+
+    venueIdInput.value =
+        event.venueId;
+
+    currentEventCategoryId =
+        event.eventCategoryId ??
+        event.categoryId;
+
+    splitDateTimeInto(
+        event.startDateTime,
+        startDateInput,
+        startTimeInput
+    );
+
+    splitDateTimeInto(
+        event.endDateTime,
+        endDateInput,
+        endTimeInput
+    );
+
+    eventCapacityInput.value =
+        event.capacity;
+
+    ticketPriceInput.value =
+        event.ticketPrice;
+
+    parkingFeeInput.value =
+        event.parkingFee;
+
+    setSelectedLayoutValue(
+        SEATING_LAYOUT_NAME_TO_VALUE[event.seatingLayoutType] ||
+        SEATING_LAYOUT_TYPE.STRAIGHT_ROWS
+    );
+
+
+    eventFormTitle.textContent =
+        "Edit Event";
+
+    saveEventButton.textContent =
+        "Update Event";
+
+    cancelEditButton.hidden =
+        false;
+
+
+    goToStep(1);
+
+    eventWizardCard.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+
+function resetEventForm() {
+
+    eventForm.reset();
+
+    eventIdInput.value = "";
+
+    /*
+     * Correction 5: no category picker is shown to the Admin, but the
+     * backend still requires a valid EventCategoryId on create - default
+     * to the first real category. Never a hardcoded/magic ID.
+     */
+    currentEventCategoryId =
+        categories.length > 0
+            ? categories[0].id
+            : null;
+
+    setSelectedLayoutValue(SEATING_LAYOUT_TYPE.STRAIGHT_ROWS);
+
+    eventFormTitle.textContent =
+        "Add New Event";
+
+    saveEventButton.textContent =
+        "Save Event";
+
+    cancelEditButton.hidden =
+        true;
+
+    goToStep(1);
+    hideWizardFeedback();
+    hideDateValidationFeedback();
+}
+
+
+/* ---------------- Wizard step navigation ---------------- */
+
+function goToStep(stepNumber) {
+
+    currentStep = stepNumber;
+
+    stepPanels.forEach((panel) => {
+        panel.hidden = Number(panel.dataset.step) !== stepNumber;
+    });
+
+    stepIndicators.forEach((indicator) => {
+        const indicatorStep = Number(indicator.dataset.stepIndicator);
+
+        indicator.classList.toggle("is-active", indicatorStep === stepNumber);
+        indicator.classList.toggle("is-complete", indicatorStep < stepNumber);
+    });
+
+    wizardBackButton.hidden = stepNumber === 1;
+    wizardNextButton.hidden = stepNumber === TOTAL_STEPS;
+    saveEventButton.hidden = stepNumber !== TOTAL_STEPS;
+
+    if (stepNumber === TOTAL_STEPS) {
+        populateReviewStep();
+    }
+
+    hideWizardFeedback();
+}
+
+
+function validateStep(stepNumber) {
+
+    const panel = stepPanels.find(
+        (item) => Number(item.dataset.step) === stepNumber
+    );
+
+    if (!panel) {
+        return true;
+    }
+
+    const requiredFields = Array.from(
+        panel.querySelectorAll("input[required], select[required], textarea[required]")
+    );
+
+    for (const field of requiredFields) {
+        if (!field.checkValidity()) {
+            field.reportValidity();
+            return false;
+        }
+    }
+
+    if (stepNumber === 1) {
+        hideDateValidationFeedback();
+
+        const startValue = combineDateTime(startDateInput.value, startTimeInput.value);
+        const endValue = combineDateTime(endDateInput.value, endTimeInput.value);
+
+        if (
+            startValue &&
+            endValue &&
+            new Date(endValue) <= new Date(startValue)
+        ) {
+            showDateValidationFeedback(
+                "End date and time must be after the start date and time.",
+                "error"
+            );
+            return false;
+        }
+    }
+
+    if (stepNumber === 2) {
+        if (venues.length === 0) {
+            showWizardFeedback(
+                "No venues are available. Create a venue before creating an event.",
+                "error"
+            );
+            return false;
+        }
+
+        const venue = venues.find(
+            (item) => item.id === Number(venueIdInput.value)
+        );
+
+        const capacity = Number(eventCapacityInput.value);
+
+        if (venue && capacity > venue.totalCapacity) {
+            showWizardFeedback(
+                `Capacity cannot exceed the venue's total capacity (${venue.totalCapacity}).`,
+                "error"
+            );
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+wizardNextButton.addEventListener("click", () => {
+    if (!validateStep(currentStep)) {
+        return;
+    }
+
+    if (currentStep < TOTAL_STEPS) {
+        goToStep(currentStep + 1);
+    }
+});
+
+
+wizardBackButton.addEventListener("click", () => {
+    if (currentStep > 1) {
+        goToStep(currentStep - 1);
+    }
+});
+
+
+function getSelectedLayoutValue() {
+    const checked = layoutInputs.find((input) => input.checked);
+    return checked ? Number(checked.value) : SEATING_LAYOUT_TYPE.STRAIGHT_ROWS;
+}
+
+
+function setSelectedLayoutValue(value) {
+    layoutInputs.forEach((input) => {
+        input.checked = Number(input.value) === Number(value);
+    });
+
+    updateLayoutOptionSelectionStyles();
+}
+
+
+function updateLayoutOptionSelectionStyles() {
+    document.querySelectorAll(".layout-option").forEach((label) => {
+        label.classList.toggle(
+            "is-selected",
+            label.querySelector("input").checked
+        );
+    });
+}
+
+
+layoutInputs.forEach((input) => {
+    input.addEventListener("change", updateLayoutOptionSelectionStyles);
+});
+
+updateLayoutOptionSelectionStyles();
+
+
+function layoutLabelFromName(seatingLayoutTypeName) {
+    const value = SEATING_LAYOUT_NAME_TO_VALUE[seatingLayoutTypeName];
+    return SEATING_LAYOUT_VALUE_TO_LABEL[value] || "Hall / Straight";
+}
+
+
+function populateReviewStep() {
+
+    document.getElementById("reviewName").textContent =
+        eventNameInput.value.trim() || "-";
+
+    document.getElementById("reviewStart").textContent =
+        formatReviewDateTime(combineDateTime(startDateInput.value, startTimeInput.value));
+
+    document.getElementById("reviewEnd").textContent =
+        formatReviewDateTime(combineDateTime(endDateInput.value, endTimeInput.value));
+
+    document.getElementById("reviewVenue").textContent =
+        getVenueName(Number(venueIdInput.value));
+
+    document.getElementById("reviewCapacity").textContent =
+        eventCapacityInput.value || "-";
+
+    document.getElementById("reviewLayout").textContent =
+        SEATING_LAYOUT_VALUE_TO_LABEL[getSelectedLayoutValue()];
+
+    document.getElementById("reviewTicketPrice").textContent =
+        formatMoney(ticketPriceInput.value);
+
+    document.getElementById("reviewParkingFee").textContent =
+        formatMoney(parkingFeeInput.value);
+
+    document.getElementById("reviewDescription").textContent =
+        eventDescriptionInput.value.trim() || "-";
+}
+
+
+async function saveEvent(event) {
+
+    event.preventDefault();
+
+    if (!validateStep(TOTAL_STEPS)) {
+        return;
+    }
+
+
+    const eventId =
+        eventIdInput.value;
+
+    /*
+     * Correction 5: no category picker is shown. currentEventCategoryId
+     * was set to the first real category on resetEventForm() (create) or
+     * preserved from the existing event on startEditEvent() (edit) - it
+     * is never silently reassigned during an edit. If there are genuinely
+     * zero categories configured, block Create rather than send an
+     * invalid/magic ID the backend will reject anyway.
+     */
+    if (!eventId && !currentEventCategoryId) {
+        showWizardFeedback(
+            "No event category is configured. Please configure a category before creating an event.",
+            "error"
+        );
+        return;
+    }
+
+
+    const eventData = {
+
+        name:
+            eventNameInput.value.trim(),
+
+        description:
+            eventDescriptionInput.value.trim(),
+
+        venueId:
+            Number(venueIdInput.value),
+
+        eventCategoryId:
+            Number(currentEventCategoryId),
+
+        startDateTime:
+            combineDateTime(startDateInput.value, startTimeInput.value),
+
+        endDateTime:
+            combineDateTime(endDateInput.value, endTimeInput.value),
+
+        capacity:
+            Number(eventCapacityInput.value),
+
+        ticketPrice:
+            Number(ticketPriceInput.value),
+
+        parkingFee:
+            Number(parkingFeeInput.value),
+
+        seatingLayoutType:
+            getSelectedLayoutValue()
+    };
+
+
+    if (
+        !eventData.name ||
+        !eventData.description ||
+        eventData.venueId <= 0 ||
+        eventData.eventCategoryId <= 0 ||
+        !eventData.startDateTime ||
+        !eventData.endDateTime ||
+        eventData.capacity <= 0 ||
+        eventData.ticketPrice < 0 ||
+        eventData.parkingFee < 0
+    ) {
+
+        showWizardFeedback(
+            "Please enter valid event details.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (
+        new Date(eventData.endDateTime) <=
+        new Date(eventData.startDateTime)
+    ) {
+
+        showDateValidationFeedback(
+            "End date and time must be after the start date and time.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    try {
+
+        setButtonLoading(
+            saveEventButton,
+            true,
+            eventId
+                ? "Updating..."
+                : "Saving..."
+        );
+
+        hideWizardFeedback();
+
+
+        if (eventId) {
+
+            await api.put(
+                `/api/Events/${eventId}`,
+                eventData
+            );
+
+            showFeedback(
+                "Event updated successfully.",
+                "success"
+            );
+
+            resetEventForm();
+
+            await loadEvents();
+
+        } else {
+
+            await api.post(
+                "/api/Events",
+                eventData
+            );
+
+            /*
+             * Correction 8/9 (continuous setup flow): POST /api/Events
+             * only ever returns { message } - it does not return the
+             * created event or its ID (confirmed by reading
+             * EventsController.Create). Rather than changing the backend,
+             * the real, just-created event is resolved here purely from
+             * already-available data: re-fetch the real event list and
+             * match on Name + VenueId + StartDateTime, which is unique
+             * for a record created a moment ago. If that ever fails to
+             * resolve (should not happen), this falls back to the
+             * previous non-continuous behavior instead of breaking.
+             */
+            const refreshedEvents =
+                await api.get("/api/Events");
+
+            const createdEvent =
+                findJustCreatedEvent(refreshedEvents, eventData);
+
+            if (createdEvent) {
+                window.location.assign(
+                    `manage-seats.html?id=${createdEvent.id}&setup=1`
+                );
+                return;
+            }
+
+            showFeedback(
+                "Event created successfully.",
+                "success"
+            );
+
+            resetEventForm();
+
+            await loadEvents();
+        }
+
+    } catch (error) {
+
+        showWizardFeedback(
+            error?.data?.message ||
+            error.message ||
+            "Unable to save event.",
+            "error"
+        );
+
+    } finally {
+
+        setButtonLoading(
+            saveEventButton,
+            false
+        );
+    }
+}
+
+
+function findJustCreatedEvent(eventsList, eventData) {
+    const matches = eventsList.filter((item) =>
+        item.name === eventData.name &&
+        item.venueId === eventData.venueId &&
+        new Date(item.startDateTime).getTime() === new Date(eventData.startDateTime).getTime()
+    );
+
+    if (!matches.length) {
+        return null;
+    }
+
+    return matches.reduce((latest, item) =>
+        item.id > latest.id ? item : latest
+    );
+}
+
+
+async function deleteEvent(eventId) {
+
+    const event =
+        events.find(
+            (item) =>
+                item.id === eventId
+        );
+
+    if (!event) {
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            `Delete "${event.name}"?`
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        hideFeedback();
+
+        await api.delete(
+            `/api/Events/${eventId}`
+        );
+
+        showFeedback(
+            "Event deleted successfully.",
+            "success"
+        );
+
+        await loadEvents();
+
+    } catch (error) {
+
+        showFeedback(
+            error?.data?.message ||
+            error.message ||
+            "Unable to delete event.",
+            "error"
+        );
+    }
+}
+
+
+function getVenueName(venueId) {
+
+    const venue =
+        venues.find(
+            (item) =>
+                item.id === venueId
+        );
+
+    return venue
+        ? venue.name
+        : `Venue #${venueId}`;
+}
+
+
+/*
+ * Combines separate date ("YYYY-MM-DD") + time ("HH:mm") inputs into the
+ * same "YYYY-MM-DDTHH:mm" shape a single <input type="datetime-local">
+ * used to produce, so the request body sent to the backend
+ * (CreateEventRequest/UpdateEventRequest.StartDateTime/EndDateTime) is
+ * byte-identical to before - only the input UI changed (Correction 6).
+ */
+function combineDateTime(dateValue, timeValue) {
+    if (!dateValue || !timeValue) {
+        return "";
+    }
+
+    return `${dateValue}T${timeValue}`;
+}
+
+
+function splitDateTimeInto(isoValue, dateInput, timeInput) {
+    if (!isoValue) {
+        dateInput.value = "";
+        timeInput.value = "";
+        return;
+    }
+
+    const raw = String(isoValue);
+
+    dateInput.value = raw.slice(0, 10);
+    timeInput.value = raw.slice(11, 16);
+}
+
+
+function formatDateTime(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date =
+        new Date(value);
+
+    return date.toLocaleString();
+}
+
+
+/*
+ * Review step format requested in Correction 6, e.g. "12 Dec 2026 · 7:00 PM".
+ */
+function formatReviewDateTime(value) {
+    if (!value) {
+        return "-";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
+
+    const day = date.getDate();
+
+    const month = date
+        .toLocaleDateString(undefined, { month: "short" })
+        .toUpperCase();
+
+    const time = date.toLocaleTimeString(
+        [],
+        { hour: "2-digit", minute: "2-digit" }
+    );
+
+    return `${day} ${month} ${date.getFullYear()} · ${time}`;
+}
+
+
+function formatMoney(value) {
+
+    return Number(value ?? 0)
+        .toFixed(2);
+}
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function showWizardFeedback(message, type) {
+    wizardFeedback.textContent = message;
+    wizardFeedback.className = `feedback feedback-${type}`;
+    wizardFeedback.hidden = false;
+}
+
+
+function hideWizardFeedback() {
+    wizardFeedback.hidden = true;
+    wizardFeedback.textContent = "";
+}
+
+
+function showDateValidationFeedback(message, type) {
+    dateValidationFeedback.textContent = message;
+    dateValidationFeedback.className = `feedback feedback-${type}`;
+    dateValidationFeedback.hidden = false;
+}
+
+
+function hideDateValidationFeedback() {
+    dateValidationFeedback.hidden = true;
+    dateValidationFeedback.textContent = "";
+}
+
+
+eventForm.addEventListener(
+    "submit",
+    saveEvent
+);
+
+
+cancelEditButton.addEventListener(
+    "click",
+    () => {
+
+        resetEventForm();
+
+        hideFeedback();
+    }
+);

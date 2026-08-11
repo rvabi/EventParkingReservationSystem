@@ -16,11 +16,21 @@ public class BookingSeatConfiguration
     public void Configure(
         EntityTypeBuilder<BookingSeat> builder)
     {
-        builder.ToTable("BookingSeats");
+        builder.ToTable("BookingSeats", table =>
+        {
+            table.HasCheckConstraint(
+                "CK_BookingSeats_UnitPriceAtBooking_NonNegative",
+                "[UnitPriceAtBooking] >= 0");
+        });
 
         builder.HasKey(bookingSeat => bookingSeat.Id);
 
         builder.Property(bookingSeat => bookingSeat.CreatedAt)
+            .IsRequired();
+
+        builder.Property(bookingSeat =>
+                bookingSeat.UnitPriceAtBooking)
+            .HasColumnType("decimal(18,2)")
             .IsRequired();
 
         builder.Property(bookingSeat => bookingSeat.UpdatedAt)
@@ -48,5 +58,6 @@ public class BookingSeatConfiguration
         builder.HasIndex(bookingSeat => bookingSeat.SeatId)
             .HasDatabaseName(
                 "IX_BookingSeats_SeatId");
+
     }
 }

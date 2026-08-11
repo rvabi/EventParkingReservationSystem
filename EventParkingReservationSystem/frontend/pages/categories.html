@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Category Management | SmartEvent</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/main.css">
+</head>
+
+<body>
+
+    <!-- Shared Navigation -->
+    <header id="navbar"></header>
+
+
+    <main>
+
+        <section class="services-section">
+
+            <div class="section-container">
+
+                <!-- Page Heading -->
+                <div class="section-heading">
+
+                    <span class="section-eyebrow">
+                        EVENT CATEGORY MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Manage event categories.
+                    </h2>
+
+                    <p>
+                        Create, update and manage
+                        event categories.
+                    </p>
+
+                </div>
+
+
+                <!-- Feedback -->
+                <div
+                    id="globalFeedback"
+                    class="feedback"
+                    hidden>
+                </div>
+
+
+                <!-- Category Form -->
+                <article class="service-card">
+
+                    <div class="service-icon">
+                        C
+                    </div>
+
+                    <h3 id="categoryFormTitle">
+                        Add New Category
+                    </h3>
+
+                    <form id="categoryForm">
+
+                        <input
+                            id="categoryId"
+                            type="hidden">
+
+
+                        <div class="form-group">
+
+                            <label
+                                class="form-label"
+                                for="categoryName">
+                                Category Name
+                            </label>
+
+                            <input
+                                id="categoryName"
+                                class="form-control"
+                                type="text"
+                                maxlength="100"
+                                placeholder="Enter category name"
+                                required>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label
+                                class="form-label"
+                                for="categoryDescription">
+                                Description
+                            </label>
+
+                            <textarea
+                                id="categoryDescription"
+                                class="form-control"
+                                maxlength="500"
+                                placeholder="Enter category description"
+                                required></textarea>
+
+                        </div>
+
+
+                        <div class="hero-actions">
+
+                            <button
+                                id="saveCategoryButton"
+                                class="btn btn-primary"
+                                type="submit">
+                                Save Category
+                            </button>
+
+                            <button
+                                id="cancelEditButton"
+                                class="btn btn-secondary"
+                                type="button"
+                                hidden>
+                                Cancel Edit
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </article>
+
+
+                <!-- Category List Heading -->
+                <div
+                    class="section-heading"
+                    style="margin-top: 60px;">
+
+                    <span class="section-eyebrow">
+                        EVENT CATEGORIES
+                    </span>
+
+                    <h2>
+                        Category list
+                    </h2>
+
+                    <p>
+                        View and manage existing
+                        event categories.
+                    </p>
+
+                </div>
+
+
+                <!-- Category List -->
+                <div
+                    id="categoryList"
+                    class="service-grid">
+
+                    <!-- Loaded using categories.js -->
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div>
+
+                <strong class="footer-brand">
+                    SmartEvent
+                </strong>
+
+                <p>
+                    Event category management.
+                </p>
+
+            </div>
+
+            <p class="footer-note">
+                Smart Event Experience &
+                Reservation System
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <script
+        type="module"
+        src="../js/categories.js">
+    </script>
+
+</body>
+
+</html>

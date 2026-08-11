@@ -2,16 +2,19 @@ using EventParking.Api.Security;
 using Microsoft.OpenApi.Models;
 using EventParking.Api.Middleware;
 using EventParking.Api.Extensions;
+using EventParking.Api.BackgroundServices;
+
 using EventParking.Business.Interfaces;
 using EventParking.Business.Services;
+
 using EventParking.DataAccess.Context;
 using EventParking.DataAccess.Interfaces;
 using EventParking.DataAccess.Repositories;
 using EventParking.DataAccess.Seed;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using EventParking.Business.Options;
+using PdfSharp.Fonts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,9 +26,12 @@ var connectionString =
 builder.Services.AddControllers();
 
 builder.Services.AddSharedApiFoundation();
+
 builder.Services.AddSharedJwtAuthentication(
     builder.Configuration);
+
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition(
@@ -65,57 +71,145 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
+var bookingOptions =
+    builder.Configuration
+        .GetSection(BookingOptions.SectionName)
+        .Get<BookingOptions>()
+    ?? new BookingOptions();
 
-builder.Services.AddScoped<IPasswordService, PasswordService>();
-builder.Services.AddScoped<ISecurityTokenService, SecurityTokenService>();
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton(bookingOptions);
 
-/*string jwtKey =
-    builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException(
-        "JWT signing key is not configured.");
+// Customer
+builder.Services.AddScoped<
+    ICustomerRepository,
+    CustomerRepository>();
 
-string jwtIssuer =
-    builder.Configuration["Jwt:Issuer"]
-    ?? throw new InvalidOperationException(
-        "JWT issuer is not configured.");
+builder.Services.AddScoped<
+    ICustomerService,
+    CustomerService>();
 
-string jwtAudience =
-    builder.Configuration["Jwt:Audience"]
-    ?? throw new InvalidOperationException(
-        "JWT audience is not configured.");
+// Event / Seat
+builder.Services.AddScoped<
+    IEventRepository,
+    EventRepository>();
 
-builder.Services
-    .AddAuthentication(
-        JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
+builder.Services.AddScoped<
+    ISeatRepository,
+    SeatRepository>();
 
-                ValidIssuer = jwtIssuer,
-                ValidAudience = jwtAudience,
+builder.Services.AddScoped<
+    ISeatService,
+    SeatService>();
 
-                IssuerSigningKey =
-                    new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(
-                            jwtKey)),
+// Authentication
+builder.Services.AddScoped<
+    IPasswordService,
+    PasswordService>();
 
-                ClockSkew = TimeSpan.Zero
-            };
-    });*/
+builder.Services.AddScoped<
+    ISecurityTokenService,
+    SecurityTokenService>();
+
+builder.Services.AddScoped<
+    IJwtTokenService,
+    JwtTokenService>();
+
+builder.Services.AddScoped<
+    IAuthService,
+    AuthService>();
+
+// Venue / Category / Facility
+builder.Services.AddScoped<
+    IVenueRepository,
+    VenueRepository>();
+
+builder.Services.AddScoped<
+    IEventCategoryRepository,
+    EventCategoryRepository>();
+
+builder.Services.AddScoped<
+    IVenueFacilityRepository,
+    VenueFacilityRepository>();
+
+builder.Services.AddScoped<
+    IVenueService,
+    VenueService>();
+
+builder.Services.AddScoped<
+    IEventCategoryService,
+    EventCategoryService>();
+
+builder.Services.AddScoped<
+    IEventService,
+    EventService>();
+
+builder.Services.AddScoped<
+    IVenueFacilityService,
+    VenueFacilityService>();
+
+// Parking
+builder.Services.AddScoped<
+    IParkingSlotRepository,
+    ParkingSlotRepository>();
+
+builder.Services.AddScoped<
+    IParkingSlotService,
+    ParkingSlotService>();
+
+builder.Services.AddScoped<
+    IParkingReservationRepository,
+    ParkingReservationRepository>();
+
+builder.Services.AddScoped<
+    IParkingReservationService,
+    ParkingReservationService>();
+
+// Food Court
+builder.Services.AddScoped<
+    IFoodStallRepository,
+    FoodStallRepository>();
+
+builder.Services.AddScoped<
+    IFoodItemRepository,
+    FoodItemRepository>();
+
+builder.Services.AddScoped<
+    IFoodOrderRepository,
+    FoodOrderRepository>();
+
+builder.Services.AddScoped<
+    IFoodStallService,
+    FoodStallService>();
+
+builder.Services.AddScoped<
+    IFoodItemService,
+    FoodItemService>();
+
+builder.Services.AddScoped<
+    IFoodOrderService,
+    FoodOrderService>();
+
+// Booking / Payment / Notifications
+builder.Services.AddScoped<
+    IBookingRepository,
+    BookingRepository>();
+
+builder.Services.AddScoped<
+    IBookingService,
+    BookingService>();
+
+builder.Services.AddScoped<
+    INotificationService,
+    NotificationService>();
+
+builder.Services.AddHostedService<
+    BookingExpiryBackgroundService>();
 
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+GlobalFontSettings.UseWindowsFontsUnderWindows = true;
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
@@ -136,11 +230,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
-
 app.UseCors(
     SharedApiServiceExtensions.FrontendCorsPolicy);
-
 
 app.UseHttpsRedirection();
 

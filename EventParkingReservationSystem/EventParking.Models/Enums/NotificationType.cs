@@ -15,5 +15,6 @@ public enum NotificationType
     BookingExpired = 5,
     PaymentCompleted = 6,
     EventUpdated = 7,
-    EventReminder = 8
+    EventReminder = 8,
+    FoodReady = 9
 }

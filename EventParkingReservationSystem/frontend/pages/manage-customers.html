@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Management | SmartEvent</title>
+
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <div id="authGuardPanel" class="auth-guard-panel" hidden>
+        <p id="authGuardMessage"></p>
+        <div class="hero-actions">
+            <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+        </div>
+    </div>
+
+    <div id="adminShell" class="admin-shell" hidden>
+
+        <div id="adminSidebarSlot"></div>
+
+        <div class="admin-main">
+
+            <header class="admin-topbar">
+                <button id="adminMenuToggle" class="admin-menu-toggle" type="button" aria-label="Open menu">
+                    <span aria-hidden="true">&#9776;</span>
+                </button>
+                <span class="admin-topbar-brand">SmartEvent Admin</span>
+            </header>
+
+            <main class="admin-content">
+
+                <section class="services-section">
+
+                    <div class="section-container">
+
+                        <div class="section-heading">
+                            <span class="section-eyebrow">
+                                CUSTOMER MANAGEMENT
+                            </span>
+
+                            <h2>
+                                Customer Management
+                            </h2>
+
+                            <p>
+                                Review registered customers and account activity.
+                            </p>
+                        </div>
+
+                        <div id="globalFeedback" class="feedback" hidden></div>
+
+                        <p id="customersLoadingState" class="form-footer-text">
+                            Loading customers...
+                        </p>
+
+                        <div id="customerAdminBody" hidden>
+
+                            <div class="parking-status-summary">
+                                <div class="seat-admin-stat">
+                                    <span class="seat-admin-stat-label">Total Customers</span>
+                                    <span id="statTotalCustomers" class="seat-admin-stat-value">0</span>
+                                </div>
+                                <div class="seat-admin-stat">
+                                    <span class="seat-admin-stat-label">Verified</span>
+                                    <span id="statVerifiedCustomers" class="seat-admin-stat-value">0</span>
+                                </div>
+                                <div class="seat-admin-stat">
+                                    <span class="seat-admin-stat-label">Unverified</span>
+                                    <span id="statUnverifiedCustomers" class="seat-admin-stat-value">0</span>
+                                </div>
+                                <div class="seat-admin-stat">
+                                    <span class="seat-admin-stat-label">Active</span>
+                                    <span id="statActiveCustomers" class="seat-admin-stat-value">0</span>
+                                </div>
+                                <div class="seat-admin-stat">
+                                    <span class="seat-admin-stat-label">Deactivated</span>
+                                    <span id="statDeactivatedCustomers" class="seat-admin-stat-value">0</span>
+                                </div>
+                            </div>
+
+                            <p id="customerFilterNote" class="customer-filter-note" hidden></p>
+
+                            <div class="customer-filter-bar">
+
+                                <div class="form-group">
+                                    <label class="form-label" for="customerSearchInput">Search</label>
+                                    <input
+                                        id="customerSearchInput"
+                                        class="form-control"
+                                        type="text"
+                                        placeholder="Name, email, phone or customer ID">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="customerVerificationFilter">Verification</label>
+                                    <select id="customerVerificationFilter" class="form-control">
+                                        <option value="">All</option>
+                                        <option value="verified">Verified</option>
+                                        <option value="unverified">Unverified</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="customerStatusFilter">Status</label>
+                                    <select id="customerStatusFilter" class="form-control">
+                                        <option value="">All</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Deactivated">Deactivated</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="customerSortSelect">Sort</label>
+                                    <select id="customerSortSelect" class="form-control">
+                                        <option value="newest">Newest first</option>
+                                        <option value="oldest">Oldest first</option>
+                                        <option value="nameAsc">Name A-Z</option>
+                                        <option value="nameDesc">Name Z-A</option>
+                                    </select>
+                                </div>
+
+                                <button id="clearCustomerFiltersButton" type="button" class="btn btn-secondary btn-small">
+                                    Clear Filters
+                                </button>
+
+                            </div>
+
+                            <div id="customerActionFeedback" class="feedback" hidden></div>
+
+                            <div id="customerList" class="customer-list"></div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <script type="module" src="../js/manage-customers.js"></script>
+
+</body>
+
+</html>

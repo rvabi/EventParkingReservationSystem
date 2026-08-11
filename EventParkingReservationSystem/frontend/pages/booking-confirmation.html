@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Booking Confirmed | SmartEvent</title>
+
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+
+    <header id="navbar"></header>
+
+    <main>
+
+        <section class="services-section">
+
+            <div class="section-container">
+
+                <div class="section-heading">
+                    <span class="section-eyebrow">
+                        BOOKING CONFIRMED
+                    </span>
+
+                    <h2>You're all set.</h2>
+
+                    <p>Your booking is confirmed. Add optional food pre-orders below if you'd like.</p>
+                </div>
+
+                <div id="globalFeedback" class="feedback" hidden></div>
+
+                <div id="authGuardPanel" class="auth-guard-panel" hidden>
+                    <p id="authGuardMessage"></p>
+                    <div class="hero-actions">
+                        <a id="authGuardLink" href="login.html" class="btn btn-primary">Login</a>
+                    </div>
+                </div>
+
+                <div id="notConfirmedPanel" class="auth-guard-panel" hidden>
+                    <p id="notConfirmedMessage"></p>
+                    <div class="hero-actions">
+                        <a id="notConfirmedLink" href="#" class="btn btn-primary">View Booking Summary</a>
+                    </div>
+                </div>
+
+                <div id="confirmationLayout" class="booking-layout" hidden>
+
+                    <article class="ticket-card">
+
+                        <div class="auth-status-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 12.5L9.5 18L20 6" />
+                            </svg>
+                        </div>
+
+                        <div class="ticket-card-header">
+                            <div>
+                                <span class="form-footer-text">Booking Reference</span>
+                                <h3 id="bookingNumber">-</h3>
+                            </div>
+                            <span id="bookingStatusBadge" class="status-badge status-confirmed">Confirmed</span>
+                        </div>
+
+                        <div class="ticket-card-body">
+                            <h4 id="ticketEventName">Event</h4>
+                            <p id="ticketEventMeta" class="form-footer-text"></p>
+
+                            <div class="ticket-section">
+                                <h5>Seats</h5>
+                                <div id="ticketSeatsList" class="selected-seats-list"></div>
+                            </div>
+
+                            <div id="ticketParkingSection" class="ticket-section" hidden>
+                                <h5>Parking</h5>
+                                <div id="ticketParkingRow" class="selected-seat-row"></div>
+                            </div>
+
+                            <div class="ticket-totals">
+                                <div class="selected-seats-total">
+                                    <span>Amount Paid</span>
+                                    <span id="ticketTotal">LKR 0.00</span>
+                                </div>
+                            </div>
+
+                            <p id="paymentReference" class="form-footer-text"></p>
+                        </div>
+
+                        <div class="hero-actions">
+                            <a id="viewBookingLink" href="#" class="btn btn-secondary">View My Booking</a>
+                            <a href="events.html" class="btn btn-secondary">Browse More Events</a>
+                            <a href="notifications.html" class="btn btn-secondary">Notifications</a>
+                            <button id="downloadReceiptButton" class="btn btn-primary" type="button">Download Receipt</button>
+                        </div>
+
+                        <div id="receiptFeedback" class="feedback" hidden></div>
+
+                    </article>
+
+                    <article id="foodSection" class="ticket-card food-order-card">
+
+                        <h3>Order Food (optional)</h3>
+                        <p class="form-footer-text">Pre-order for pickup during the event - skip if you don't need food.</p>
+
+                        <div class="form-group">
+                            <label class="form-label" for="foodStallSelect">Food Stall</label>
+                            <select id="foodStallSelect" class="form-control">
+                                <option value="">Select a food stall</option>
+                            </select>
+                        </div>
+
+                        <div id="foodItemsList" class="food-items-list"></div>
+
+                        <div class="datetime-input-row" id="pickupTimeGroup" hidden>
+
+                            <div class="form-group">
+                                <label class="form-label" for="pickupDate">Pickup Date</label>
+                                <input id="pickupDate" class="form-control" type="date">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="pickupTimeOfDay">Pickup Time</label>
+                                <input id="pickupTimeOfDay" class="form-control" type="time">
+                            </div>
+
+                        </div>
+
+                        <div id="foodOrderFeedback" class="feedback" hidden></div>
+
+                        <div class="hero-actions">
+                            <button id="placeFoodOrderButton" class="btn btn-primary" type="button" hidden>
+                                Place Food Order
+                            </button>
+                        </div>
+
+                        <div id="myFoodOrders" class="food-orders-list"></div>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script type="module" src="../js/booking-confirmation.js"></script>
+
+</body>
+
+</html>

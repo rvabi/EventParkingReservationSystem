@@ -1,5 +1,6 @@
 import {
     isAuthenticated,
+    getCustomerRole,
     removeToken
 } from "./auth.js";
 
@@ -14,13 +15,47 @@ export function renderNavbar() {
         return;
     }
 
+    const isInsidePages =
+    window.location.pathname.includes("/pages/");
+
+const homePath =
+    isInsidePages
+        ? "../index.html"
+        : "./index.html";
+
+const loginPath =
+    isInsidePages
+        ? "./login.html"
+        : "./pages/login.html";
+
+const notificationsPath =
+    isInsidePages
+        ? "./notifications.html"
+        : "./pages/notifications.html";
+
+/*
+ * Carries the current page as a safe return target so Notifications can
+ * offer a "Back to Booking" action. Only ever built from the browser's
+ * own trusted location (never from user input), then read back and
+ * re-validated by notifications.js before use.
+ */
+const currentFile =
+    isInsidePages
+        ? window.location.pathname.split("/").pop()
+        : "";
+
+const notificationsHref =
+    currentFile && currentFile !== "notifications.html"
+        ? `${notificationsPath}?return=${encodeURIComponent(currentFile + window.location.search)}`
+        : notificationsPath;
+
     navbar.classList.add("navbar");
 
     navbar.innerHTML = `
         <div class="nav-container">
 
             <a
-                href="./index.html"
+                href="${homePath}"
                 class="brand">
                 SmartEvent
             </a>
@@ -29,17 +64,31 @@ export function renderNavbar() {
                 class="nav-links"
                 aria-label="Main navigation">
 
-                <a href="./index.html">
+                <a href="${homePath}">
                     Home
                 </a>
 
-                <a href="#services">
+                <a href="${homePath}#services">
                     Services
                 </a>
 
-                <a href="#experience">
+                <a href="${homePath}#experience">
                     Experience
                 </a>
+
+                <a href="${homePath}#contact">
+                    Contact
+                </a>
+
+                ${
+                    isAuthenticated() && getCustomerRole() === "Customer"
+                        ? `
+                            <a href="${notificationsHref}">
+                                Notifications
+                            </a>
+                          `
+                        : ""
+                }
 
                 ${
                     isAuthenticated()
@@ -52,11 +101,11 @@ export function renderNavbar() {
                             </button>
                           `
                         : `
-                            <span
-                                class="btn btn-secondary"
-                                title="Login will be connected after authentication module integration">
+                            <a
+                                href="${loginPath}"
+                                class="btn btn-secondary">
                                 Login
-                            </span>
+                            </a>
                           `
                 }
 
@@ -77,7 +126,7 @@ export function renderNavbar() {
                 removeToken();
 
                 window.location.href =
-                    "./index.html";
+                    homePath;
             }
         );
     }
